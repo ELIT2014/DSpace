@@ -1,45 +1,24 @@
 package ua.edu.sumdu.essuir.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.json.JSONObject;
 import org.json.simple.JSONArray;
 
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class Chair {
+    @JsonProperty("chairName")
     private String chairName;
-    private List<Person> persons = new LinkedList<>();
+    @JsonProperty("staff")
+    private List<Person> staff;
 
     public Chair(String chairName) {
         this.chairName = chairName;
+        staff = new LinkedList<>();
     }
 
-    public void addPerson(Person person) {
-        persons.add(person);
+    public void addSubmission(String personName, Integer submissionCount) {
+            staff.add(new Person(personName, submissionCount));
     }
 
-    public String getChairName() {
-        return chairName;
-    }
-
-    public int getSubmissionCountByDate(Date from, Date to) {
-        int result = 0;
-        for (Person person : persons) {
-            result += person.getSubmissionsCount(from, to);
-        }
-        return result;
-    }
-
-    public JSONObject generateJSONbyDate(Date from, Date to) {
-        JSONObject result = new JSONObject();
-        result.put("name", chairName);
-        result.put("submission_count", getSubmissionCountByDate(from, to));
-        JSONArray chairsPersons = new JSONArray();
-        for (Person person : this.persons) {
-            chairsPersons.add(person.generateJSONbyDate(from, to));
-        }
-        result.put("data", chairsPersons);
-        return result;
-    }
 }
