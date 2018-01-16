@@ -1,13 +1,16 @@
 package ua.edu.sumdu.essuir.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Faculty {
-    @JsonProperty("facultyName")
+    @JsonProperty("name")
     private String facultyName;
-    @JsonProperty("chairs")
+    @JsonIgnore
     private HashMap<String, Chair> chairs;
 
     public Faculty(String facultyName) {
@@ -20,5 +23,18 @@ public class Faculty {
             chairs.put(chair, new Chair(chair));
         }
         chairs.get(chair).addSubmission(person, submissionCount);
+    }
+
+    @JsonProperty("data")
+    public List<Chair> getChairs() {
+        return new ArrayList<>(chairs.values());
+    }
+    @JsonProperty("submission_count")
+    public Integer  getSubmissionCount() {
+        Integer result = 0;
+        for(Chair chair : chairs.values()) {
+            result += chair.getSubmissionCount();
+        }
+        return result;
     }
 }

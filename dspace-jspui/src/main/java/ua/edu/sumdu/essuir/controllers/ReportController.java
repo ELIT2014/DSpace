@@ -21,6 +21,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Map;
 
 @Controller
@@ -45,7 +46,7 @@ public class ReportController {
 
     private String generateResponceByDates(LocalDate from, LocalDate to) throws JsonProcessingException {
         Map<String, Faculty> userSubmissionCount = reportService.getUsersSubmissionCountBetweenDates(from, to);
-        return new ObjectMapper().writeValueAsString(userSubmissionCount);
+        return new ObjectMapper().writeValueAsString(new ArrayList<>(userSubmissionCount.values()));
     }
 
     @RequestMapping(value = "/report", method = RequestMethod.GET)

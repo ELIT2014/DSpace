@@ -10,11 +10,15 @@ import java.util.List;
 public class Person {
     @JsonProperty("name")
     private String name;
-    @JsonProperty("submissionCount")
+    @JsonProperty("submission_count")
     private Integer submissionCount;
 
     public Person(String name, Integer submissionCount) {
         this.name = name;
         this.submissionCount = submissionCount;
+    }
+
+    public Integer getSubmissionCount() {
+        return submissionCount;
     }
 }

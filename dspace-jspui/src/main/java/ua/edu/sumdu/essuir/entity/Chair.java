@@ -7,11 +7,19 @@ import org.json.simple.JSONArray;
 import java.util.*;
 
 public class Chair {
-    @JsonProperty("chairName")
+    @JsonProperty("name")
     private String chairName;
-    @JsonProperty("staff")
+    @JsonProperty("data")
     private List<Person> staff;
 
+    @JsonProperty("submission_count")
+    public Integer getSubmissionCount() {
+        Integer result = 0;
+        for(Person person : staff) {
+            result += person.getSubmissionCount();
+        }
+        return result;
+    }
     public Chair(String chairName) {
         this.chairName = chairName;
         staff = new LinkedList<>();
