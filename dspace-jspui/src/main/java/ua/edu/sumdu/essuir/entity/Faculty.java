@@ -19,20 +19,26 @@ public class Faculty {
     }
 
     public void addSubmission(String chair, String person, Integer submissionCount) {
-        if(!chairs.containsKey(chair)) {
+        if (!chairs.containsKey(chair)) {
             chairs.put(chair, new Chair(chair));
         }
         chairs.get(chair).addSubmission(person, submissionCount);
+    }
+
+    @JsonIgnore
+    public String getFacultyName() {
+        return facultyName;
     }
 
     @JsonProperty("data")
     public List<Chair> getChairs() {
         return new ArrayList<>(chairs.values());
     }
+
     @JsonProperty("submission_count")
-    public Integer  getSubmissionCount() {
+    public Integer getSubmissionCount() {
         Integer result = 0;
-        for(Chair chair : chairs.values()) {
+        for (Chair chair : chairs.values()) {
             result += chair.getSubmissionCount();
         }
         return result;

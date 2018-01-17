@@ -1,10 +1,9 @@
 package ua.edu.sumdu.essuir.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.json.JSONObject;
-import org.json.simple.JSONArray;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Chair {
     @JsonProperty("name")
@@ -12,21 +11,22 @@ public class Chair {
     @JsonProperty("data")
     private List<Person> staff;
 
-    @JsonProperty("submission_count")
-    public Integer getSubmissionCount() {
-        Integer result = 0;
-        for(Person person : staff) {
-            result += person.getSubmissionCount();
-        }
-        return result;
-    }
     public Chair(String chairName) {
         this.chairName = chairName;
         staff = new LinkedList<>();
     }
 
+    @JsonProperty("submission_count")
+    public Integer getSubmissionCount() {
+        Integer result = 0;
+        for (Person person : staff) {
+            result += person.getSubmissionCount();
+        }
+        return result;
+    }
+
     public void addSubmission(String personName, Integer submissionCount) {
-            staff.add(new Person(personName, submissionCount));
+        staff.add(new Person(personName, submissionCount));
     }
 
 }

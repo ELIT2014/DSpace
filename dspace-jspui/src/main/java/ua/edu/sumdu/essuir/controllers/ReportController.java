@@ -7,6 +7,7 @@ import org.dspace.app.webui.util.UIUtil;
 import org.dspace.authorize.AuthorizeManager;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.json.simple.JSONArray;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -22,12 +23,14 @@ import javax.servlet.http.HttpServletRequest;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Map;
 
 @Controller
 @RequestMapping(value = "/statistics")
 public class ReportController {
-    private static final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+    private static final DateTimeFormatter format = DateTimeFormat.forPattern("dd.MM.YYYY");
     @Resource
     private ReportService reportService;
 
@@ -36,7 +39,7 @@ public class ReportController {
     public String getPersonList(@RequestParam("from") String from, @RequestParam("to") String to, HttpServletRequest request) {
         try {
             if (AuthorizeManager.isAdmin(UIUtil.obtainContext(request))) {
-                return generateResponceByDates(LocalDate.parse(from, DateTimeFormat.forPattern("dd.MM.YYYY")), LocalDate.parse(to, DateTimeFormat.forPattern("dd.MM.YYYY"))).toString();
+                return generateResponseByDates(LocalDate.parse(from, format), LocalDate.parse(to, format));
             }
         } catch (SQLException | JsonProcessingException e) {
             e.printStackTrace();
@@ -44,9 +47,15 @@ public class ReportController {
         return new JSONArray().toString();
     }
 
-    private String generateResponceByDates(LocalDate from, LocalDate to) throws JsonProcessingException {
-        Map<String, Faculty> userSubmissionCount = reportService.getUsersSubmissionCountBetweenDates(from, to);
-        return new ObjectMapper().writeValueAsString(new ArrayList<>(userSubmissionCount.values()));
+    private String generateResponseByDates(LocalDate from, LocalDate to) throws JsonProcessingException {
+        ArrayList<Faculty> faculties = new ArrayList<>(reportService.getUsersSubmissionCountBetweenDates(from, to).values());
+        Collections.sort(faculties, new Comparator<Faculty>() {
+            @Override
+            public int compare(Faculty o1, Faculty o2) {
+                return o1.getFacultyName().compareTo(o2.getFacultyName());
+            }
+        });
+        return new ObjectMapper().writeValueAsString(faculties);
     }
 
     @RequestMapping(value = "/report", method = RequestMethod.GET)
