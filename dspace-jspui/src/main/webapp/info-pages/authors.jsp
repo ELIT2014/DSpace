@@ -54,7 +54,7 @@
             <th><fmt:message key = "jsp.dspace-admin.authors.initials_ru" /></th>
             <th><fmt:message key = "jsp.dspace-admin.authors.surname_ua" /></th>
             <th><fmt:message key = "jsp.dspace-admin.authors.initials_ua" /></th>
-            <th bgcolor="lightsteelblue">ORCID</th>
+            <th>ORCID</th>
             <th><fmt:message key = "jsp.tools.itemmap-browse.th.action" /></th>
         </tr>
 
