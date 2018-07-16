@@ -20,7 +20,7 @@ public class AuthorCache {
 		
 		String name;
 		for (Metadatum author : metadataValues) {
-			name = getAuthor(author.value, locale);
+			name = getAuthor(author.value).map(retrieved -> retrieved.getName(locale)).orElse(author.value);
 			
 			if (!res.contains(name)) {
 				res.add(name);
@@ -38,7 +38,7 @@ public class AuthorCache {
 		TreeSet<String> res = new TreeSet<String>();
 		
 		for (String name : authors) {
-			res.add(getAuthor(name, locale));
+			res.add(getAuthor(name).map(author -> author.getName(locale)).orElse(name));
 		}
 		
 		return new ArrayList<String>(res);
@@ -64,7 +64,8 @@ public class AuthorCache {
         while (it.hasNext()) {
             DiscoverResult.FacetResult author = it.next();
             String name = author.getDisplayedValue();
-            if (name.equals(getAuthor(name, locale))) {
+			String authorName = getAuthor(name).map(retrieved -> retrieved.getName(locale)).orElse(name);
+            if (name.equals(authorName)) {
                 if (offset == 0) {
                     if (remain > 0) {
                         remain--;
@@ -81,18 +82,12 @@ public class AuthorCache {
         }
     }
 	
-	public static String getAuthor(String name, String locale) {
-		String res;
-		
+	public static Optional<Author> getAuthor(String name) {
 		checkUpdate();
 
 		synchronized(authors) {
-			Author a = authors.get(name);
-			
-			res = a != null ? a.getName(locale) : name;
+			return Optional.ofNullable(authors.get(name));
 		}
-		
-		return res == null ? name : res;
 	}
 	
 	public static void checkUpdate() {
