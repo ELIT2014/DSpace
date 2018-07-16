@@ -44,6 +44,19 @@ public class AuthorCache {
 		return new ArrayList<String>(res);
 	}
 
+	public static String getOrcid(String authorName) {
+		String res;
+
+		checkUpdate();
+
+		synchronized (authors) {
+			Author a = authors.get(authorName);
+			res = a != null ? a.getOrcid() : null;
+		}
+
+		return res;
+	}
+
     public static void makeLocalizedAuthors(List<DiscoverResult.FacetResult> authors, String locale, int facetPage) {
         int offset = facetPage * 10;
         int remain = 11;
