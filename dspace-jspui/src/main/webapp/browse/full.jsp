@@ -170,6 +170,7 @@
                 key="<%= typeKey %>"/>&nbsp;<%= value %>
 
             <input type="hidden" name = "publications" id = "publications" value="<%= HtmlUtils.htmlEscape(publications) %>">
+            <input type="hidden" name = "author" id = "author" value="<%= value %>">
             <button type="submit" class="btn btn-default btn-sm">
                 <span class="glyphicon glyphicon-import"></span>
             </button>
