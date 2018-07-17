@@ -10,6 +10,8 @@ public class Publication {
     @JsonProperty("authors")
     private String authors;
 
+    public Publication() {}
+
     private Publication(Builder builder) {
         title = builder.title;
         citation = builder.citation;
