@@ -37,6 +37,7 @@ public class ExportService {
                 .withAuthors(Arrays.stream(item.getMetadata("dc", "contributor", "author", null)).map(it -> it.value).collect(Collectors.joining(";")))
                 .withCitation(item.getMetadata("dc", "identifier", "citation", null)[0].value)
                 .withTitle(item.getMetadata("dc", "title", null, null)[0].value)
+                .withType(EssuirUtils.getTypeLocalized(item.getMetadata("dc", "type", null, null)[0].value, "uk"))
                 .build();
     }
 }

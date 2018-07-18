@@ -9,6 +9,8 @@ public class Publication {
     private String citation;
     @JsonProperty("authors")
     private String authors;
+    @JsonProperty("type")
+    private String type;
 
     public Publication() {}
 
@@ -16,6 +18,7 @@ public class Publication {
         title = builder.title;
         citation = builder.citation;
         authors = builder.authors;
+        type = builder.type;
     }
 
     public String getTitle() {
@@ -30,19 +33,15 @@ public class Publication {
         return authors;
     }
 
-    @Override
-    public String toString() {
-        return "Publication{" +
-                "title='" + title + '\'' +
-                ", citation='" + citation + '\'' +
-                ", authors='" + authors + '\'' +
-                '}';
+    public String getType() {
+        return type;
     }
 
     public static final class Builder {
         private String title;
         private String citation;
         private String authors;
+        private String type;
 
         public Builder() {
         }
@@ -51,6 +50,7 @@ public class Publication {
             this.title = copy.getTitle();
             this.citation = copy.getCitation();
             this.authors = copy.getAuthors();
+            this.type = copy.getType();
         }
 
         public Builder withTitle(String title) {
@@ -65,6 +65,11 @@ public class Publication {
 
         public Builder withAuthors(String authors) {
             this.authors = authors;
+            return this;
+        }
+
+        public Builder withType(String type) {
+            this.type = type;
             return this;
         }
 
