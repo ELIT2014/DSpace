@@ -13,7 +13,7 @@ import java.util.List;
 @Component
 public class ExportDocumentProcessorService {
 
-    public XWPFDocument createDocument(String author, List<Publication> publications) throws IOException {
+    public XWPFDocument createDocument(String author, List<Publication> publications) {
         XWPFDocument document = new XWPFDocument();
         CTSectPr sectPr = document.getDocument().getBody().addNewSectPr();
         CTPageMar pageMar = sectPr.addNewPgMar();
@@ -53,6 +53,10 @@ public class ExportDocumentProcessorService {
 
         XWPFRun run = paragraph.createRun();
         paragraph.setSpacingAfter(0);
+        paragraph.setIndentationFirstLine(0);
+        paragraph.setSpacingAfterLines(0);
+        paragraph.setSpacingBefore(0);
+        paragraph.setSpacingBeforeLines(0);
         run.setFontSize(fontSize);
         run.setFontFamily("Times New Roman");
         run.getCTR().getRPr().getRFonts().setHAnsi("Times New Roman");
@@ -94,7 +98,7 @@ public class ExportDocumentProcessorService {
                     publications.get(index).getType(),
                     publications.get(index).getCitation(),
                     "",
-                    publications.get(index).getAuthors().replaceAll(";", ";\r\n").replaceAll(",", "")};
+                    publications.get(index).getAuthors()};
             processRow(table, index + 1, rowData, ParagraphAlignment.CENTER, 14);
         }
     }
@@ -117,19 +121,19 @@ public class ExportDocumentProcessorService {
 
 
         table.getRow(0).setHeight(30);
-        processRow(table,  0, new String[]{"Автор або здобувач вченого звання (наукового ступеня)", "\r\n\r\n     ________________\r\n                 (підпис)", "\r\n\r\n     __________________________\r\n                           (прізвище, ініціали)"}, ParagraphAlignment.LEFT, 12);
+        processRow(table,  0, new String[]{"Автор або здобувач вченого звання (наукового ступеня)", "\r\n\r\n     ________________\r\n\t\t\t(підпис)", "\r\n\r\n     __________________________\r\n                           (прізвище, ініціали)"}, ParagraphAlignment.LEFT, 12);
 
         table.getRow(1).setHeight(30);
-        processRow(table,  1, new String[]{"________________________\r\n                           (число, місяць, рік)", "", ""},ParagraphAlignment.LEFT, 12);
+        processRow(table,  1, new String[]{"________________________\r\n\t\t\t(число, місяць, рік)", "", ""},ParagraphAlignment.LEFT, 12);
 
         table.getRow(2).setHeight(30);
         processRow(table,  2, new String[]{"Засвідчено:", "", ""}, ParagraphAlignment.LEFT, 12);
 
         table.getRow(3).setHeight(30);
-        processRow(table,  3, new String[]{"Завідуючий (начальник) кафедрою", "\r\n\r\n     ________________\r\n                 (підпис)", "\r\n\r\n     __________________________\r\n                           (прізвище, ініціали)"}, ParagraphAlignment.LEFT, 12);
+        processRow(table,  3, new String[]{"Завідуючий (начальник) кафедрою", "\r\n\r\n     ________________\r\n\t\t\t(підпис)", "\r\n\r\n     __________________________\r\n                           (прізвище, ініціали)"}, ParagraphAlignment.LEFT, 12);
 
         table.getRow(4).setHeight(30);
-        processRow(table,  4, new String[]{"Вчений секретар", "\r\n\r\n     ________________\r\n                 (підпис)", "\r\n\r\n     __________________________\r\n                           (прізвище, ініціали)"}, ParagraphAlignment.LEFT, 12);
+        processRow(table,  4, new String[]{"Вчений секретар", "\r\n\r\n     ________________\r\n\t\t\t(підпис)", "\r\n\r\n     __________________________\r\n                           (прізвище, ініціали)"}, ParagraphAlignment.LEFT, 12);
 
 
     }
