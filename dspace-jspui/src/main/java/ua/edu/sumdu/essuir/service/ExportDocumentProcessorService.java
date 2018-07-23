@@ -3,9 +3,9 @@ package ua.edu.sumdu.essuir.service;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
 import org.springframework.stereotype.Component;
+import ua.edu.sumdu.essuir.cache.AuthorCache;
 import ua.edu.sumdu.essuir.entity.Publication;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
@@ -22,7 +22,7 @@ public class ExportDocumentProcessorService {
         pageMar.setRight(BigInteger.valueOf(455L));
         pageMar.setBottom(BigInteger.valueOf(455L));
 
-        createTitle(author, document);
+        createTitle(AuthorCache.getLocalizedAuthor(author, "uk"), document);
         createPublicationsTable(document, publications);
         document.createParagraph().setSpacingAfter(100);
         createBottomTable(document);
@@ -91,7 +91,7 @@ public class ExportDocumentProcessorService {
         Integer[] width = {540, 2200, 1250, 3000, 1400, 2300};
         setTableProperties(table, width);
 
-        processRow(table, 0, new String[]{"№ з/п", "Назва", "Характер роботи", "Вихідні дані", "Обсяг (у сторінках)/авторський доробок", "Співавтори"}, ParagraphAlignment.CENTER,  14);
+        processRow(table, 0, new String[]{"№ з/п", "Назва", "Характер роботи", "Вихідні дані", "Обсяг (у сторінках)/авторський доробок", "Співавтори"}, ParagraphAlignment.CENTER, 14);
         for (int index = 0; index < publications.size(); index++) {
             String[] rowData = {Integer.toString(index + 1),
                     publications.get(index).getTitle(),
@@ -121,19 +121,19 @@ public class ExportDocumentProcessorService {
 
 
         table.getRow(0).setHeight(30);
-        processRow(table,  0, new String[]{"Автор або здобувач вченого звання (наукового ступеня)", "\r\n\r\n     ________________\r\n\t\t\t(підпис)", "\r\n\r\n     __________________________\r\n                           (прізвище, ініціали)"}, ParagraphAlignment.LEFT, 12);
+        processRow(table, 0, new String[]{"Автор або здобувач вченого звання (наукового ступеня)", "\r\n\r\n     ________________\r\n\t\t\t(підпис)", "\r\n\r\n     __________________________\r\n                           (прізвище, ініціали)"}, ParagraphAlignment.LEFT, 12);
 
         table.getRow(1).setHeight(30);
-        processRow(table,  1, new String[]{"________________________\r\n\t\t\t(число, місяць, рік)", "", ""},ParagraphAlignment.LEFT, 12);
+        processRow(table, 1, new String[]{"________________________\r\n\t\t\t(число, місяць, рік)", "", ""}, ParagraphAlignment.LEFT, 12);
 
         table.getRow(2).setHeight(30);
-        processRow(table,  2, new String[]{"Засвідчено:", "", ""}, ParagraphAlignment.LEFT, 12);
+        processRow(table, 2, new String[]{"Засвідчено:", "", ""}, ParagraphAlignment.LEFT, 12);
 
         table.getRow(3).setHeight(30);
-        processRow(table,  3, new String[]{"Завідуючий (начальник) кафедрою", "\r\n\r\n     ________________\r\n\t\t\t(підпис)", "\r\n\r\n     __________________________\r\n                           (прізвище, ініціали)"}, ParagraphAlignment.LEFT, 12);
+        processRow(table, 3, new String[]{"Завідуючий (начальник) кафедрою", "\r\n\r\n     ________________\r\n\t\t\t(підпис)", "\r\n\r\n     __________________________\r\n                           (прізвище, ініціали)"}, ParagraphAlignment.LEFT, 12);
 
         table.getRow(4).setHeight(30);
-        processRow(table,  4, new String[]{"Вчений секретар", "\r\n\r\n     ________________\r\n\t\t\t(підпис)", "\r\n\r\n     __________________________\r\n                           (прізвище, ініціали)"}, ParagraphAlignment.LEFT, 12);
+        processRow(table, 4, new String[]{"Вчений секретар", "\r\n\r\n     ________________\r\n\t\t\t(підпис)", "\r\n\r\n     __________________________\r\n                           (прізвище, ініціали)"}, ParagraphAlignment.LEFT, 12);
 
 
     }
