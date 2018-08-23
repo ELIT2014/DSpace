@@ -231,7 +231,7 @@
 
         <p class="pull-right">
             <input class="btn btn-success" type="submit" name="submit" value="Save"/>
-            <input class="btn btn-danger" type="button" name="button" value="Back" onclick="window.location.href='authors.jsp'"/>
+            <input class="btn btn-info" type="button" name="button" value="Back" onclick="window.location.href='authors.jsp'"/>
             <div class="col-md-1">&nbsp;</div>
         </p>
 
