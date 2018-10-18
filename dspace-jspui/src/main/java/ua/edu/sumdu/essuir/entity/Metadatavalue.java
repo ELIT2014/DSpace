@@ -4,7 +4,6 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "metadatavalue")
-//@SecondaryTable(name = "ResourceTypeView", pkJoinColumns = @PrimaryKeyJoinColumn(name = "resource_id", referencedColumnName = "resource_id"))
 public class Metadatavalue {
     @Id
     @Column(name = "metadata_value_id")

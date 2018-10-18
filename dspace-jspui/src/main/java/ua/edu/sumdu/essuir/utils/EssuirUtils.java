@@ -10,11 +10,19 @@ import ua.edu.sumdu.essuir.entity.*;
 import ua.edu.sumdu.essuir.repository.AuthorsRepository;
 import ua.edu.sumdu.essuir.repository.ChairRepository;
 import ua.edu.sumdu.essuir.repository.FacultyRepository;
+import ua.edu.sumdu.essuir.repository.MetadatavalueRepository;
 import ua.edu.sumdu.essuir.service.DatabaseService;
 
 import javax.sql.rowset.CachedRowSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Component
 public class EssuirUtils {
@@ -24,8 +32,14 @@ public class EssuirUtils {
     private static ChairRepository chairRepository;
     private static FacultyRepository facultyRepository;
     private static AuthorsRepository authorsRepository;
+    private static MetadatavalueRepository metadatavalueRepository;
 
     private static Logger logger = Logger.getLogger(EssuirUtils.class);
+
+    @Autowired
+    public void setMetadatavalueRepository(MetadatavalueRepository metadatavalueRepository) {
+        EssuirUtils.metadatavalueRepository = metadatavalueRepository;
+    }
 
     @Autowired
     public void setDatabaseService(DatabaseService databaseService) {
@@ -182,5 +196,41 @@ public class EssuirUtils {
         String initials = author.getName("en").split(", ")[1];
         AuthorCache.update();
         return findAuthor(surname, initials);
+    }
+
+    private static String extractSpecialityCode(String data) {
+        Pattern pattern = Pattern.compile("(\\d{1}[.]\\d{6})");
+        Matcher matcher = pattern.matcher(data);
+        matcher.find();
+        return matcher.group(1);
+    }
+
+    private static List<PaperDescription> getBachelousPapers() {
+        List<Integer> bachelousPaperIds = metadatavalueRepository.findDistinctByTextValue("Bachelous paper")
+                .stream()
+                .map(Metadatavalue::getResourceId)
+                .collect(Collectors.toList());
+
+        List<Metadatavalue> metadatavalues = metadatavalueRepository.findByResourceIdIn(bachelousPaperIds);
+        Map<Integer, Map<Integer, List<Metadatavalue>>> bachelousPapers = metadatavalues.stream()
+                .collect(Collectors.groupingBy(Metadatavalue::getResourceId, Collectors.groupingBy(Metadatavalue::getMetadataFieldId)));
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+        return bachelousPaperIds.stream()
+                .filter(id -> bachelousPapers.containsKey(id) && bachelousPapers.get(id).containsKey(12) && bachelousPapers.get(id).containsKey(18))
+                .map(id -> new PaperDescription.Builder()
+                        .withResourceId(id)
+                        .withSpeciality(extractSpecialityCode(bachelousPapers.get(id).get(18).get(0).getTextValue()))
+                        .withAdded(LocalDateTime.parse(bachelousPapers.get(id).get(12).get(0).getTextValue(), formatter))
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    public static List<PaperDescription> getSpecialityStatistics(LocalDateTime from, LocalDateTime to) {
+        return getBachelousPapers()
+                .stream()
+                .filter(paper -> paper.getAdded().isAfter(from) && paper.getAdded().isBefore(to))
+                .collect(Collectors.toList());
     }
 }
