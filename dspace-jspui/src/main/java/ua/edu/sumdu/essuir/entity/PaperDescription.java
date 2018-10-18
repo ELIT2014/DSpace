@@ -1,11 +1,12 @@
 package ua.edu.sumdu.essuir.entity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class PaperDescription {
     private Integer resourceId;
     private String speciality;
-    private LocalDateTime added;
+    private LocalDate added;
 
     public Integer getResourceId() {
         return resourceId;
@@ -15,7 +16,7 @@ public class PaperDescription {
         return speciality;
     }
 
-    public LocalDateTime getAdded() {
+    public LocalDate getAdded() {
         return added;
     }
 
@@ -29,7 +30,7 @@ public class PaperDescription {
     public static final class Builder {
         private Integer resourceId;
         private String speciality;
-        private LocalDateTime added;
+        private LocalDate added;
 
         public Builder() {
         }
@@ -50,7 +51,7 @@ public class PaperDescription {
             return this;
         }
 
-        public Builder withAdded(LocalDateTime added) {
+        public Builder withAdded(LocalDate added) {
             this.added = added;
             return this;
         }

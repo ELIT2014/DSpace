@@ -222,15 +222,18 @@ public class EssuirUtils {
                 .map(id -> new PaperDescription.Builder()
                         .withResourceId(id)
                         .withSpeciality(extractSpecialityCode(bachelousPapers.get(id).get(18).get(0).getTextValue()))
-                        .withAdded(LocalDateTime.parse(bachelousPapers.get(id).get(12).get(0).getTextValue(), formatter))
+                        .withAdded(LocalDate.parse(bachelousPapers.get(id).get(12).get(0).getTextValue(), formatter))
                         .build())
                 .collect(Collectors.toList());
     }
 
-    public static List<PaperDescription> getSpecialityStatistics(LocalDateTime from, LocalDateTime to) {
-        return getBachelousPapers()
+    public static Map<String, Integer> getSpecialityStatistics(LocalDate from, LocalDate to) {
+         return getBachelousPapers()
                 .stream()
                 .filter(paper -> paper.getAdded().isAfter(from) && paper.getAdded().isBefore(to))
-                .collect(Collectors.toList());
+                .collect(Collectors.groupingBy(PaperDescription::getSpeciality))
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(item -> item.getKey(), item -> item.getValue().size()));
     }
 }
