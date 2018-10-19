@@ -7,10 +7,7 @@ import org.springframework.stereotype.Component;
 import ua.edu.sumdu.essuir.cache.Author;
 import ua.edu.sumdu.essuir.cache.AuthorCache;
 import ua.edu.sumdu.essuir.entity.*;
-import ua.edu.sumdu.essuir.repository.AuthorsRepository;
-import ua.edu.sumdu.essuir.repository.ChairRepository;
-import ua.edu.sumdu.essuir.repository.FacultyRepository;
-import ua.edu.sumdu.essuir.repository.MetadatavalueRepository;
+import ua.edu.sumdu.essuir.repository.*;
 import ua.edu.sumdu.essuir.service.DatabaseService;
 
 import javax.sql.rowset.CachedRowSet;
@@ -33,8 +30,14 @@ public class EssuirUtils {
     private static FacultyRepository facultyRepository;
     private static AuthorsRepository authorsRepository;
     private static MetadatavalueRepository metadatavalueRepository;
+    private static SpecialityRepository specialityRepository;
 
     private static Logger logger = Logger.getLogger(EssuirUtils.class);
+
+    @Autowired
+    public void setSpecialityRepository(SpecialityRepository specialityRepository) {
+        EssuirUtils.specialityRepository = specialityRepository;
+    }
 
     @Autowired
     public void setMetadatavalueRepository(MetadatavalueRepository metadatavalueRepository) {
@@ -198,11 +201,18 @@ public class EssuirUtils {
         return findAuthor(surname, initials);
     }
 
+    private static Speciality findSpeciality(String code) {
+        FacultyEntity defaultFacultyEntity = new FacultyEntity.Builder().withId(-1).withName("-").build();
+        ChairEntity defaultChairEntity = new ChairEntity.Builder().withId(-1).withChairName("-").withFacultyEntityName(defaultFacultyEntity).build();
+        Speciality defaultSpecialityEntity= new Speciality.Builder().withId(-1).withName(code).withChairEntity(defaultChairEntity).build();
+        return Optional.ofNullable(specialityRepository.findByName(code)).orElse(defaultSpecialityEntity);
+    }
+
     private static String extractSpecialityCode(String data) {
         Pattern pattern = Pattern.compile("(\\d{1}[.]\\d{6})");
         Matcher matcher = pattern.matcher(data);
         matcher.find();
-        return matcher.group(1);
+        return matcher.group(1).trim();
     }
 
     private static List<PaperDescription> getBachelousPapers() {
@@ -227,13 +237,13 @@ public class EssuirUtils {
                 .collect(Collectors.toList());
     }
 
-    public static Map<String, Integer> getSpecialityStatistics(LocalDate from, LocalDate to) {
+    public static Map<Speciality, Integer> getSpecialityStatistics(LocalDate from, LocalDate to) {
          return getBachelousPapers()
                 .stream()
                 .filter(paper -> paper.getAdded().isAfter(from) && paper.getAdded().isBefore(to))
                 .collect(Collectors.groupingBy(PaperDescription::getSpeciality))
                 .entrySet()
                 .stream()
-                .collect(Collectors.toMap(item -> item.getKey(), item -> item.getValue().size()));
+                .collect(Collectors.toMap(item -> findSpeciality(item.getKey()), item -> item.getValue().size()));
     }
 }

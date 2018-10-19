@@ -10,6 +10,7 @@
 <%@ page import="java.time.LocalDate" %>
 <%@ page import="java.time.format.DateTimeFormatter" %>
 <%@ page import="java.util.Map" %>
+<%@ page import="ua.edu.sumdu.essuir.entity.Speciality" %>
 <link rel="stylesheet" type="text/css" media="screen" href="<%= request.getContextPath() %>/static/webix/webix.css"/>
 <link rel="stylesheet" href="<%= request.getContextPath() %>/static/css/bootstrap/bootstrap.min.css"
       type="text/css"/>
@@ -40,9 +41,9 @@
 
     if (isAdmin || userEmail.equals("library_ssu@ukr.net") || userEmail.equals("libconsult@rambler.ru")) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-        LocalDate from = request.getParameter("fromDate") == null ? LocalDate.now() : LocalDate.parse(request.getParameter("fromDate"), formatter);
-        LocalDate to = request.getParameter("endDate") == null ? LocalDate.now() : LocalDate.parse(request.getParameter("endDate"), formatter);
-        Map<String, Integer> specialityStatistics = EssuirUtils.getSpecialityStatistics(from, to);
+        LocalDate from = request.getParameter("fromDate") == null ? LocalDate.MIN : LocalDate.parse(request.getParameter("fromDate"), formatter);
+        LocalDate to = request.getParameter("endDate") == null ? LocalDate.MAX : LocalDate.parse(request.getParameter("endDate"), formatter);
+        Map<Speciality, Integer> specialityStatistics = EssuirUtils.getSpecialityStatistics(from, to);
         System.out.println(specialityStatistics);
 %>
 
@@ -114,12 +115,12 @@
         </thead>
         <tbody>
         <%
-            for (Map.Entry<String, Integer> paper : specialityStatistics.entrySet()) {
+            for (Map.Entry<Speciality, Integer> paper : specialityStatistics.entrySet()) {
         %>
         <tr>
-            <td class="evenRowOddCol">some faculty</td>
-            <td class="evenRowOddCol">some chair</td>
-            <td class="evenRowOddCol"><%= paper.getKey() %></td>
+            <td class="evenRowOddCol"><%= paper.getKey().getChairEntity().getFacultyEntityName() %></td>
+            <td class="evenRowOddCol"><%= paper.getKey().getChairEntity().getChairName() %></td>
+            <td class="evenRowOddCol"><%= paper.getKey().getName() %></td>
             <td class="evenRowOddCol"><%= paper.getValue() %></td>
         </tr>
         <% }
