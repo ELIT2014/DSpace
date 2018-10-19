@@ -109,8 +109,8 @@
         <tr>
             <th class="evenRowEvenCol"><fmt:message key="jsp.admin.person-stat.faculty"/></th>
             <th class="evenRowEvenCol"><fmt:message key="jsp.admin.person-stat.chair"/></th>
-            <th class="evenRowEvenCol">Speciality</th>
-            <th class="evenRowEvenCol">Count</th>
+            <th class="evenRowEvenCol"><fmt:message key="jsp.admin.person-stat.speciality"/></th>
+            <th class="evenRowEvenCol"><fmt:message key="report.submissions-count"/></th>
         </tr>
         </thead>
         <tbody>
