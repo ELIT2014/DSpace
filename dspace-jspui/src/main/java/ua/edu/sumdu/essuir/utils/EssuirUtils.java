@@ -13,35 +13,22 @@ import ua.edu.sumdu.essuir.service.DatabaseService;
 import javax.sql.rowset.CachedRowSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Component
 public class EssuirUtils {
     private static final String MINIMAL_YEAR = "1964";
-
     private static DatabaseService databaseService;
     private static ChairRepository chairRepository;
     private static FacultyRepository facultyRepository;
     private static AuthorsRepository authorsRepository;
-    private static MetadatavalueRepository metadatavalueRepository;
-    private static SpecialityRepository specialityRepository;
+    private static SpecialityStatisticsService specialityStatisticsService;
 
     private static Logger logger = Logger.getLogger(EssuirUtils.class);
 
     @Autowired
-    public void setSpecialityRepository(SpecialityRepository specialityRepository) {
-        EssuirUtils.specialityRepository = specialityRepository;
-    }
-
-    @Autowired
-    public void setMetadatavalueRepository(MetadatavalueRepository metadatavalueRepository) {
-        EssuirUtils.metadatavalueRepository = metadatavalueRepository;
+    public void setSpecialityStatisticsController(SpecialityStatisticsService specialityStatisticsService) {
+        EssuirUtils.specialityStatisticsService = specialityStatisticsService;
     }
 
     @Autowired
@@ -201,49 +188,8 @@ public class EssuirUtils {
         return findAuthor(surname, initials);
     }
 
-    private static Speciality findSpeciality(String code) {
-        FacultyEntity defaultFacultyEntity = new FacultyEntity.Builder().withId(-1).withName("-").build();
-        ChairEntity defaultChairEntity = new ChairEntity.Builder().withId(-1).withChairName("-").withFacultyEntityName(defaultFacultyEntity).build();
-        Speciality defaultSpecialityEntity= new Speciality.Builder().withId(-1).withName(code).withChairEntity(defaultChairEntity).build();
-        return Optional.ofNullable(specialityRepository.findByName(code)).orElse(defaultSpecialityEntity);
-    }
-
-    private static String extractSpecialityCode(String data) {
-        Pattern pattern = Pattern.compile("(\\d{1}[.]\\d{6})");
-        Matcher matcher = pattern.matcher(data);
-        matcher.find();
-        return matcher.group(1).trim();
-    }
-
-    private static List<PaperDescription> getBachelousPapers() {
-        List<Integer> bachelousPaperIds = metadatavalueRepository.findDistinctByTextValue("Bachelous paper")
-                .stream()
-                .map(Metadatavalue::getResourceId)
-                .collect(Collectors.toList());
-
-        List<Metadatavalue> metadatavalues = metadatavalueRepository.findByResourceIdIn(bachelousPaperIds);
-        Map<Integer, Map<Integer, List<Metadatavalue>>> bachelousPapers = metadatavalues.stream()
-                .collect(Collectors.groupingBy(Metadatavalue::getResourceId, Collectors.groupingBy(Metadatavalue::getMetadataFieldId)));
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
-
-        return bachelousPaperIds.stream()
-                .filter(id -> bachelousPapers.containsKey(id) && bachelousPapers.get(id).containsKey(12) && bachelousPapers.get(id).containsKey(18))
-                .map(id -> new PaperDescription.Builder()
-                        .withResourceId(id)
-                        .withSpeciality(extractSpecialityCode(bachelousPapers.get(id).get(18).get(0).getTextValue()))
-                        .withAdded(LocalDate.parse(bachelousPapers.get(id).get(12).get(0).getTextValue(), formatter))
-                        .build())
-                .collect(Collectors.toList());
-    }
-
     public static Map<Speciality, Integer> getSpecialityStatistics(LocalDate from, LocalDate to) {
-         return getBachelousPapers()
-                .stream()
-                .filter(paper -> paper.getAdded().isAfter(from) && paper.getAdded().isBefore(to))
-                .collect(Collectors.groupingBy(PaperDescription::getSpeciality))
-                .entrySet()
-                .stream()
-                .collect(Collectors.toMap(item -> findSpeciality(item.getKey()), item -> item.getValue().size()));
+        return specialityStatisticsService.getSpecialityStatistics(from, to);
     }
+
 }
