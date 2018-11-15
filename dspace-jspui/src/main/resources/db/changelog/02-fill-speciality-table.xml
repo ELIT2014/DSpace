@@ -1,0 +1,61 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet id="1" author="Igor Marchenko">
+        <insert tableName="speciality">
+            <column name="code" value="071"/>
+            <column name="name" value="Облік і оподаткування"/>
+            <column name="chair_id" value="86"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="6.030509"/>
+            <column name="name" value="Облік і аудит"/>
+            <column name="chair_id" value="86"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="056"/>
+            <column name="name" value="Міжнародні економічні відноси"/>
+            <column name="chair_id" value="83"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="292"/>
+            <column name="name" value="Міжнародні економічні відноси"/>
+            <column name="chair_id" value="83"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="6.030503"/>
+            <column name="name" value="Міжнародна економіка"/>
+            <column name="chair_id" value="83"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="072"/>
+            <column name="name" value="Фінанси, банківська справа та страхування"/>
+            <column name="chair_id" value="82"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="6.030508"/>
+            <column name="name" value="Фінанси і кредит"/>
+            <column name="chair_id" value="82"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="051"/>
+            <column name="name" value="Економіка"/>
+            <column name="chair_id" value="84"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="6.030502"/>
+            <column name="name" value="Економічна кібернетика"/>
+            <column name="chair_id" value="84"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
