@@ -21,6 +21,8 @@ public class FacultyEntity {
         setName(builder.name);
     }
 
+    public FacultyEntity() {
+    }
 
     public Integer getId() {
         return id;

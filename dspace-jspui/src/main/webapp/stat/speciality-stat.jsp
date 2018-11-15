@@ -120,7 +120,7 @@
         <tr>
             <td class="evenRowOddCol"><%= paper.getKey().getChairEntity().getFacultyEntityName() %></td>
             <td class="evenRowOddCol"><%= paper.getKey().getChairEntity().getChairName() %></td>
-            <td class="evenRowOddCol"><%= paper.getKey().getName() %></td>
+            <td class="evenRowOddCol"><%= paper.getKey().getName() %> (<%= paper.getKey().getCode() %>)</td>
             <td class="evenRowOddCol"><%= paper.getValue() %></td>
         </tr>
         <% }

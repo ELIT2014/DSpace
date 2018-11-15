@@ -17,6 +17,9 @@ public class ChairEntity {
     @JoinColumn(name = "faculty_id")
     private FacultyEntity facultyEntityName;
 
+    public ChairEntity() {
+    }
+
     private ChairEntity(Builder builder) {
         setId(builder.id);
         setChairName(builder.chairName);

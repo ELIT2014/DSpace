@@ -1,5 +1,7 @@
 package ua.edu.sumdu.essuir.entity;
 
+import com.hp.hpl.jena.sparql.function.library.print;
+
 import javax.persistence.*;
 
 @Entity
@@ -11,16 +13,22 @@ public class Speciality {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "code")
+    private String code;
+
     @OneToOne
     @JoinColumn(name = "chair_id")
     private ChairEntity chairEntity;
 
+    public Speciality() {
+    }
+
     private Speciality(Builder builder) {
         id = builder.id;
         name = builder.name;
+        code = builder.code;
         chairEntity = builder.chairEntity;
     }
-
 
     public Integer getId() {
         return id;
@@ -30,14 +38,18 @@ public class Speciality {
         return name;
     }
 
+    public String getCode() {
+        return code;
+    }
+
     public ChairEntity getChairEntity() {
         return chairEntity;
     }
 
-
     public static final class Builder {
         private Integer id;
         private String name;
+        private String code;
         private ChairEntity chairEntity;
 
         public Builder() {
@@ -46,6 +58,7 @@ public class Speciality {
         public Builder(Speciality copy) {
             this.id = copy.getId();
             this.name = copy.getName();
+            this.code = copy.getCode();
             this.chairEntity = copy.getChairEntity();
         }
 
@@ -56,6 +69,11 @@ public class Speciality {
 
         public Builder withName(String name) {
             this.name = name;
+            return this;
+        }
+
+        public Builder withCode(String code) {
+            this.code = code;
             return this;
         }
 

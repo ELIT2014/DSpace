@@ -7,4 +7,5 @@ import ua.edu.sumdu.essuir.entity.Speciality;
 @Repository
 public interface SpecialityRepository extends JpaRepository<Speciality, Integer>{
     Speciality findByName(String name);
+    Speciality findByCode(String code);
 }

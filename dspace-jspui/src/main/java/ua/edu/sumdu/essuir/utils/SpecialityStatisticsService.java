@@ -26,7 +26,7 @@ public class SpecialityStatisticsService {
         FacultyEntity defaultFacultyEntity = new FacultyEntity.Builder().withId(-1).withName("-").build();
         ChairEntity defaultChairEntity = new ChairEntity.Builder().withId(-1).withChairName("-").withFacultyEntityName(defaultFacultyEntity).build();
         Speciality defaultSpecialityEntity= new Speciality.Builder().withId(-1).withName(code).withChairEntity(defaultChairEntity).build();
-        return Optional.ofNullable(specialityRepository.findByName(code)).orElse(defaultSpecialityEntity);
+        return Optional.ofNullable(specialityRepository.findByCode(code)).orElse(defaultSpecialityEntity);
     }
 
     private String extractSpecialityCode(String data) {
