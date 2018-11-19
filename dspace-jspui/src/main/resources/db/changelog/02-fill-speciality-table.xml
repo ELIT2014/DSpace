@@ -84,4 +84,114 @@
             <column name="chair_id" value="90"/>
         </insert>
     </changeSet>
+
+    <changeSet id="3" author="Igor Marchenko">
+        <insert tableName="speciality">
+            <column name="code" value="051"/>
+            <column name="name" value="Економіка"/>
+            <column name="chair_id" value="30"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="073"/>
+            <column name="name" value="Менеджмент"/>
+            <column name="chair_id" value="30"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="076"/>
+            <column name="name" value="Підприємництво, торгівля та біржова діяльність"/>
+            <column name="chair_id" value="30"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="6.030504"/>
+            <column name="name" value="Економіка підприємства"/>
+            <column name="chair_id" value="30"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="056"/>
+            <column name="name" value="Міжнародні економічні відносини"/>
+            <column name="chair_id" value="31"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="292"/>
+            <column name="name" value="Міжнародні економічні відносини"/>
+            <column name="chair_id" value="31"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="6.030503"/>
+            <column name="name" value="Міжнародна економіка"/>
+            <column name="chair_id" value="31"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="075"/>
+            <column name="name" value="Маркетинг"/>
+            <column name="chair_id" value="32"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="073"/>
+            <column name="name" value="Менеджмент"/>
+            <column name="chair_id" value="32"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="076"/>
+            <column name="name" value="Підприємництво, торгівля та біржова діяльність"/>
+            <column name="chair_id" value="32"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="6.030507"/>
+            <column name="name" value="Маркетинг"/>
+            <column name="chair_id" value="32"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="073"/>
+            <column name="name" value="Менеджмент"/>
+            <column name="chair_id" value="33"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="074"/>
+            <column name="name" value="Публічне управління та адміністрування"/>
+            <column name="chair_id" value="33"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="281"/>
+            <column name="name" value="Публічне управління та адміністрування"/>
+            <column name="chair_id" value="33"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="6.030601"/>
+            <column name="name" value="Менеджмент"/>
+            <column name="chair_id" value="33"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="072"/>
+            <column name="name" value="Фінанси, банківська справа та страхування"/>
+            <column name="chair_id" value="34"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="076"/>
+            <column name="name" value="Підприємство, торгівля та біржова діяльність"/>
+            <column name="chair_id" value="34"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="6.030508"/>
+            <column name="name" value="Фінанси і кредит"/>
+            <column name="chair_id" value="34"/>
+        </insert>
+    </changeSet>
 </databaseChangeLog>
