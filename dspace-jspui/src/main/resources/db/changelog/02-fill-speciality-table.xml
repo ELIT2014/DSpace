@@ -514,4 +514,18 @@
             <column name="chair_id" value="78"/>
         </insert>
     </changeSet>
+
+    <changeSet id="8" author="Igor Marchenko">
+        <insert tableName="speciality">
+            <column name="code" value="151"/>
+            <column name="name" value="Автоматизація та комп’ютерно-інтегровані технології"/>
+            <column name="chair_id" value="75"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="6.050201"/>
+            <column name="name" value="Системна інженерія"/>
+            <column name="chair_id" value="75"/>
+        </insert>
+    </changeSet>
 </databaseChangeLog>
