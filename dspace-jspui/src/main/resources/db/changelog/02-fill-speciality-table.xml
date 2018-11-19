@@ -58,4 +58,30 @@
             <column name="chair_id" value="84"/>
         </insert>
     </changeSet>
+
+    <changeSet id="2" author="Igor Marchenko">
+        <insert tableName="speciality">
+            <column name="code" value="081"/>
+            <column name="name" value="Право"/>
+            <column name="chair_id" value="46"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="6.03040"/>
+            <column name="name" value="Правознавство"/>
+            <column name="chair_id" value="46"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="073"/>
+            <column name="name" value="Менеджмент"/>
+            <column name="chair_id" value="89"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="081"/>
+            <column name="name" value="Право"/>
+            <column name="chair_id" value="90"/>
+        </insert>
+    </changeSet>
 </databaseChangeLog>
