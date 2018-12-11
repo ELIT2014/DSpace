@@ -590,4 +590,30 @@
             <column name="chair_id" value="96"/>
         </insert>
     </changeSet>
+
+    <changeSet id="10" author="Igor Marchenko">
+        <insert tableName="speciality">
+            <column name="code" value="028"/>
+            <column name="name" value="Менеджмент соціокультурної діяльності"/>
+            <column name="chair_id" value="97"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="053"/>
+            <column name="name" value="Психологія"/>
+            <column name="chair_id" value="97"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="231"/>
+            <column name="name" value="Соціальна робота"/>
+            <column name="chair_id" value="97"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="6.130102"/>
+            <column name="name" value="Соціальна робота"/>
+            <column name="chair_id" value="97"/>
+        </insert>
+    </changeSet>
 </databaseChangeLog>
