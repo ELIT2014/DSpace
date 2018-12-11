@@ -524,8 +524,70 @@
 
         <insert tableName="speciality">
             <column name="code" value="6.050201"/>
-            <column name="name" value="Системна інженерія"/>
+            <column name="name" value="Автоматизація та комп’ютерно-інтегровані технології"/>
             <column name="chair_id" value="75"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="9" author="Igor Marchenko">
+        <insert tableName="speciality">
+            <column name="code" value="228"/>
+            <column name="name" value="Педіатрія"/>
+            <column name="chair_id" value="58"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="227"/>
+            <column name="name" value="Фізична реабілітація"/>
+            <column name="chair_id" value="91"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="6.010203"/>
+            <column name="name" value="Здоров’я людини"/>
+            <column name="chair_id" value="91"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="227"/>
+            <column name="name" value="Фізична терапія, ерготерапія"/>
+            <column name="chair_id" value="91"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="017"/>
+            <column name="name" value="Фізична культура і спорт"/>
+            <column name="chair_id" value="92"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="6.010202"/>
+            <column name="name" value="Спорт"/>
+            <column name="chair_id" value="92"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="229"/>
+            <column name="name" value="Громадське здоров’я"/>
+            <column name="chair_id" value="95"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="7.12010003"/>
+            <column name="name" value="Медико-профілактична справа"/>
+            <column name="chair_id" value="92"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="221"/>
+            <column name="name" value="Стоматологія"/>
+            <column name="chair_id" value="96"/>
+        </insert>
+
+        <insert tableName="speciality">
+            <column name="code" value="7.12010005"/>
+            <column name="name" value="Стоматологія"/>
+            <column name="chair_id" value="96"/>
         </insert>
     </changeSet>
 </databaseChangeLog>
