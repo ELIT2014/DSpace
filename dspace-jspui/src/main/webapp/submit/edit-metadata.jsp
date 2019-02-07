@@ -1302,8 +1302,8 @@
         {
             sb.append(" disabled=\"disabled\"");
         }
+        sb.append(" onchange=\"paperTypeSelected()\" ");
         sb.append(">");
-
         for (int i = 0; i < valueList.size(); i += 2)
         {
             display = (String)valueList.get(i);
@@ -1322,7 +1322,12 @@
                     .append("</option>");
         }
 
+
         sb.append("</select></span></div><br/>");
+        sb.append("<div class=\"row\" id = \"speciality-select-row\"><span class=\"col-md-2\">Select speciality</span>")
+                .append("<span class=\"col-md-8\">")
+                .append("<div id=\"speciality-selector\"></div>")
+                .append("</span></div></br>");
         out.write(sb.toString());
     }
 
@@ -1699,6 +1704,41 @@
             </div>
     </form>
     <script>
+        var a = [];
+        var request = jQuery.ajax({
+            type: 'GET',
+            url: '/statistics/facultylist'
+        }).done(function(data) {
+            var re = new RegExp("chairs", 'g');
+            a = data.replace(re, "d");
+
+            re = new RegExp("specialities", 'g');
+            a = a.replace(re, "d");
+            a = JSON.parse(a);
+            $(document).ready(function(){
+                jQuery("#speciality-selector").bsCascader({
+                    splitChar: '/',
+                    placeHolder: 'Select...',
+                    loadData: function(name, id) {
+                        id(a)
+                    }
+                }).on({
+                    "bs.cascader.change bs.cascader.select": function (c, n, a) {
+                        console.log((JSON.stringify(a)));
+                    }
+                });
+                jQuery('#speciality-select-row').hide();
+            });
+
+        });
+
+        function paperTypeSelected() {
+            var selectedType = jQuery('[name = "dc_type"] option:selected').val();
+            if(selectedType.trim() === 'Bachelous paper')
+                jQuery('#speciality-select-row').show();
+            else
+                jQuery('#speciality-select-row').hide();
+        }
         function enableSubmitButton() {
             jQuery('[name=submit_dc_contributor_author_add]').attr('disabled', false);
         }
