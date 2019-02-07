@@ -15,12 +15,12 @@
                 <constraints nullable="false"/>
             </column>
             <column name="chair_id" type="int">
-                <constraints nullable="false"/>
+                <constraints nullable="false" primaryKey="true"/>
             </column>
         </createTable>
 
         <addForeignKeyConstraint baseTableName="speciality" baseColumnNames="chair_id"
-                                 constraintName="author_fk"
+                                 constraintName="speciality_chair_fk"
                                  referencedTableName="chair" referencedColumnNames="chair_id"/>
     </changeSet>
 </databaseChangeLog>
