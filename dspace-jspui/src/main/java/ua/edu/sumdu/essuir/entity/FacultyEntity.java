@@ -1,20 +1,28 @@
 package ua.edu.sumdu.essuir.entity;
 
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "faculty")
 public class FacultyEntity {
     @Id
     @Column(name = "faculty_id")
+    @JsonProperty("id")
     private Integer id;
 
     @Column(name = "faculty_name")
+    @JsonProperty("name")
     private String name;
+
+    @OneToMany(mappedBy = "facultyEntityName", fetch = FetchType.EAGER)
+    @JsonProperty("chairs")
+    @JsonManagedReference
+    private List<ChairEntity> chairs;
 
     private FacultyEntity(Builder builder) {
         setId(builder.id);
@@ -40,6 +48,13 @@ public class FacultyEntity {
         this.name = name;
     }
 
+    public List<ChairEntity> getChairs() {
+        return chairs;
+    }
+
+    public void setChairs(List<ChairEntity> chairs) {
+        this.chairs = chairs;
+    }
 
     public static final class Builder {
         private Integer id;

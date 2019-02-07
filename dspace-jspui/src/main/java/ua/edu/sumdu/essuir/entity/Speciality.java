@@ -1,5 +1,8 @@
 package ua.edu.sumdu.essuir.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hp.hpl.jena.sparql.function.library.print;
 
 import javax.persistence.*;
@@ -8,16 +11,21 @@ import javax.persistence.*;
 public class Speciality {
     @Id
     @Column(name = "id")
+    @JsonProperty("id")
     private Integer id;
 
     @Column(name = "name")
+    @JsonProperty("name")
     private String name;
 
     @Column(name = "code")
+//    @JsonProperty("code")
+    @JsonIgnore
     private String code;
 
     @OneToOne
     @JoinColumn(name = "chair_id")
+    @JsonBackReference
     private ChairEntity chairEntity;
 
     public Speciality() {
