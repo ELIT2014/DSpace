@@ -46,6 +46,7 @@
 <%@ page import="org.dspace.core.ConfigurationManager" %>
 <%@ page import="org.dspace.core.Utils" %>
 <%@ page import="org.dspace.content.*" %>
+<%@ page import="java.io.IOException" %>
 
 <%@ taglib uri="http://www.dspace.org/dspace-tags.tld" prefix="dspace" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
@@ -1324,10 +1325,6 @@
 
 
         sb.append("</select></span></div><br/>");
-        sb.append("<div class=\"row\" id = \"speciality-select-row\"><span class=\"col-md-2\">Select speciality</span>")
-                .append("<span class=\"col-md-8\">")
-                .append("<div id=\"speciality-selector\"></div>")
-                .append("</span></div></br>");
         out.write(sb.toString());
     }
 
@@ -1446,6 +1443,15 @@
 
         out.write(sb.toString());
     }//end doList
+    void doSpecialityRow(javax.servlet.jsp.JspWriter out) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<div class=\"row\" id = \"speciality-select-row\"><span class=\"col-md-2\">Select speciality</span>")
+                .append("<span class=\"col-md-8\">")
+                .append("<div id=\"speciality-selector\"></div>")
+                .append("</span></div></br>");
+        sb.append(" <input type=\"hidden\" id=\"dc_speciality_id\" name=\"dc_speciality_id\">");
+        out.write(sb.toString());
+    }
 %>
 
 <%
@@ -1681,6 +1687,9 @@
                             repeatable, required, readonly, fieldCountIncr, label, pageContext, vocabulary,
                             closedVocabulary, collectionID);
                 }
+                if ("dc_type".equals(fieldName)) {
+                    doSpecialityRow(out);
+                }
 
             } // end of 'for rows'
         %>
@@ -1714,8 +1723,15 @@
 
             re = new RegExp("specialities", 'g');
             a = a.replace(re, "d");
+
+            re = new RegExp("id", 'g');
+            a = a.replace(re, "c");
+
+            re = new RegExp("name", 'g');
+            a = a.replace(re, "n");
+
             a = JSON.parse(a);
-            $(document).ready(function(){
+            jQuery(document).ready(function(){
                 jQuery("#speciality-selector").bsCascader({
                     splitChar: '/',
                     placeHolder: 'Select...',
@@ -1723,8 +1739,11 @@
                         id(a)
                     }
                 }).on({
-                    "bs.cascader.change bs.cascader.select": function (c, n, a) {
-                        console.log((JSON.stringify(a)));
+                    "bs.cascader.change bs.cascader.select": function (name, id, a) {
+                        var res = JSON.stringify(a);
+                        console.log(JSON.stringify(a));
+                        if(res && res.length)
+                            jQuery('#dc_speciality_id').val(JSON.stringify(a));
                     }
                 });
                 jQuery('#speciality-select-row').hide();
