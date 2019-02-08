@@ -1746,7 +1746,9 @@
                             jQuery('#dc_speciality_id').val(JSON.stringify(a));
                     }
                 });
-                jQuery('#speciality-select-row').hide();
+                <% if (!documentType.equals("Bachelous paper")) { %>
+                    jQuery('#speciality-select-row').hide();
+                <% } %>
             });
 
         });
