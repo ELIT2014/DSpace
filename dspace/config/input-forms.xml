@@ -102,7 +102,7 @@
          <repeatable>false</repeatable>
          <label>Citation</label>
          <input-type>onebox</input-type>
-         <hint>Enter the standard citation for the previously issued instance of this item.</hint>
+         <hint></hint>
          <required></required>
        </field>
 
@@ -113,7 +113,7 @@
          <dc-qualifier>id</dc-qualifier>
          <repeatable>false</repeatable>
          <label>Speciality id</label>
-         <input-type>hiden</input-type>
+         <input-type>onebox</input-type>
          <hint>Enter the standard citation for the previously issued instance of this item.</hint>
          <required></required>
        </field>
