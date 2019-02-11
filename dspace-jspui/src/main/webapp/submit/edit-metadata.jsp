@@ -1731,17 +1731,29 @@
             a = a.replace(re, "n");
 
             a = JSON.parse(a);
+
+            var getSpecialityInfo = function() {
+                var val = jQuery('#dc_speciality_id').val();
+                if(!val || !val.length) {
+                    return [];
+                }
+                return JSON.parse(val);
+            };
             jQuery(document).ready(function(){
+                jQuery('#dc_speciality_id').parentsUntil('form').hide();
+                jQuery('#dc_speciality_id').parentsUntil('form').prev().hide();
+
                 jQuery("#speciality-selector").bsCascader({
                     splitChar: '/',
                     placeHolder: 'Select...',
+                    value : getSpecialityInfo(),
                     loadData: function(name, id) {
                         id(a)
                     }
                 }).on({
                     "bs.cascader.change bs.cascader.select": function (name, id, a) {
                         var res = JSON.stringify(a);
-                        console.log(JSON.stringify(a));
+                        // console.log(JSON.stringify(a));
                         if(res && res.length)
                             jQuery('#dc_speciality_id').val(JSON.stringify(a));
                     }
