@@ -1746,6 +1746,7 @@
                 jQuery("#speciality-selector").bsCascader({
                     splitChar: '/',
                     placeHolder: 'Select...',
+                    dropUp: true,
                     value : getSpecialityInfo(),
                     loadData: function(name, id) {
                         id(a)
