@@ -188,7 +188,7 @@ public class EssuirUtils {
         return findAuthor(surname, initials);
     }
 
-    public static Map<Speciality, Integer> getSpecialityStatistics(LocalDate from, LocalDate to) {
+    public static Map<Speciality, Long> getSpecialityStatistics(LocalDate from, LocalDate to) {
         return specialityStatisticsService.getSpecialityStatistics(from, to);
     }
 

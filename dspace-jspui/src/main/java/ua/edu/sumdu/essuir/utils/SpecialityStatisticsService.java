@@ -1,5 +1,7 @@
 package ua.edu.sumdu.essuir.utils;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Controller;
 import ua.edu.sumdu.essuir.entity.*;
 import ua.edu.sumdu.essuir.repository.MetadatavalueRepository;
@@ -10,9 +12,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Controller
@@ -22,17 +21,33 @@ public class SpecialityStatisticsService {
     @Resource
     private SpecialityRepository specialityRepository;
 
-    private Speciality findSpeciality(String code) {
+
+    private Speciality extractSpecialityCode(String data) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(data);
+            FacultyEntity faculty = new FacultyEntity.Builder()
+                    .withId(jsonNode.get(0).get("code").asInt())
+                    .withName(jsonNode.get(0).get("name").asText())
+                    .build();
+            ChairEntity chair = new ChairEntity.Builder()
+                    .withId(jsonNode.get(1).get("code").asInt())
+                    .withChairName(jsonNode.get(1).get("name").asText())
+                    .withFacultyEntityName(faculty)
+                    .build();
+            return new Speciality.Builder()
+                    .withName(jsonNode.get(2).get("name").asText())
+                    .withCode(jsonNode.get(2).get("code").asText())
+                    .withChairEntity(chair)
+                    .build();
+
+        } catch (Exception ex) {
+
+        }
         FacultyEntity defaultFacultyEntity = new FacultyEntity.Builder().withId(-1).withName("-").build();
         ChairEntity defaultChairEntity = new ChairEntity.Builder().withId(-1).withChairName("-").withFacultyEntityName(defaultFacultyEntity).build();
-        Speciality defaultSpecialityEntity= new Speciality.Builder().withId(-1).withName(code).withChairEntity(defaultChairEntity).build();
-        return Optional.ofNullable(specialityRepository.findByCode(code)).orElse(defaultSpecialityEntity);
-    }
+        return new Speciality.Builder().withId(-1).withName("-").withChairEntity(defaultChairEntity).build();
 
-    private String extractSpecialityCode(String data) {
-        Pattern pattern = Pattern.compile("(\\d{1}[.]\\d{6})");
-        Matcher matcher = pattern.matcher(data);
-        return matcher.find() ? matcher.group(1).trim() : null;
     }
 
     private List<PaperDescription> getBachelousPapers() {
@@ -48,23 +63,21 @@ public class SpecialityStatisticsService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
         return bachelousPaperIds.stream()
-                .filter(id -> bachelousPapersDescription.containsKey(id) && bachelousPapersDescription.get(id).containsKey(12) && bachelousPapersDescription.get(id).containsKey(18))
+                .filter(id -> bachelousPapersDescription.containsKey(id) && bachelousPapersDescription.get(id).containsKey(12) && bachelousPapersDescription.get(id).containsKey(133))
+
                 .map(id -> new PaperDescription.Builder()
                         .withResourceId(id)
-                        .withSpeciality(extractSpecialityCode(bachelousPapersDescription.get(id).get(18).get(0).getTextValue()))
+                        .withSpeciality(extractSpecialityCode(bachelousPapersDescription.get(id).get(133).get(0).getTextValue()))
                         .withAdded(LocalDate.parse(bachelousPapersDescription.get(id).get(12).get(0).getTextValue(), formatter))
                         .build())
                 .filter(paper -> paper.getSpeciality() != null)
                 .collect(Collectors.toList());
     }
 
-    public Map<Speciality, Integer> getSpecialityStatistics(LocalDate from, LocalDate to) {
+    public Map<Speciality, Long> getSpecialityStatistics(LocalDate from, LocalDate to) {
         return getBachelousPapers()
                 .stream()
                 .filter(paper -> paper.getAdded().isAfter(from) && paper.getAdded().isBefore(to))
-                .collect(Collectors.groupingBy(PaperDescription::getSpeciality))
-                .entrySet()
-                .stream()
-                .collect(Collectors.toMap(item -> findSpeciality(item.getKey()), item -> item.getValue().size()));
+                .collect(Collectors.groupingBy(PaperDescription::getSpeciality, Collectors.counting()));
     }
 }

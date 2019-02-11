@@ -5,14 +5,14 @@ import java.time.LocalDateTime;
 
 public class PaperDescription {
     private Integer resourceId;
-    private String speciality;
+    private Speciality speciality;
     private LocalDate added;
 
     public Integer getResourceId() {
         return resourceId;
     }
 
-    public String getSpeciality() {
+    public Speciality getSpeciality() {
         return speciality;
     }
 
@@ -29,7 +29,7 @@ public class PaperDescription {
 
     public static final class Builder {
         private Integer resourceId;
-        private String speciality;
+        private Speciality speciality;
         private LocalDate added;
 
         public Builder() {
@@ -46,7 +46,7 @@ public class PaperDescription {
             return this;
         }
 
-        public Builder withSpeciality(String speciality) {
+        public Builder withSpeciality(Speciality speciality) {
             this.speciality = speciality;
             return this;
         }
