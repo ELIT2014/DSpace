@@ -11,6 +11,7 @@ import javax.annotation.Resource;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -59,15 +60,15 @@ public class SpecialityStatisticsService {
         Map<Integer, Map<Integer, List<Metadatavalue>>> bachelousPapersDescription = metadatavaluesForBachelousPapers.stream()
                 .collect(Collectors.groupingBy(Metadatavalue::getResourceId, Collectors.groupingBy(Metadatavalue::getMetadataFieldId)));
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy dd", Locale.US);
 
         return bachelousPaperIds.stream()
-                .filter(id -> bachelousPapersDescription.containsKey(id) && bachelousPapersDescription.get(id).containsKey(12) && bachelousPapersDescription.get(id).containsKey(133))
+                .filter(id -> bachelousPapersDescription.containsKey(id) && bachelousPapersDescription.get(id).containsKey(134) && bachelousPapersDescription.get(id).containsKey(133))
 
                 .map(id -> new PaperDescription.Builder()
                         .withResourceId(id)
                         .withSpeciality(extractSpecialityCode(bachelousPapersDescription.get(id).get(133).get(0).getTextValue()))
-                        .withAdded(LocalDate.parse(bachelousPapersDescription.get(id).get(12).get(0).getTextValue(), formatter))
+                        .withAdded(LocalDate.parse(bachelousPapersDescription.get(id).get(134).get(0).getTextValue() + " 01", formatter))
                         .build())
                 .filter(paper -> paper.getSpeciality() != null)
                 .collect(Collectors.toList());
