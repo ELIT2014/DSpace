@@ -1754,12 +1754,12 @@
                 }).on({
                     "bs.cascader.change bs.cascader.select": function (name, id, a) {
                         var res = JSON.stringify(a);
-                        // console.log(JSON.stringify(a));
                         if(res && res.length)
                             jQuery('#dc_speciality_id').val(JSON.stringify(a));
                     }
                 });
-                <% if (!documentType.equals("Bachelous paper")) { %>
+
+                <% if (!documentType.equals("Bachelous paper") && !documentType.equals("Masters thesis")) { %>
                     jQuery('#speciality-select-row').hide();
                 <% } %>
             });
@@ -1768,7 +1768,7 @@
 
         function paperTypeSelected() {
             var selectedType = jQuery('[name = "dc_type"] option:selected').val();
-            if(selectedType.trim() === 'Bachelous paper')
+            if(selectedType.trim() === 'Bachelous paper' || selectedType.trim() === 'Masters thesis')
                 jQuery('#speciality-select-row').show();
             else
                 jQuery('#speciality-select-row').hide();
