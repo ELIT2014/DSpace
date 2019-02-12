@@ -131,6 +131,17 @@
 
        <field>
          <dc-schema>dc</dc-schema>
+         <dc-element>date</dc-element>
+         <dc-qualifier>presentation</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Presentation date</label>
+         <input-type>onebox</input-type>
+         <hint></hint>
+         <required></required>
+       </field>
+
+       <field>
+         <dc-schema>dc</dc-schema>
          <dc-element>language</dc-element>
          <dc-qualifier>iso</dc-qualifier>
          <repeatable>false</repeatable>

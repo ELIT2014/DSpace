@@ -12,4 +12,14 @@
             <column name="scope_note" value="Speciality id field"/>
         </insert>
     </changeSet>
+
+    <changeSet id="2" author="Igor Marchenko">
+        <insert tableName="metadatafieldregistry">
+            <column name="metadata_field_id" value="133"/>
+            <column name="metadata_schema_id" value="1"/>
+            <column name="element" value="date"/>
+            <column name="qualifier" value="presentation"/>
+            <column name="scope_note" value="Date of representation in university."/>
+        </insert>
+    </changeSet>
 </databaseChangeLog>
