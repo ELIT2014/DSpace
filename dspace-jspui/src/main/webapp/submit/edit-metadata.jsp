@@ -1712,6 +1712,11 @@
                 </div><br/>
             </div>
     </form>
+    <style>
+        .ui-datepicker-calendar {
+            display: none;
+        }
+    </style>
     <script>
         var a = [];
         var request = jQuery.ajax({
@@ -1740,6 +1745,20 @@
                 return JSON.parse(val);
             };
             jQuery(document).ready(function(){
+
+                jQuery(function() {
+                    jQuery('#dc_date_presentation').datepicker( {
+                        changeMonth: true,
+                        changeYear: true,
+                        showButtonPanel: true,
+                        dateFormat: 'MM yy',
+                        onClose: function(dateText, inst) {
+                            jQuery(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
+                        }
+                    });
+                });
+
+
                 jQuery('#dc_speciality_id').parentsUntil('form').hide();
                 jQuery('#dc_speciality_id').parentsUntil('form').prev().hide();
 
@@ -1761,6 +1780,8 @@
 
                 <% if (!documentType.equals("Bachelous paper") && !documentType.equals("Masters thesis")) { %>
                     jQuery('#speciality-select-row').hide();
+                    jQuery('#dc_date_presentation').parentsUntil('form').hide();
+                    jQuery('#dc_date_presentation').parentsUntil('form').prev().hide();
                 <% } %>
             });
 
@@ -1768,10 +1789,16 @@
 
         function paperTypeSelected() {
             var selectedType = jQuery('[name = "dc_type"] option:selected').val();
-            if(selectedType.trim() === 'Bachelous paper' || selectedType.trim() === 'Masters thesis')
+            if(selectedType.trim() === 'Bachelous paper' || selectedType.trim() === 'Masters thesis') {
                 jQuery('#speciality-select-row').show();
-            else
+                jQuery('#dc_date_presentation').parentsUntil('form').show();
+                jQuery('#dc_date_presentation').parentsUntil('form').prev().show();
+            }
+            else {
                 jQuery('#speciality-select-row').hide();
+                jQuery('#dc_date_presentation').parentsUntil('form').hide();
+                jQuery('#dc_date_presentation').parentsUntil('form').prev().hide();
+            }
         }
         function enableSubmitButton() {
             jQuery('[name=submit_dc_contributor_author_add]').attr('disabled', false);
