@@ -2,10 +2,10 @@ package ua.edu.sumdu.essuir.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import ua.edu.sumdu.essuir.entity.*;
 import ua.edu.sumdu.essuir.repository.MetadatavalueRepository;
-import ua.edu.sumdu.essuir.repository.SpecialityRepository;
 
 import javax.annotation.Resource;
 import java.time.LocalDate;
@@ -16,11 +16,9 @@ import java.util.stream.Collectors;
 
 @Controller
 public class SpecialityStatisticsService {
+    private static Logger log = Logger.getLogger(SpecialityStatisticsService.class);
     @Resource
     private MetadatavalueRepository metadatavalueRepository;
-    @Resource
-    private SpecialityRepository specialityRepository;
-
 
     private Speciality extractSpecialityCode(String data) {
         try {
@@ -42,7 +40,8 @@ public class SpecialityStatisticsService {
                     .build();
 
         } catch (Exception ex) {
-
+            log.error(ex.getMessage());
+            log.error(ex.getStackTrace());
         }
         FacultyEntity defaultFacultyEntity = new FacultyEntity.Builder().withId(-1).withName("-").build();
         ChairEntity defaultChairEntity = new ChairEntity.Builder().withId(-1).withChairName("-").withFacultyEntityName(defaultFacultyEntity).build();
