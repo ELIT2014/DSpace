@@ -44,7 +44,6 @@
         LocalDate from = request.getParameter("fromDate") == null ? LocalDate.MIN : LocalDate.parse(request.getParameter("fromDate"), formatter);
         LocalDate to = request.getParameter("endDate") == null ? LocalDate.MAX : LocalDate.parse(request.getParameter("endDate"), formatter);
         Map<Speciality, Long> specialityStatistics = EssuirUtils.getSpecialityStatistics(from, to);
-        System.out.println(specialityStatistics);
 %>
 
 
