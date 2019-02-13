@@ -1443,9 +1443,11 @@
 
         out.write(sb.toString());
     }//end doList
-    void doSpecialityRow(javax.servlet.jsp.JspWriter out) throws IOException {
+    void doSpecialityRow(javax.servlet.jsp.JspWriter out, PageContext pageContext) throws IOException {
         StringBuilder sb = new StringBuilder();
-        sb.append("<div class=\"row\" id = \"speciality-select-row\"><span class=\"col-md-2\"><b>Select speciality</b></span>")
+        sb.append("<div class=\"row\" id = \"speciality-select-row\"><span class=\"col-md-2\"><b>")
+                .append(LocaleSupport.getLocalizedMessage(pageContext, "jsp.submit.edit-metadata.speciality-select"))
+        .append("</b></span>")
                 .append("<span class=\"col-md-8\">")
                 .append("<div id=\"speciality-selector\"></div>")
                 .append("</span></div></br>");
@@ -1688,7 +1690,7 @@
                             closedVocabulary, collectionID);
                 }
                 if ("dc_type".equals(fieldName)) {
-                    doSpecialityRow(out);
+                    doSpecialityRow(out, pageContext);
                 }
 
             } // end of 'for rows'
