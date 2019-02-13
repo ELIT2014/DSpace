@@ -15,7 +15,7 @@ public class Speciality {
     private Integer id;
 
     @Column(name = "name")
-    @JsonProperty("name")
+    @JsonIgnore
     private String name;
 
     @Column(name = "code")
@@ -36,6 +36,11 @@ public class Speciality {
         name = builder.name;
         code = builder.code;
         chairEntity = builder.chairEntity;
+    }
+
+    @JsonProperty("name")
+    public String getComplexName() {
+        return String.format("%s - %s", code, name);
     }
 
     public Integer getId() {

@@ -1445,7 +1445,7 @@
     }//end doList
     void doSpecialityRow(javax.servlet.jsp.JspWriter out) throws IOException {
         StringBuilder sb = new StringBuilder();
-        sb.append("<div class=\"row\" id = \"speciality-select-row\"><span class=\"col-md-2\">Select speciality</span>")
+        sb.append("<div class=\"row\" id = \"speciality-select-row\"><span class=\"col-md-2\"><b>Select speciality</b></span>")
                 .append("<span class=\"col-md-8\">")
                 .append("<div id=\"speciality-selector\"></div>")
                 .append("</span></div></br>");
