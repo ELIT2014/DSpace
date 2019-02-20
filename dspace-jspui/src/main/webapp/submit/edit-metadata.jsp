@@ -1832,20 +1832,21 @@
             jQuery('#authors_block').on('change', '[id^=dc_contributor_author_]', changeButtonStatus);
         });
 
-        function getErrorMessageBlock(message) {
-        return '<div class="alert alert-warning">' + message + '</div>';
+        function getErrorMessageBlock(message, blockId) {
+        return '<div class="alert alert-warning" id="error-block-'+blockId+'">' + message + '</div>';
         }
         function validateSpecialityInfo() {
             var specialityId = jQuery('#dc_speciality_id').val();
             var presentationDate = jQuery('#dc_date_presentation').val();
             var selectedType = jQuery('[name = "dc_type"] option:selected').val();
-
+            jQuery('#error-block-speciality').remove();
+            jQuery('#error-block-presentation-date').remove();
             if(selectedType.trim() === 'Bachelous paper' || selectedType.trim() === 'Masters thesis') {
                 if(!specialityId) {
-                    jQuery('#speciality-select-row').prepend(getErrorMessageBlock('Select speciality!'));
+                    jQuery('#speciality-select-row').prepend(getErrorMessageBlock('<%= LocaleSupport.getLocalizedMessage(pageContext, "metadata.dc.speciality.id.error") %>', 'speciality'));
                 }
                 if(!presentationDate) {
-                    jQuery('#speciality-select-row').next().after(getErrorMessageBlock('Select speciality!'));
+                    jQuery('#speciality-select-row').next().after(getErrorMessageBlock('<%= LocaleSupport.getLocalizedMessage(pageContext, "metadata.dc.date.presentation.error") %>', 'presentation-date'));
                 }
                 var res = specialityId && presentationDate;
                 return !!res;
@@ -1854,3 +1855,4 @@
         }
     </script>
 </dspace:layout>
+
