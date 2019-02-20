@@ -1505,7 +1505,7 @@
 
 
 
-    <form action="<%= request.getContextPath() %>/submit#<%= si.getJumpToField()%>" method="post" name="edit_metadata" id="edit_metadata" onkeydown="return disableEnterKey(event);">
+    <form action="<%= request.getContextPath() %>/submit#<%= si.getJumpToField()%>" method="post" name="edit_metadata" id="edit_metadata" onkeydown="return disableEnterKey(event);" onsubmit="return validateSpecialityInfo()">
 
         <jsp:include page="/submit/progressbar.jsp"></jsp:include>
 
@@ -1831,5 +1831,26 @@
 
             jQuery('#authors_block').on('change', '[id^=dc_contributor_author_]', changeButtonStatus);
         });
+
+        function getErrorMessageBlock(message) {
+        return '<div class="alert alert-warning">' + message + '</div>';
+        }
+        function validateSpecialityInfo() {
+            var specialityId = jQuery('#dc_speciality_id').val();
+            var presentationDate = jQuery('#dc_date_presentation').val();
+            var selectedType = jQuery('[name = "dc_type"] option:selected').val();
+
+            if(selectedType.trim() === 'Bachelous paper' || selectedType.trim() === 'Masters thesis') {
+                if(!specialityId) {
+                    jQuery('#speciality-select-row').prepend(getErrorMessageBlock('Select speciality!'));
+                }
+                if(!presentationDate) {
+                    jQuery('#speciality-select-row').next().after(getErrorMessageBlock('Select speciality!'));
+                }
+                var res = specialityId && presentationDate;
+                return !!res;
+            }
+            return true;
+        }
     </script>
 </dspace:layout>
