@@ -1490,10 +1490,7 @@
 %>
 
 <c:set var="dspace.layout.head.last" scope="request">
-    <script type="text/javascript" src="<%= request.getContextPath() %>/static/js/scriptaculous/prototype.min.js"></script>
-    <script type="text/javascript" src="<%= request.getContextPath() %>/static/js/scriptaculous/builder.min.js"></script>
-    <script type="text/javascript" src="<%= request.getContextPath() %>/static/js/scriptaculous/effects.min.js"></script>
-    <script type="text/javascript" src="<%= request.getContextPath() %>/static/js/scriptaculous/controls.min.js"></script>
+
 
     <%--<script type="text/javascript" src="<%= request.getContextPath() %>/static/js/scriptaculous/scriptaculous.js"> </script>--%>
 </c:set>
