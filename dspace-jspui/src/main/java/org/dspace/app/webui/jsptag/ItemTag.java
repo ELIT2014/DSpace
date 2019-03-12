@@ -36,6 +36,9 @@ import javax.servlet.jsp.tagext.TagSupport;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -524,6 +527,12 @@ public class ItemTag extends TagSupport
                                 }
                             }
                         }
+                        if (field.startsWith("dc.date.presentation")) {
+                            String year = values[j].value.split(" ")[1];
+                            String month = values[j].value.split(" ")[0];
+                            values[j].value = String.format("%02d.%s", Month.valueOf(month.toUpperCase()).getValue(), year);
+                        }
+
                         if (field.startsWith("dc.type"))
                         {
                             String locale = sessionLocale.toString();
