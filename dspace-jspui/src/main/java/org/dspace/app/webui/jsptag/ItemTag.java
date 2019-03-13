@@ -7,6 +7,8 @@
  */
 package org.dspace.app.webui.jsptag;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -42,6 +44,8 @@ import java.time.Month;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static ua.edu.sumdu.essuir.utils.EssuirUtils.getTypeLocalized;
 
@@ -531,6 +535,14 @@ public class ItemTag extends TagSupport
                             String year = values[j].value.split(" ")[1];
                             String month = values[j].value.split(" ")[0];
                             values[j].value = String.format("%02d.%s", Month.valueOf(month.toUpperCase()).getValue(), year);
+                        }
+
+                        if (field.startsWith("dc.speciality.id")) {
+                            JsonNode jsonNode = new ObjectMapper().readTree(values[j].value);
+                            values[j].value = StreamSupport
+                                    .stream(Spliterators.spliteratorUnknownSize(jsonNode.iterator(), Spliterator.ORDERED), false)
+                                    .map(item -> item.get("name").asText())
+                                    .collect(Collectors.joining("/"));
                         }
 
                         if (field.startsWith("dc.type"))
