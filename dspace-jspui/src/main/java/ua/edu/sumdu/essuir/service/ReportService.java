@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
-import sun.rmi.runtime.Log;
 import ua.edu.sumdu.essuir.entity.*;
 import ua.edu.sumdu.essuir.repository.MetadatavalueRepository;
 
@@ -147,5 +146,15 @@ public class ReportService {
             }
         }
         return result;
+    }
+
+    public Map<Integer, List<Metadatavalue>> getItemsInSpeciality(String pattern) {
+        List<Integer> itemIds = metadatavalueRepository.findDistinctByTextValueContaining(pattern).stream()
+                .map(item -> item.getResourceId())
+                .collect(Collectors.toList());
+
+        return metadatavalueRepository.findByResourceIdIn(itemIds)
+                .stream()
+                .collect(Collectors.groupingBy(Metadatavalue::getResourceId));
     }
 }
