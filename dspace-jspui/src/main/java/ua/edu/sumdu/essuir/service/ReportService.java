@@ -130,20 +130,21 @@ public class ReportService {
     public Map<String, Faculty> getSpecialitySubmissionCountBetweenDates(LocalDate from, LocalDate to) {
         Map<String, Long> submissionInspeciality = getBachelousPapers()
                 .stream()
-                .filter(paper -> paper.getAdded().isAfter(from) && paper.getAdded().isBefore(to))
                 .filter(item -> item.getSpeciality() != null)
                 .collect(Collectors.groupingBy(item -> item.getSpeciality().getName(), Collectors.counting()));
 
         Map<String, Faculty> result = new HashMap<>();
 
         for(PaperDescription paper : getBachelousPapers()) {
-            String faculty = paper.getSpeciality().getChairEntity().getFacultyEntityName();
-            String chair = paper.getSpeciality().getChairEntity().getChairName();
-            String speciality = paper.getSpeciality().getName();
-            String specialityId = paper.getSpeciality().getName();
-            Long submissionCount = submissionInspeciality.get(specialityId);
-            result.putIfAbsent(faculty, new Faculty(faculty));
-            result.get(faculty).addSubmission(chair, speciality, submissionCount.intValue());
+            if(paper.getAdded().isAfter(from) && paper.getAdded().isBefore(to)) {
+                String faculty = paper.getSpeciality().getChairEntity().getFacultyEntityName();
+                String chair = paper.getSpeciality().getChairEntity().getChairName();
+                String speciality = paper.getSpeciality().getName();
+                String specialityId = paper.getSpeciality().getName();
+                Long submissionCount = submissionInspeciality.get(specialityId);
+                result.putIfAbsent(faculty, new Faculty(faculty));
+                result.get(faculty).addSubmission(chair, speciality, submissionCount.intValue());
+            }
         }
         return result;
     }
