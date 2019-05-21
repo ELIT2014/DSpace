@@ -79,7 +79,7 @@
                         header: ["<%= LocaleSupport.getLocalizedMessage(pageContext, "report.depositor") %>", {content: "textFilter"}],
                         width: 600,
                         sort: "string",
-                        template: "{common.treetable()} <a href = 'detailed-report.jsp?depositor=#name#'>#name#</a>"
+                        template: "{common.treetable()} <a href = '/statistics/detailedReport?depositor=#name#'>#name#</a>"
                     },
                     {id: "submission_count", header: "<%= LocaleSupport.getLocalizedMessage(pageContext, "report.submissions-count") %>", width: 200, sort: "int"}
                 ],
