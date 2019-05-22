@@ -98,7 +98,14 @@ public class ReportController {
 
     @RequestMapping(value = "/detailedReport", method = RequestMethod.GET)
     public ModelAndView getDetailedReportForDepositor(@RequestParam("depositor") String depositor, ModelAndView model) {
-        Map<Integer, List<Metadatavalue>> itemsInSpeciality = reportService.getItemsInSpeciality(depositor);
+        Collection<List<Metadatavalue>> itemsInSpeciality;
+
+        if(depositor.equals("-")) {
+            itemsInSpeciality = reportService.getBacheoursWithoutSpeciality().values();
+        } else {
+            itemsInSpeciality = reportService.getItemsInSpeciality(depositor).values();
+        }
+
 
         BiFunction<List<Metadatavalue>, Integer, String> extractItemDataByFieldId = (metadata, fieldId) -> metadata
                 .stream()
@@ -111,14 +118,11 @@ public class ReportController {
         Function<List<Metadatavalue>, Pair<String, String>> extractItemNameAndLink = (metadata) ->
                 Pair.of(extractItemDataByFieldId.apply(metadata, 64), extractItemDataByFieldId.apply(metadata, 25));
 
-        List<String> collect = itemsInSpeciality.values()
+        List<String> collect = itemsInSpeciality
                 .stream()
                 .map(item -> extractItemNameAndLink.apply(item))
                 .map(item -> String.format("<a href = \"%s\">%s</a>", item.getRight(), item.getLeft()))
                 .collect(Collectors.toList());
-
-//        System.out.println(collect);
-
 
         model.setViewName("detailed-report");
 

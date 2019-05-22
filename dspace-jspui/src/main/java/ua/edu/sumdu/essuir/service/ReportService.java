@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -148,6 +149,28 @@ public class ReportService {
         return result;
     }
 
+    public Map<Integer, List<Metadatavalue>> getBacheoursWithoutSpeciality() {
+
+
+        List<Integer> bachelousPaperIds = Stream.concat(
+                metadatavalueRepository.findDistinctByTextValue("Bachelous paper").stream(),
+                metadatavalueRepository.findDistinctByTextValue("Masters thesis").stream())
+                .map(Metadatavalue::getResourceId)
+                .collect(Collectors.toList());
+
+        Map<Integer, List<Metadatavalue>> bacheloursItems = metadatavalueRepository.findByResourceIdIn(bachelousPaperIds).stream()
+                .collect(Collectors.groupingBy(Metadatavalue::getResourceId));
+
+        Predicate<List<Metadatavalue>> isSpecialityAndPresentationDateSet = (metadataFields) -> metadataFields.stream()
+                .filter(field -> field.getMetadataFieldId().equals(134) || field.getMetadataFieldId().equals(133))
+                .filter(field -> !field.getTextValue().isEmpty())
+                .count() == 2;
+
+        return bacheloursItems.entrySet()
+                .stream()
+                .filter(item -> isSpecialityAndPresentationDateSet.test(item.getValue()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
     public Map<Integer, List<Metadatavalue>> getItemsInSpeciality(String pattern) {
         List<Integer> itemIds = metadatavalueRepository.findDistinctByTextValueContaining(pattern).stream()
                 .map(item -> item.getResourceId())
