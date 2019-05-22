@@ -98,7 +98,7 @@ public class ReportController {
 
     @RequestMapping(value = "/detailedReport", method = RequestMethod.GET)
     public ModelAndView getDetailedReportForDepositor(@RequestParam("depositor") String depositor, ModelAndView model) {
-        Collection<List<Metadatavalue>> itemsInSpeciality;
+        Collection<Map<Integer, List<Metadatavalue>>> itemsInSpeciality;
 
         if(depositor.equals("-")) {
             itemsInSpeciality = reportService.getBacheoursWithoutSpeciality().values();
@@ -107,15 +107,16 @@ public class ReportController {
         }
 
 
-        BiFunction<List<Metadatavalue>, Integer, String> extractItemDataByFieldId = (metadata, fieldId) -> metadata
+        BiFunction<Map<Integer, List<Metadatavalue>>, Integer, String> extractItemDataByFieldId = (metadata, fieldId) -> metadata
+                .getOrDefault(fieldId, new ArrayList<>())
                 .stream()
-                .filter(item -> item.getMetadataFieldId().equals(fieldId) && item.getPlace().equals(1))
+                .filter(item -> item.getPlace().equals(1))
                 .map(Metadatavalue::getTextValue)
                 .findAny()
                 .orElse("");
 
 
-        Function<List<Metadatavalue>, Pair<String, String>> extractItemNameAndLink = (metadata) ->
+        Function<Map<Integer, List<Metadatavalue>>, Pair<String, String>> extractItemNameAndLink = (metadata) ->
                 Pair.of(extractItemDataByFieldId.apply(metadata, 64), extractItemDataByFieldId.apply(metadata, 25));
 
         List<String> collect = itemsInSpeciality
