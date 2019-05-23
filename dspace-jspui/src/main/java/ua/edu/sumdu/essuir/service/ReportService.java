@@ -61,39 +61,50 @@ public class ReportService {
                 "left join item on item.submitter_id = eperson_id and in_archive " +
                 "left join metadatavalue on metadatavalue.resource_id = item.item_id and metadata_field_id = 11 " +
                 "and text_value between '%d-%02d-%02d' and '%d-%02d-%02d' " +
-                "group by eperson.eperson_id, chair_name, faculty_name", from.getYear(), from.getMonth().getValue(), from.getDayOfMonth(), to.getYear(),from.getMonth().getValue(), to.getDayOfMonth());
+                "group by eperson.eperson_id, chair_name, faculty_name", from.getYear(), from.getMonth().getValue(), from.getDayOfMonth(), to.getYear(), from.getMonth().getValue(), to.getDayOfMonth());
         return populateDataFromQueryResult(databaseService.executeQuery(query));
     }
 
 
     private Speciality extractSpecialityCode(String data) {
+        FacultyEntity defaultFacultyEntity = new FacultyEntity.Builder().withId(-1).withName("-").build();
+        ChairEntity defaultChairEntity = new ChairEntity.Builder().withId(-1).withChairName("-").withFacultyEntityName(defaultFacultyEntity).build();
+        Speciality defaultSpecialityEntity = new Speciality.Builder().withId(-1).withName("-").withChairEntity(defaultChairEntity).build();
+
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(data);
-            FacultyEntity faculty = new FacultyEntity.Builder()
-                    .withId(jsonNode.get(0).get("code").asInt())
-                    .withName(jsonNode.get(0).get("name").asText())
-                    .build();
-            ChairEntity chair = new ChairEntity.Builder()
-                    .withId(jsonNode.get(1).get("code").asInt())
-                    .withChairName(jsonNode.get(1).get("name").asText())
-                    .withFacultyEntityName(faculty)
-                    .build();
-            return new Speciality.Builder()
-                    .withName(jsonNode.get(2).get("name").asText())
-                    .withCode(jsonNode.get(2).get("code").asText())
-                    .withChairEntity(chair)
-                    .build();
+            FacultyEntity.Builder facultyBuilder = new FacultyEntity.Builder(defaultFacultyEntity);
+            if (jsonNode.has(0)) {
+                facultyBuilder
+                        .withId(jsonNode.get(0).get("code").asInt())
+                        .withName(jsonNode.get(0).get("name").asText());
+            }
+
+            ChairEntity.Builder chairBuilder = new ChairEntity.Builder(defaultChairEntity)
+                    .withFacultyEntityName(facultyBuilder.build());
+            if (jsonNode.has(1)) {
+                chairBuilder
+                        .withId(jsonNode.get(1).get("code").asInt())
+                        .withChairName(jsonNode.get(1).get("name").asText());
+            }
+
+            Speciality.Builder speciality = new Speciality.Builder(defaultSpecialityEntity)
+                    .withChairEntity(chairBuilder.build());
+            if (jsonNode.has(2)) {
+                speciality.withName(jsonNode.get(2).get("name").asText())
+                        .withCode(jsonNode.get(2).get("code").asText());
+            }
+            return speciality.build();
 
         } catch (Exception ex) {
             log.error(ex.getMessage());
             log.error(ex.getStackTrace());
         }
-        FacultyEntity defaultFacultyEntity = new FacultyEntity.Builder().withId(-1).withName("-").build();
-        ChairEntity defaultChairEntity = new ChairEntity.Builder().withId(-1).withChairName("-").withFacultyEntityName(defaultFacultyEntity).build();
-        return new Speciality.Builder().withId(-1).withName("-").withChairEntity(defaultChairEntity).build();
-
+        System.out.println(data);
+        return defaultSpecialityEntity;
     }
+
     private Map<Integer, Map<Integer, List<Metadatavalue>>> getBachelousPapersMetadata() {
         List<Integer> bachelousPaperIds = Stream.concat(
                 metadatavalueRepository.findDistinctByTextValue("Bachelous paper").stream(),
@@ -105,6 +116,7 @@ public class ReportService {
         return metadatavaluesForBachelousPapers.stream()
                 .collect(Collectors.groupingBy(Metadatavalue::getResourceId, Collectors.groupingBy(Metadatavalue::getMetadataFieldId)));
     }
+
     private List<PaperDescription> getBachelousPapers() {
         Map<Integer, Map<Integer, List<Metadatavalue>>> bachelousPapersDescription = getBachelousPapersMetadata();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy dd", Locale.US);
@@ -135,8 +147,8 @@ public class ReportService {
 
         Map<String, Faculty> result = new HashMap<>();
 
-        for(PaperDescription paper : bachelousPapers) {
-            if(paper.getAdded().isAfter(from) && paper.getAdded().isBefore(to)) {
+        for (PaperDescription paper : bachelousPapers) {
+            if (paper.getAdded().isAfter(from) && paper.getAdded().isBefore(to)) {
                 String faculty = paper.getSpeciality().getChairEntity().getFacultyEntityName();
                 String chair = paper.getSpeciality().getChairEntity().getChairName();
                 String speciality = paper.getSpeciality().getName();
@@ -149,7 +161,7 @@ public class ReportService {
         return result;
     }
 
-    public Map<Integer,Map<Integer, List<Metadatavalue>>> getBacheoursWithoutSpeciality() {
+    public Map<Integer, Map<Integer, List<Metadatavalue>>> getBacheoursWithoutSpeciality() {
         Map<Integer, Map<Integer, List<Metadatavalue>>> bacheloursItems = getBachelousPapersMetadata();
 
         Predicate<Map<Integer, List<Metadatavalue>>> isSpecialityAndPresentationDateSet = (metadataFields) -> metadataFields.containsKey(133) && metadataFields.containsKey(134);
@@ -159,7 +171,8 @@ public class ReportService {
                 .filter(item -> isSpecialityAndPresentationDateSet.test(item.getValue()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
-    public Map<Integer,Map<Integer, List<Metadatavalue>>> getItemsInSpeciality(String pattern) {
+
+    public Map<Integer, Map<Integer, List<Metadatavalue>>> getItemsInSpeciality(String pattern) {
         List<Integer> itemIds = metadatavalueRepository.findDistinctByTextValueContaining(pattern).stream()
                 .map(item -> item.getResourceId())
                 .collect(Collectors.toList());
