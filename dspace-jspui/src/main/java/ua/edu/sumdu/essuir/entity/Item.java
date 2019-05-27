@@ -30,10 +30,6 @@ public class Item {
 
     @Column(name = "discoverable")
     private Boolean discoverable;
-//
-//    @OneToMany(cascade = CascadeType.ALL)
-//    @JoinColumn(name = "resource_id")
-//    private Set<Metadatavalue> metadata;
 
     public Item() {
     }
