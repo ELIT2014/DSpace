@@ -69,7 +69,7 @@ public class ReportService {
     private Speciality extractSpecialityCode(String data) {
         FacultyEntity defaultFacultyEntity = new FacultyEntity.Builder().withId(-1).withName("-").build();
         ChairEntity defaultChairEntity = new ChairEntity.Builder().withId(-1).withChairName("-").withFacultyEntityName(defaultFacultyEntity).build();
-        Speciality defaultSpecialityEntity = new Speciality.Builder().withId(-1).withName("-").withChairEntity(defaultChairEntity).build();
+        Speciality defaultSpecialityEntity = new Speciality.Builder().withId(-1).withName("-").withCode("-1").withChairEntity(defaultChairEntity).build();
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -94,6 +94,9 @@ public class ReportService {
             if (jsonNode.has(2)) {
                 speciality.withName(jsonNode.get(2).get("name").asText())
                         .withCode(jsonNode.get(2).get("code").asText());
+            } else {
+                speciality.withName(chairBuilder.build().getChairName())
+                        .withCode(chairBuilder.build().getId().toString());
             }
             return speciality.build();
 
@@ -101,7 +104,6 @@ public class ReportService {
             log.error(ex.getMessage());
             log.error(ex.getStackTrace());
         }
-        System.out.println(data);
         return defaultSpecialityEntity;
     }
 
@@ -109,7 +111,9 @@ public class ReportService {
         List<Integer> bachelousPaperIds = Stream.concat(
                 metadatavalueRepository.findDistinctByTextValue("Bachelous paper").stream(),
                 metadatavalueRepository.findDistinctByTextValue("Masters thesis").stream())
+                .filter(item -> item.getItem().isPresent() && item.getItem().get().getInArchive())
                 .map(Metadatavalue::getResourceId)
+
                 .collect(Collectors.toList());
 
         List<Metadatavalue> metadatavaluesForBachelousPapers = metadatavalueRepository.findByResourceIdIn(bachelousPaperIds);
@@ -153,9 +157,11 @@ public class ReportService {
                 String chair = paper.getSpeciality().getChairEntity().getChairName();
                 String speciality = paper.getSpeciality().getName();
                 String specialityId = paper.getSpeciality().getName();
-                Long submissionCount = submissionInspeciality.get(specialityId);
-                result.putIfAbsent(faculty, new Faculty(faculty));
-                result.get(faculty).addSubmission(chair, speciality, submissionCount.intValue());
+                if(!"-".equals(specialityId)) {
+                    Long submissionCount = submissionInspeciality.get(specialityId);
+                    result.putIfAbsent(faculty, new Faculty(faculty));
+                    result.get(faculty).addSubmission(chair, speciality, submissionCount.intValue());
+                }
             }
         }
         return result;
@@ -179,6 +185,7 @@ public class ReportService {
 
         return metadatavalueRepository.findByResourceIdIn(itemIds)
                 .stream()
+                .filter(item -> item.getItem().isPresent() && item.getItem().get().getInArchive())
                 .collect(Collectors.groupingBy(Metadatavalue::getResourceId, Collectors.groupingBy(Metadatavalue::getMetadataFieldId)));
     }
 }
