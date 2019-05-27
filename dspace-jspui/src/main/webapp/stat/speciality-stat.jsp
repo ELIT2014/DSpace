@@ -98,11 +98,10 @@
             });
         });
 
-        $(document).ready(function () {
-            var today = new Date();
-            var day = today.getDate();
-            var month = today.getMonth() + 1;
-            var year = today.getFullYear();
+        function parseDate(date) {
+            var day = date.getDate();
+            var month = date.getMonth() + 1;
+            var year = date.getFullYear();
             if (day < 10) {
                 day = '0' + day
             }
@@ -110,8 +109,12 @@
             if (month < 10) {
                 month = '0' + month
             }
-
-            $('#endDate').val(day + '.' + month + '.' + year);
+            return day + '.' + month + '.' + year;
+        }
+        $(document).ready(function () {
+            var date = '<%= from %>';
+            $('#endDate').val(parseDate(new Date()));
+            $('#beginDate').val(parseDate(new Date(date)));
         });
 
         $(function () {
