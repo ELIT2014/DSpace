@@ -113,7 +113,6 @@ public class ReportService {
                 metadatavalueRepository.findDistinctByTextValue("Masters thesis").stream())
                 .filter(item -> item.getItem().isPresent() && item.getItem().get().getInArchive())
                 .map(Metadatavalue::getResourceId)
-
                 .collect(Collectors.toList());
 
         List<Metadatavalue> metadatavaluesForBachelousPapers = metadatavalueRepository.findByResourceIdIn(bachelousPaperIds);

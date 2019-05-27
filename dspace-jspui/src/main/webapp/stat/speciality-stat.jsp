@@ -79,7 +79,7 @@
                         header: ["<%= LocaleSupport.getLocalizedMessage(pageContext, "report.depositor") %>", {content: "textFilter"}],
                         width: 600,
                         sort: "string",
-                        template: "{common.treetable()} <a href = '/statistics/detailedReport?depositor=#name#'>#name#</a>"
+                        template: "{common.treetable()} <a href = \"/statistics/detailedReport?depositor=#name#\">#name#</a>"
                     },
                     {id: "submission_count", header: "<%= LocaleSupport.getLocalizedMessage(pageContext, "report.submissions-count") %>", width: 200, sort: "int"}
                 ],
@@ -136,6 +136,8 @@
         }
 
     </script>
+    <br/>
+    <div class="text-center"><h4><a href = "/statistics/detailedReport?depositor=-">Роботи, для яких не вказана спеціальність та/або дата представлення</a></h4></div>
 </dspace:layout>
 
 <%
