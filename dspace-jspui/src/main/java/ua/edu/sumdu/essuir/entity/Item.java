@@ -1,10 +1,8 @@
 package ua.edu.sumdu.essuir.entity;
 
-import ua.edu.sumdu.essuir.cache.Author;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 public class Item {
@@ -24,6 +22,12 @@ public class Item {
     @Column(name = "withdrawn")
     private Boolean withdrawn;
 
+    @OneToMany(
+            mappedBy = "item",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<Metadatavalue> metadataFields = new ArrayList<>();
 
     @Column(name = "last_modified")
     private LocalDateTime lastModified;
@@ -72,6 +76,14 @@ public class Item {
         return discoverable;
     }
 
+    public String getSpecialityName() {
+        return metadataFields
+                .stream()
+                .filter(field -> field.getMetadataFieldId().equals(133))
+                .findAny()
+                .map(Metadatavalue::getTextValue)
+                .orElse("");
+    }
     public static final class Builder {
         private Integer itemId;
         private Integer submitterId;
