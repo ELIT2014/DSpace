@@ -61,7 +61,7 @@ public class ReportController {
             if (AuthorizeManager.isAdmin(UIUtil.obtainContext(request))) {
                 LocalDate fromDate = LocalDate.parse(from, format);
                 LocalDate toDate = LocalDate.parse(to, format);
-                return generateResponse(reportService.getSpecialitySubmissionCountBetweenDates(fromDate, toDate));
+                return generateResponse(new ArrayList<>(reportService.getSpecialitySubmissionCountBetweenDates(fromDate, toDate).values()));
             }
         } catch (SQLException | JsonProcessingException e) {
             e.printStackTrace();
@@ -69,8 +69,8 @@ public class ReportController {
         return new JSONArray().toString();
     }
 
-    private String generateResponse(Map<String, Faculty>  submissions) throws JsonProcessingException {
-        ArrayList<Faculty> faculties = new ArrayList<>(submissions.values());
+    private String generateResponse(List<Faculty>  submissions) throws JsonProcessingException {
+        ArrayList<Faculty> faculties = new ArrayList<>(submissions);
         Collections.sort(faculties, new Comparator<Faculty>() {
             @Override
             public int compare(Faculty o1, Faculty o2) {

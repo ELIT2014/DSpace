@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ua.edu.sumdu.essuir.entity.*;
+import ua.edu.sumdu.essuir.repository.ItemRepository;
 import ua.edu.sumdu.essuir.repository.MetadatavalueRepository;
 
 import javax.annotation.Resource;
@@ -25,8 +27,10 @@ public class ReportService {
     private DatabaseService databaseService;
     @Resource
     private MetadatavalueRepository metadatavalueRepository;
+    @Resource
+    private ItemRepository itemRepository;
 
-    private Map<String, Faculty> populateDataFromQueryResult(CachedRowSet queryResult) {
+    private List<Faculty> populateDataFromQueryResult(CachedRowSet queryResult) {
         Map<String, Faculty> submissions = new HashMap<String, Faculty>();
         try {
             while (queryResult.next()) {
@@ -50,10 +54,10 @@ public class ReportService {
         } catch (SQLException ex) {
 
         }
-        return submissions;
+        return new ArrayList<>(submissions.values());
     }
 
-    public Map<String, Faculty> getUsersSubmissionCountBetweenDates(LocalDate from, LocalDate to) {
+    public List<Faculty> getUsersSubmissionCountBetweenDates(LocalDate from, LocalDate to) {
         String query = String.format("select eperson.eperson_id, email, lastname, firstname, chair_name, faculty_name, count(metadatavalue.resource_id) as submits " +
                 "from eperson " +
                 "left join chair on eperson.chair_id = chair.chair_id " +
@@ -61,7 +65,7 @@ public class ReportService {
                 "left join item on item.submitter_id = eperson_id and in_archive " +
                 "left join metadatavalue on metadatavalue.resource_id = item.item_id and metadata_field_id = 11 " +
                 "and text_value between '%d-%02d-%02d' and '%d-%02d-%02d' " +
-                "group by eperson.eperson_id, chair_name, faculty_name", from.getYear(), from.getMonth().getValue(), from.getDayOfMonth(), to.getYear(), from.getMonth().getValue(), to.getDayOfMonth());
+                "group by eperson.eperson_id, chair_name, faculty_name ", from.getYear(), from.getMonth().getValue(), from.getDayOfMonth(), to.getYear(), to.getMonth().getValue(), to.getDayOfMonth());
         return populateDataFromQueryResult(databaseService.executeQuery(query));
     }
 
@@ -177,6 +181,7 @@ public class ReportService {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
+    @Transactional
     public Map<Integer, Map<Integer, List<Metadatavalue>>> getItemsInSpeciality(String pattern) {
         List<Integer> itemIds = metadatavalueRepository.findDistinctByTextValueContaining(pattern).stream()
                 .map(item -> item.getResourceId())
