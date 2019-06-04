@@ -1,11 +1,8 @@
 package ua.edu.sumdu.essuir.service;
 
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ua.edu.sumdu.essuir.entity.*;
 import ua.edu.sumdu.essuir.repository.ItemRepository;
 import ua.edu.sumdu.essuir.repository.MetadatavalueRepository;
@@ -14,11 +11,7 @@ import javax.annotation.Resource;
 import javax.sql.rowset.CachedRowSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class ReportService {
@@ -78,7 +71,7 @@ public class ReportService {
     }
 
     public List<Item> getBacheoursWithoutSpeciality() {
-        return specialityReportFetcher.getBacheoursWithoutSpeciality();
+        return specialityReportFetcher.getBachelorsWithoutSpeciality();
     }
 
     public Map<String, Faculty> getSpecialitySubmissionCountBetweenDates(LocalDate from, LocalDate to) {

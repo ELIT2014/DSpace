@@ -72,14 +72,14 @@ public class SpecialityReportFetcher {
     }
 
     public Map<Speciality, Long> getSpecialityStatistics(LocalDate from, LocalDate to) {
-        return getBachelousPapers()
+        return getBachelorsPapers()
                 .stream()
                 .filter(paper -> paper.getAdded().isAfter(from) && paper.getAdded().isBefore(to))
                 .collect(Collectors.groupingBy(PaperDescription::getSpeciality, Collectors.counting()));
     }
 
     public Map<String, Faculty> getSpecialitySubmissionCountBetweenDates(LocalDate from, LocalDate to) {
-        List<PaperDescription> bachelousPapers = getBachelousPapers();
+        List<PaperDescription> bachelousPapers = getBachelorsPapers();
         Map<String, Long> submissionInspeciality = bachelousPapers
                 .stream()
                 .filter(item -> item.getSpeciality() != null)
@@ -103,29 +103,26 @@ public class SpecialityReportFetcher {
         return result;
     }
 
-    private Map<Integer, Map<Integer, List<Metadatavalue>>> getBachelousPapersMetadata() {
-        return Stream.concat(metadatavalueRepository.selectItemMetadataByTextValue("Bachelous paper").stream(),
-                metadatavalueRepository.selectItemMetadataByTextValue("Masters thesis").stream())
-                .filter(item -> item.getItem().isPresent())
-                .collect(Collectors.groupingBy(Metadatavalue::getResourceId, Collectors.groupingBy(Metadatavalue::getMetadataFieldId)));
+    private List<Item> getBachelorsPapersMetadata() {
+        return itemRepository.selectBachelousAndMastersPapersWithMetadataFields();
     }
 
-    private List<PaperDescription> getBachelousPapers() {
-        Map<Integer, Map<Integer, List<Metadatavalue>>> bachelousPapersDescription = getBachelousPapersMetadata();
+    private List<PaperDescription> getBachelorsPapers() {
+        List<Item> bachelorsPapersDescription = getBachelorsPapersMetadata();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy dd", Locale.US);
-        return bachelousPapersDescription.entrySet().stream()
-                .filter(item -> item.getValue().containsKey(134) && item.getValue().containsKey(133))
+        return bachelorsPapersDescription.stream()
+                .filter(item -> !"".equals(item.getSpecialityName()) && !"".equals(item.getPresentationDate()))
                 .map(item -> new PaperDescription.Builder()
-                        .withResourceId(item.getKey())
-                        .withSpeciality(extractSpecialityCode(item.getValue().get(133).get(0).getTextValue()))
-                        .withAdded(LocalDate.parse(item.getValue().get(134).get(0).getTextValue() + " 01", formatter))
+                        .withResourceId(item.getItemId())
+                        .withSpeciality(extractSpecialityCode(item.getSpecialityName()))
+                        .withAdded(LocalDate.parse(item.getPresentationDate() + " 01", formatter))
                         .build())
                 .filter(paper -> paper.getSpeciality() != null)
                 .collect(Collectors.toList());
     }
 
-    public List<Item> getBacheoursWithoutSpeciality() {
-        List<Item> items = itemRepository.selectBachelousAndMastersPapersWithMetadataFields();
+    public List<Item> getBachelorsWithoutSpeciality() {
+        List<Item> items = getBachelorsPapersMetadata();
         return items.stream()
                 .filter(item -> "".equals(item.getSpecialityName()) || "".equals(item.getPresentationDate()))
                 .collect(Collectors.toList());
@@ -134,7 +131,7 @@ public class SpecialityReportFetcher {
     @Transactional
     public List<Item> getItemsInSpeciality(String pattern) {
         String[] depositor = pattern.split("//");
-        List<Item> items = itemRepository.selectBachelousAndMastersPapersWithMetadataFields();
+        List<Item> items = getBachelorsPapersMetadata();
         Predicate<String> isSpecialityNameContainsPattern = (specialityName) -> Stream.of(depositor).allMatch(specialityName::contains);
         return items.stream()
                 .filter(item -> isSpecialityNameContainsPattern.test(item.getSpecialityName()))
