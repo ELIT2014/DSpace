@@ -124,15 +124,11 @@ public class SpecialityReportFetcher {
                 .collect(Collectors.toList());
     }
 
-    public Map<Integer, Map<Integer, List<Metadatavalue>>> getBacheoursWithoutSpeciality() {
-        Map<Integer, Map<Integer, List<Metadatavalue>>> bacheloursItems = getBachelousPapersMetadata();
-
-        Predicate<Map<Integer, List<Metadatavalue>>> isSpecialityAndPresentationDateSet = (metadataFields) -> metadataFields.containsKey(133) && metadataFields.containsKey(134);
-
-        return bacheloursItems.entrySet()
-                .stream()
-                .filter(item -> isSpecialityAndPresentationDateSet.negate().test(item.getValue()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    public List<Item> getBacheoursWithoutSpeciality() {
+        List<Item> items = itemRepository.selectBachelousAndMastersPapersWithMetadataFields();
+        return items.stream()
+                .filter(item -> "".equals(item.getSpecialityName()) || "".equals(item.getPresentationDate()))
+                .collect(Collectors.toList());
     }
 
     @Transactional

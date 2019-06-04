@@ -77,7 +77,7 @@ public class ReportService {
         return specialityReportFetcher.getItemsInSpeciality(pattern);
     }
 
-    public Map<Integer, Map<Integer, List<Metadatavalue>>> getBacheoursWithoutSpeciality() {
+    public List<Item> getBacheoursWithoutSpeciality() {
         return specialityReportFetcher.getBacheoursWithoutSpeciality();
     }
 

@@ -108,28 +108,16 @@ public class Item {
         return discoverable;
     }
 
-    public List<Metadatavalue> getMetadataFieldsForSpeciality() {
-        return metadataFieldsForSpeciality;
-    }
-
-    public List<Metadatavalue> getMetadataFieldsForPresentationDate() {
-        return metadataFieldsForPresentationDate;
-    }
-
-    public List<Metadatavalue> getMetadataFieldsForLink() {
-        return metadataFieldsForLink;
-    }
-
-    public List<Metadatavalue> getMetadataFieldsForTitle() {
-        return metadataFieldsForTitle;
-    }
-
     private String getMetadataFieldValue(List<Metadatavalue> values) {
-        return values.stream().findAny().map(Metadatavalue::getTextValue).orElse("");
+        return values.stream().filter(item -> item.getPlace() == 1).findAny().map(Metadatavalue::getTextValue).orElse("");
     }
 
     public String getSpecialityName() {
         return getMetadataFieldValue(metadataFieldsForSpeciality);
+    }
+
+    public String getPresentationDate() {
+        return getMetadataFieldValue(metadataFieldsForPresentationDate);
     }
 
     public String getTitle() {
