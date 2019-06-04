@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import ua.edu.sumdu.essuir.entity.Faculty;
+import ua.edu.sumdu.essuir.entity.Item;
 import ua.edu.sumdu.essuir.entity.Metadatavalue;
 import ua.edu.sumdu.essuir.repository.FacultyRepository;
 import ua.edu.sumdu.essuir.service.ReportService;
@@ -98,36 +99,35 @@ public class ReportController {
 
     @RequestMapping(value = "/detailedReport", method = RequestMethod.GET)
     public ModelAndView getDetailedReportForDepositor(@RequestParam("depositor") String depositor, ModelAndView model) {
-        Collection<Map<Integer, List<Metadatavalue>>> itemsInSpeciality;
+        List<Item> itemsInSpeciality = new ArrayList<>();
 
         if(depositor.equals("-")) {
-            itemsInSpeciality = reportService.getBacheoursWithoutSpeciality().values();
+//            itemsInSpeciality = reportService.getBacheoursWithoutSpeciality().values();
         } else {
-            itemsInSpeciality = reportService.getItemsInSpeciality(depositor).values();
+            itemsInSpeciality = reportService.getItemsInSpeciality(depositor);
         }
 
 
-        BiFunction<Map<Integer, List<Metadatavalue>>, Integer, String> extractItemDataByFieldId = (metadata, fieldId) -> metadata
-                .getOrDefault(fieldId, new ArrayList<>())
+//        BiFunction<Map<Integer, List<Metadatavalue>>, Integer, String> extractItemDataByFieldId = (metadata, fieldId) -> metadata
+//                .getOrDefault(fieldId, new ArrayList<>())
+//                .stream()
+//                .filter(item -> item.getPlace().equals(1))
+//                .map(Metadatavalue::getTextValue)
+//                .findAny()
+//                .orElse("");
+//
+//
+//        Function<Map<Integer, List<Metadatavalue>>, Pair<String, String>> extractItemNameAndLink = (metadata) ->
+//                Pair.of(extractItemDataByFieldId.apply(metadata, 64), extractItemDataByFieldId.apply(metadata, 25));
+
+        List<String> itemLinks = itemsInSpeciality
                 .stream()
-                .filter(item -> item.getPlace().equals(1))
-                .map(Metadatavalue::getTextValue)
-                .findAny()
-                .orElse("");
-
-
-        Function<Map<Integer, List<Metadatavalue>>, Pair<String, String>> extractItemNameAndLink = (metadata) ->
-                Pair.of(extractItemDataByFieldId.apply(metadata, 64), extractItemDataByFieldId.apply(metadata, 25));
-
-        List<String> collect = itemsInSpeciality
-                .stream()
-                .map(item -> extractItemNameAndLink.apply(item))
-                .map(item -> String.format("<a href = \"%s\">%s</a>", item.getRight(), item.getLeft()))
+                .map(item -> String.format("<a href = \"%s\">%s</a>", item.getLink(), item.getTitle()))
                 .collect(Collectors.toList());
 
         model.setViewName("detailed-report");
 
-        model.addObject("data", collect);
+        model.addObject("data", itemLinks);
         return model;
     }
 }
