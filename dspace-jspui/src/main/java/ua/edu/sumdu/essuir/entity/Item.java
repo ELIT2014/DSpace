@@ -1,5 +1,7 @@
 package ua.edu.sumdu.essuir.entity;
 
+import org.hibernate.annotations.Where;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -25,9 +27,39 @@ public class Item {
     @OneToMany(
             mappedBy = "item",
             cascade = CascadeType.ALL,
-            orphanRemoval = true
+            orphanRemoval = true,
+            fetch = FetchType.EAGER
     )
-    private List<Metadatavalue> metadataFields = new ArrayList<>();
+    @Where(clause = "metadata_field_id = 133")
+    private List<Metadatavalue> metadataFieldsForSpeciality = new ArrayList<>();
+
+    @OneToMany(
+            mappedBy = "item",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.EAGER
+    )
+    @Where(clause = "metadata_field_id = 134")
+    private List<Metadatavalue> metadataFieldsForPresentationDate = new ArrayList<>();
+
+    @OneToMany(
+            mappedBy = "item",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.EAGER
+    )
+    @Where(clause = "metadata_field_id = 25")
+    private List<Metadatavalue> metadataFieldsForLink = new ArrayList<>();
+
+    @OneToMany(
+            mappedBy = "item",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.EAGER
+    )
+    @Where(clause = "metadata_field_id = 64")
+    private List<Metadatavalue> metadataFieldsForTitle = new ArrayList<>();
+
 
     @Column(name = "last_modified")
     private LocalDateTime lastModified;
@@ -76,14 +108,38 @@ public class Item {
         return discoverable;
     }
 
-    public String getSpecialityName() {
-        return metadataFields
-                .stream()
-                .filter(field -> field.getMetadataFieldId().equals(133))
-                .findAny()
-                .map(Metadatavalue::getTextValue)
-                .orElse("");
+    public List<Metadatavalue> getMetadataFieldsForSpeciality() {
+        return metadataFieldsForSpeciality;
     }
+
+    public List<Metadatavalue> getMetadataFieldsForPresentationDate() {
+        return metadataFieldsForPresentationDate;
+    }
+
+    public List<Metadatavalue> getMetadataFieldsForLink() {
+        return metadataFieldsForLink;
+    }
+
+    public List<Metadatavalue> getMetadataFieldsForTitle() {
+        return metadataFieldsForTitle;
+    }
+
+    private String getMetadataFieldValue(List<Metadatavalue> values) {
+        return values.stream().findAny().map(Metadatavalue::getTextValue).orElse("");
+    }
+
+    public String getSpecialityName() {
+        return getMetadataFieldValue(metadataFieldsForSpeciality);
+    }
+
+    public String getTitle() {
+        return getMetadataFieldValue(metadataFieldsForTitle);
+    }
+
+    public String getLink() {
+        return getMetadataFieldValue(metadataFieldsForLink);
+    }
+
     public static final class Builder {
         private Integer itemId;
         private Integer submitterId;
