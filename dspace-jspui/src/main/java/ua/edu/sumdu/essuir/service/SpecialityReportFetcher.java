@@ -137,19 +137,12 @@ public class SpecialityReportFetcher {
 
     @Transactional
     public List<Item> getItemsInSpeciality(String pattern) {
-        List<Item> items = itemRepository.selectItemWithMetadataFieldsFilteredByTextValue();
-//        System.out.println(items.stream().map(item -> item.getMetadataFieldsForPresentationDate().size()).collect(Collectors.toList()));
-//        System.out.println(items.stream().map(item -> item.getMetadataFieldsForSpeciality().size()).collect(Collectors.toList()));
-//
-
+        String[] depositor = pattern.split("//");
+        List<Item> items = itemRepository.selectBachelousAndMastersPapersWithMetadataFields();
+        Predicate<String> isSpecialityNameContainsPattern = (specialityName) -> Stream.of(depositor).allMatch(specialityName::contains);
         return items.stream()
-                .filter(item -> item.getSpecialityName().contains(pattern))
+                .filter(item -> isSpecialityNameContainsPattern.test(item.getSpecialityName()))
                 .collect(Collectors.toList());
-
-//        return metadatavalueRepository.selectItemMetadataByTextValue(pattern)
-//                .stream()
-//                .filter(item -> item.getItem().isPresent())
-//                .collect(Collectors.groupingBy(Metadatavalue::getResourceId, Collectors.groupingBy(Metadatavalue::getMetadataFieldId)));
     }
 }
 
