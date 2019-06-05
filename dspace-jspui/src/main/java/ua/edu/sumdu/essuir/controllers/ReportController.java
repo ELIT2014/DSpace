@@ -98,7 +98,7 @@ public class ReportController {
     }
 
     @RequestMapping(value = "/detailedReport", method = RequestMethod.GET)
-    public ModelAndView getDetailedReportForDepositor(@RequestParam("from") String from, @RequestParam("to") String to,@RequestParam("depositor") String depositor, ModelAndView model) {
+    public ModelAndView getDetailedReportForDepositor(@RequestParam(value = "from", defaultValue = "01.01.2010") String from, @RequestParam(value = "to", defaultValue = "01.01.2100") String to,@RequestParam("depositor") String depositor, ModelAndView model) {
         List<Item> itemsInSpeciality;
         LocalDate fromDate = LocalDate.parse(from, format);
         LocalDate toDate = LocalDate.parse(to, format);
