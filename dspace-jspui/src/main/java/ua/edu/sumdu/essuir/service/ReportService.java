@@ -61,8 +61,8 @@ public class ReportService {
     }
 
 
-    public List<Item> getItemsInSpeciality(String pattern) {
-        return specialityReportFetcher.getItemsInSpeciality(pattern);
+    public List<Item> getItemsInSpeciality(String pattern, LocalDate from, LocalDate to) {
+        return specialityReportFetcher.getItemsInSpeciality(pattern, from, to);
     }
 
     public List<Item> getBacheoursWithoutSpeciality() {

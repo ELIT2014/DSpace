@@ -60,6 +60,14 @@ public class Item {
     @Where(clause = "metadata_field_id = 64")
     private List<Metadatavalue> metadataFieldsForTitle = new ArrayList<>();
 
+    @OneToMany(
+            mappedBy = "item",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.EAGER
+    )
+    @Where(clause = "metadata_field_id = 12")
+    private List<Metadatavalue> metadataFieldsForDateAvailable = new ArrayList<>();
 
     @Column(name = "last_modified")
     private LocalDateTime lastModified;
@@ -109,7 +117,11 @@ public class Item {
     }
 
     private String getMetadataFieldValue(List<Metadatavalue> values) {
-        return values.stream().filter(item -> item.getPlace() == 1).findAny().map(Metadatavalue::getTextValue).orElse("");
+        return values.stream()
+                .filter(item -> item.getPlace() == 1 && item.getResourceTypeId() == 2)
+                .findAny()
+                .map(Metadatavalue::getTextValue)
+                .orElse("");
     }
 
     public String getSpecialityName() {
@@ -126,6 +138,10 @@ public class Item {
 
     public String getLink() {
         return getMetadataFieldValue(metadataFieldsForLink);
+    }
+
+    public String getDateAvailable() {
+        return getMetadataFieldValue(metadataFieldsForDateAvailable);
     }
 
     public static final class Builder {

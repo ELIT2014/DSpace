@@ -85,7 +85,7 @@
                             if(parent) {
                                 pname = parent.name + "//";
                             }
-                            return common.treetable(obj, common, value, config) + " <a href = \"/statistics/detailedReport?depositor=" + pname + obj.name + "\">" + obj.name + "</a>";
+                            return common.treetable(obj, common, value, config) + " <a href = \"/statistics/detailedReport?from=" + $('#beginDate').val() + "&to=" + $('#endDate').val() +"&depositor=" + pname + obj.name + "\">" + obj.name + "</a>";
                         }
                     },
                     {id: "submission_count", header: "<%= LocaleSupport.getLocalizedMessage(pageContext, "report.submissions-count") %>", width: 200, sort: "int"}

@@ -2,6 +2,7 @@ package ua.edu.sumdu.essuir.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,8 +11,10 @@ import ua.edu.sumdu.essuir.repository.ItemRepository;
 
 import javax.annotation.Resource;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -22,6 +25,11 @@ public class SpecialityReportFetcher {
 
     @Resource
     private ItemRepository itemRepository;
+
+    private BiPredicate<String, Pair<LocalDate, LocalDate>> isDateInRange = (date, range) -> {
+        LocalDate localDate = LocalDateTime.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")).toLocalDate();
+        return localDate.isAfter(range.getLeft()) && localDate.isBefore(range.getRight());
+    };
 
     private Speciality extractSpecialityCode(String data) {
         FacultyEntity defaultFacultyEntity = new FacultyEntity.Builder().withId(-1).withName("-").build();
@@ -68,20 +76,14 @@ public class SpecialityReportFetcher {
     }
 
     private boolean isSpecialityNameAndPresentationDatePresented(Item item) {
-        return "".equals(item.getSpecialityName()) && "".equals(item.getPresentationDate());
+        return !item.getSpecialityName().isEmpty() && !item.getPresentationDate().isEmpty();
     }
 
     public List<Faculty> getSpecialitySubmissionCountBetweenDates(LocalDate from, LocalDate to) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy dd", Locale.US);
-        Predicate<String> isDateInRange = (date) -> {
-            LocalDate localDate = LocalDate.parse(date + " 01", formatter);
-            return localDate.isAfter(from) && localDate.isBefore(to);
-        };
-
         Map<Speciality, Long> specialityStatistics = getBachelorsPapersMetadata()
                 .stream()
                 .filter(this::isSpecialityNameAndPresentationDatePresented)
-                .filter(item -> isDateInRange.test(item.getPresentationDate()))
+                .filter(item -> isDateInRange.test(item.getDateAvailable(), Pair.of(from, to)))
                 .collect(Collectors.groupingBy(Item::getSpecialityName, Collectors.counting()))
                 .entrySet()
                 .stream()
@@ -107,12 +109,13 @@ public class SpecialityReportFetcher {
     }
 
     @Transactional
-    public List<Item> getItemsInSpeciality(String pattern) {
+    public List<Item> getItemsInSpeciality(String pattern, LocalDate from, LocalDate to) {
         String[] depositor = pattern.split("//");
         List<Item> items = getBachelorsPapersMetadata();
         Predicate<String> isSpecialityNameContainsPattern = (specialityName) -> Stream.of(depositor).allMatch(specialityName::contains);
         return items.stream()
                 .filter(this::isSpecialityNameAndPresentationDatePresented)
+                .filter(item -> isDateInRange.test(item.getDateAvailable(), Pair.of(from, to)))
                 .filter(item -> isSpecialityNameContainsPattern.test(item.getSpecialityName()))
                 .collect(Collectors.toList());
     }
