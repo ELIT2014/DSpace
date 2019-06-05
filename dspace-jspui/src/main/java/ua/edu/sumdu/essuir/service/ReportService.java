@@ -77,8 +77,4 @@ public class ReportService {
     public Map<String, Faculty> getSpecialitySubmissionCountBetweenDates(LocalDate from, LocalDate to) {
         return specialityReportFetcher.getSpecialitySubmissionCountBetweenDates(from, to);
     }
-
-    public Map<Speciality, Long> getSpecialityStatistics(LocalDate from, LocalDate to) {
-        return  specialityReportFetcher.getSpecialityStatistics(from, to);
-    }
 }

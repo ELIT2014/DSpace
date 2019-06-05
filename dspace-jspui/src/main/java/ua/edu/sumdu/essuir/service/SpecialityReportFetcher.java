@@ -71,13 +71,6 @@ public class SpecialityReportFetcher {
         return defaultSpecialityEntity;
     }
 
-    public Map<Speciality, Long> getSpecialityStatistics(LocalDate from, LocalDate to) {
-        return getBachelorsPapers()
-                .stream()
-                .filter(paper -> paper.getAdded().isAfter(from) && paper.getAdded().isBefore(to))
-                .collect(Collectors.groupingBy(PaperDescription::getSpeciality, Collectors.counting()));
-    }
-
     public Map<String, Faculty> getSpecialitySubmissionCountBetweenDates(LocalDate from, LocalDate to) {
         List<PaperDescription> bachelousPapers = getBachelorsPapers();
         Map<String, Long> submissionInspeciality = bachelousPapers
