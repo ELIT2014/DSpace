@@ -7,15 +7,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ua.edu.sumdu.essuir.entity.*;
 import ua.edu.sumdu.essuir.repository.ItemRepository;
-import ua.edu.sumdu.essuir.repository.MetadatavalueRepository;
 
 import javax.annotation.Resource;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -26,9 +22,6 @@ public class SpecialityReportFetcher {
 
     @Resource
     private ItemRepository itemRepository;
-
-    @Resource
-    private MetadatavalueRepository metadatavalueRepository;
 
     private Speciality extractSpecialityCode(String data) {
         FacultyEntity defaultFacultyEntity = new FacultyEntity.Builder().withId(-1).withName("-").build();
@@ -66,52 +59,40 @@ public class SpecialityReportFetcher {
 
         } catch (Exception ex) {
             log.error(ex.getMessage());
-            log.error(ex.getStackTrace());
         }
         return defaultSpecialityEntity;
     }
 
-    public Map<String, Faculty> getSpecialitySubmissionCountBetweenDates(LocalDate from, LocalDate to) {
-        List<PaperDescription> bachelousPapers = getBachelorsPapers();
-        Map<String, Long> submissionInspeciality = bachelousPapers
+    public List<Faculty> getSpecialitySubmissionCountBetweenDates(LocalDate from, LocalDate to) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy dd", Locale.US);
+        Predicate<String> isDateInRange = (date) -> {
+            LocalDate localDate = LocalDate.parse(date + " 01", formatter);
+            return localDate.isAfter(from) && localDate.isBefore(to);
+        };
+
+        Map<Speciality, Long> collect = getBachelorsPapersMetadata()
                 .stream()
-                .filter(item -> item.getSpeciality() != null)
-                .collect(Collectors.groupingBy(item -> item.getSpeciality().getName(), Collectors.counting()));
+                .filter(item -> !"".equals(item.getSpecialityName()) && !"".equals(item.getPresentationDate()))
+                .filter(item -> isDateInRange.test(item.getPresentationDate()))
+                .collect(Collectors.groupingBy(Item::getSpecialityName, Collectors.counting()))
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(item -> extractSpecialityCode(item.getKey()), Map.Entry::getValue));
 
         Map<String, Faculty> result = new HashMap<>();
-
-        for (PaperDescription paper : bachelousPapers) {
-            if (paper.getAdded().isAfter(from) && paper.getAdded().isBefore(to)) {
-                String faculty = paper.getSpeciality().getChairEntity().getFacultyEntityName();
-                String chair = paper.getSpeciality().getChairEntity().getChairName();
-                String speciality = paper.getSpeciality().getName();
-                String specialityId = paper.getSpeciality().getName();
-                if(!"-".equals(specialityId)) {
-                    Long submissionCount = submissionInspeciality.get(specialityId);
-                    result.putIfAbsent(faculty, new Faculty(faculty));
-                    result.get(faculty).addSubmission(chair, speciality, submissionCount.intValue());
-                }
-            }
+        for (Map.Entry<Speciality, Long> submission : collect.entrySet()) {
+            String facultyName = submission.getKey().getChairEntity().getFacultyEntityName();
+            String chairName = submission.getKey().getChairEntity().getChairName();
+            String specialityName = submission.getKey().getName();
+            result.putIfAbsent(facultyName, new Faculty(facultyName));
+            result.get(facultyName).addSubmission(chairName, specialityName, submission.getValue().intValue());
         }
-        return result;
+
+        return new ArrayList<>(result.values());
     }
 
     private List<Item> getBachelorsPapersMetadata() {
         return itemRepository.selectBachelousAndMastersPapersWithMetadataFields();
-    }
-
-    private List<PaperDescription> getBachelorsPapers() {
-        List<Item> bachelorsPapersDescription = getBachelorsPapersMetadata();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy dd", Locale.US);
-        return bachelorsPapersDescription.stream()
-                .filter(item -> !"".equals(item.getSpecialityName()) && !"".equals(item.getPresentationDate()))
-                .map(item -> new PaperDescription.Builder()
-                        .withResourceId(item.getItemId())
-                        .withSpeciality(extractSpecialityCode(item.getSpecialityName()))
-                        .withAdded(LocalDate.parse(item.getPresentationDate() + " 01", formatter))
-                        .build())
-                .filter(paper -> paper.getSpeciality() != null)
-                .collect(Collectors.toList());
     }
 
     public List<Item> getBachelorsWithoutSpeciality() {
@@ -127,6 +108,7 @@ public class SpecialityReportFetcher {
         List<Item> items = getBachelorsPapersMetadata();
         Predicate<String> isSpecialityNameContainsPattern = (specialityName) -> Stream.of(depositor).allMatch(specialityName::contains);
         return items.stream()
+                .filter(item -> !"".equals(item.getSpecialityName()) && !"".equals(item.getPresentationDate()))
                 .filter(item -> isSpecialityNameContainsPattern.test(item.getSpecialityName()))
                 .collect(Collectors.toList());
     }

@@ -62,7 +62,7 @@ public class ReportController {
             if (AuthorizeManager.isAdmin(UIUtil.obtainContext(request))) {
                 LocalDate fromDate = LocalDate.parse(from, format);
                 LocalDate toDate = LocalDate.parse(to, format);
-                return generateResponse(new ArrayList<>(reportService.getSpecialitySubmissionCountBetweenDates(fromDate, toDate).values()));
+                return generateResponse(new ArrayList<>(reportService.getSpecialitySubmissionCountBetweenDates(fromDate, toDate)));
             }
         } catch (SQLException | JsonProcessingException e) {
             e.printStackTrace();

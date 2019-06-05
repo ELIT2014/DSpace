@@ -3,9 +3,8 @@ package ua.edu.sumdu.essuir.service;
 
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
-import ua.edu.sumdu.essuir.entity.*;
-import ua.edu.sumdu.essuir.repository.ItemRepository;
-import ua.edu.sumdu.essuir.repository.MetadatavalueRepository;
+import ua.edu.sumdu.essuir.entity.Faculty;
+import ua.edu.sumdu.essuir.entity.Item;
 
 import javax.annotation.Resource;
 import javax.sql.rowset.CachedRowSet;
@@ -18,10 +17,6 @@ public class ReportService {
     private static Logger log = Logger.getLogger(ReportService.class);
     @Resource
     private DatabaseService databaseService;
-    @Resource
-    private MetadatavalueRepository metadatavalueRepository;
-    @Resource
-    private ItemRepository itemRepository;
 
     @Resource
     private SpecialityReportFetcher specialityReportFetcher;
@@ -74,7 +69,7 @@ public class ReportService {
         return specialityReportFetcher.getBachelorsWithoutSpeciality();
     }
 
-    public Map<String, Faculty> getSpecialitySubmissionCountBetweenDates(LocalDate from, LocalDate to) {
+    public List<Faculty> getSpecialitySubmissionCountBetweenDates(LocalDate from, LocalDate to) {
         return specialityReportFetcher.getSpecialitySubmissionCountBetweenDates(from, to);
     }
 }
