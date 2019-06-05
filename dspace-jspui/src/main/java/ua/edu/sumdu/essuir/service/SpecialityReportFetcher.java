@@ -63,6 +63,14 @@ public class SpecialityReportFetcher {
         return defaultSpecialityEntity;
     }
 
+    private List<Item> getBachelorsPapersMetadata() {
+        return itemRepository.selectBachelousAndMastersPapersWithMetadataFields();
+    }
+
+    private boolean isSpecialityNameAndPresentationDatePresented(Item item) {
+        return "".equals(item.getSpecialityName()) && "".equals(item.getPresentationDate());
+    }
+
     public List<Faculty> getSpecialitySubmissionCountBetweenDates(LocalDate from, LocalDate to) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy dd", Locale.US);
         Predicate<String> isDateInRange = (date) -> {
@@ -70,9 +78,9 @@ public class SpecialityReportFetcher {
             return localDate.isAfter(from) && localDate.isBefore(to);
         };
 
-        Map<Speciality, Long> collect = getBachelorsPapersMetadata()
+        Map<Speciality, Long> specialityStatistics = getBachelorsPapersMetadata()
                 .stream()
-                .filter(item -> !"".equals(item.getSpecialityName()) && !"".equals(item.getPresentationDate()))
+                .filter(this::isSpecialityNameAndPresentationDatePresented)
                 .filter(item -> isDateInRange.test(item.getPresentationDate()))
                 .collect(Collectors.groupingBy(Item::getSpecialityName, Collectors.counting()))
                 .entrySet()
@@ -80,7 +88,7 @@ public class SpecialityReportFetcher {
                 .collect(Collectors.toMap(item -> extractSpecialityCode(item.getKey()), Map.Entry::getValue));
 
         Map<String, Faculty> result = new HashMap<>();
-        for (Map.Entry<Speciality, Long> submission : collect.entrySet()) {
+        for (Map.Entry<Speciality, Long> submission : specialityStatistics.entrySet()) {
             String facultyName = submission.getKey().getChairEntity().getFacultyEntityName();
             String chairName = submission.getKey().getChairEntity().getChairName();
             String specialityName = submission.getKey().getName();
@@ -91,14 +99,10 @@ public class SpecialityReportFetcher {
         return new ArrayList<>(result.values());
     }
 
-    private List<Item> getBachelorsPapersMetadata() {
-        return itemRepository.selectBachelousAndMastersPapersWithMetadataFields();
-    }
-
     public List<Item> getBachelorsWithoutSpeciality() {
         List<Item> items = getBachelorsPapersMetadata();
         return items.stream()
-                .filter(item -> "".equals(item.getSpecialityName()) || "".equals(item.getPresentationDate()))
+                .filter(item -> !isSpecialityNameAndPresentationDatePresented(item))
                 .collect(Collectors.toList());
     }
 
@@ -108,7 +112,7 @@ public class SpecialityReportFetcher {
         List<Item> items = getBachelorsPapersMetadata();
         Predicate<String> isSpecialityNameContainsPattern = (specialityName) -> Stream.of(depositor).allMatch(specialityName::contains);
         return items.stream()
-                .filter(item -> !"".equals(item.getSpecialityName()) && !"".equals(item.getPresentationDate()))
+                .filter(this::isSpecialityNameAndPresentationDatePresented)
                 .filter(item -> isSpecialityNameContainsPattern.test(item.getSpecialityName()))
                 .collect(Collectors.toList());
     }
