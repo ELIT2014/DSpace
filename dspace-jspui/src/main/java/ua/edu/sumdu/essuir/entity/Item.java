@@ -1,8 +1,9 @@
 package ua.edu.sumdu.essuir.entity;
 
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.*;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -14,8 +15,10 @@ public class Item {
     @Column(name = "item_id")
     private Integer itemId;
 
-    @Column(name = "submitter_id")
-    private Integer submitterId;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "submitter_id", referencedColumnName = "eperson_id")
+    @NotFound(action = NotFoundAction.IGNORE)
+    private EPerson submitter;
 
     @Column(name = "in_archive")
     private Boolean inArchive;
@@ -27,37 +30,37 @@ public class Item {
     private Boolean withdrawn;
 
     @OneToMany(
-            mappedBy = "item",
-            fetch = FetchType.EAGER
+            mappedBy = "item"
     )
+    @LazyCollection(LazyCollectionOption.FALSE)
     @Where(clause = "metadata_field_id = 133 and place = 1 and resource_type_id = 2")
     private List<Metadatavalue> metadataFieldsForSpeciality = new ArrayList<>();
 
     @OneToMany(
-            mappedBy = "item",
-            fetch = FetchType.EAGER
+            mappedBy = "item"
     )
+    @LazyCollection(LazyCollectionOption.FALSE)
     @Where(clause = "metadata_field_id = 134 and place = 1 and resource_type_id = 2")
     private List<Metadatavalue> metadataFieldsForPresentationDate = new ArrayList<>();
 
     @OneToMany(
-            mappedBy = "item",
-            fetch = FetchType.EAGER
+            mappedBy = "item"
     )
+    @LazyCollection(LazyCollectionOption.FALSE)
     @Where(clause = "metadata_field_id = 25 and place = 1 and resource_type_id = 2")
     private List<Metadatavalue> metadataFieldsForLink = new ArrayList<>();
 
     @OneToMany(
-            mappedBy = "item",
-            fetch = FetchType.EAGER
+            mappedBy = "item"
     )
+    @LazyCollection(LazyCollectionOption.FALSE)
     @Where(clause = "metadata_field_id = 64 and place = 1 and resource_type_id = 2")
     private List<Metadatavalue> metadataFieldsForTitle = new ArrayList<>();
 
     @OneToMany(
-            mappedBy = "item",
-            fetch = FetchType.EAGER
+            mappedBy = "item"
     )
+    @LazyCollection(LazyCollectionOption.FALSE)
     @Where(clause = "metadata_field_id = 12 and place = 1 and resource_type_id = 2")
     private List<Metadatavalue> metadataFieldsForDateAvailable = new ArrayList<>();
 
@@ -70,22 +73,12 @@ public class Item {
     public Item() {
     }
 
-    private Item(Builder builder) {
-        itemId = builder.itemId;
-        submitterId = builder.submitterId;
-        inArchive = builder.inArchive;
-        owningCollection = builder.owningCollection;
-        withdrawn = builder.withdrawn;
-        lastModified = builder.lastModified;
-        discoverable = builder.discoverable;
+    public EPerson getSubmitter() {
+        return submitter;
     }
 
     public Integer getItemId() {
         return itemId;
-    }
-
-    public Integer getSubmitterId() {
-        return submitterId;
     }
 
     public Boolean getInArchive() {
@@ -135,65 +128,4 @@ public class Item {
         return LocalDateTime.parse(getMetadataFieldValue(metadataFieldsForDateAvailable), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")).toLocalDate();
     }
 
-    public static final class Builder {
-        private Integer itemId;
-        private Integer submitterId;
-        private Boolean inArchive;
-        private Integer owningCollection;
-        private Boolean withdrawn;
-        private LocalDateTime lastModified;
-        private Boolean discoverable;
-
-        public Builder() {
-        }
-
-        public Builder(Item copy) {
-            this.itemId = copy.getItemId();
-            this.submitterId = copy.getSubmitterId();
-            this.inArchive = copy.getInArchive();
-            this.owningCollection = copy.getOwningCollection();
-            this.withdrawn = copy.getWithdrawn();
-            this.lastModified = copy.getLastModified();
-            this.discoverable = copy.getDiscoverable();
-        }
-
-        public Builder withItemId(Integer itemId) {
-            this.itemId = itemId;
-            return this;
-        }
-
-        public Builder withSubmitterId(Integer submitterId) {
-            this.submitterId = submitterId;
-            return this;
-        }
-
-        public Builder withInArchive(Boolean inArchive) {
-            this.inArchive = inArchive;
-            return this;
-        }
-
-        public Builder withOwningCollection(Integer owningCollection) {
-            this.owningCollection = owningCollection;
-            return this;
-        }
-
-        public Builder withWithdrawn(Boolean withdrawn) {
-            this.withdrawn = withdrawn;
-            return this;
-        }
-
-        public Builder withLastModified(LocalDateTime lastModified) {
-            this.lastModified = lastModified;
-            return this;
-        }
-
-        public Builder withDiscoverable(Boolean discoverable) {
-            this.discoverable = discoverable;
-            return this;
-        }
-
-        public Item build() {
-            return new Item(this);
-        }
-    }
 }

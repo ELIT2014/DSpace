@@ -1,6 +1,10 @@
 package ua.edu.sumdu.essuir.entity;
 
+import org.hibernate.annotations.Where;
+
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Entity
