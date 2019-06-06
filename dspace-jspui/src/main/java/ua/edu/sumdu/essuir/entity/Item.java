@@ -3,7 +3,9 @@ package ua.edu.sumdu.essuir.entity;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Entity
@@ -129,8 +131,8 @@ public class Item {
         return getMetadataFieldValue(metadataFieldsForLink);
     }
 
-    public String getDateAvailable() {
-        return getMetadataFieldValue(metadataFieldsForDateAvailable);
+    public LocalDate getDateAvailable() {
+        return LocalDateTime.parse(getMetadataFieldValue(metadataFieldsForDateAvailable), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")).toLocalDate();
     }
 
     public static final class Builder {

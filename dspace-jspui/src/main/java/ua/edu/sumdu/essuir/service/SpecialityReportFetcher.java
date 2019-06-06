@@ -26,10 +26,7 @@ public class SpecialityReportFetcher {
     @Resource
     private ItemRepository itemRepository;
 
-    private BiPredicate<String, Pair<LocalDate, LocalDate>> isDateInRange = (date, range) -> {
-        LocalDate localDate = LocalDateTime.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")).toLocalDate();
-        return localDate.isAfter(range.getLeft()) && localDate.isBefore(range.getRight());
-    };
+    private BiPredicate<LocalDate, Pair<LocalDate, LocalDate>> isDateInRange = (date, range) -> date.isAfter(range.getLeft()) && date.isBefore(range.getRight());
 
     private Speciality extractSpecialityCode(String data) {
         FacultyEntity defaultFacultyEntity = new FacultyEntity.Builder().withId(-1).withName("-").build();
