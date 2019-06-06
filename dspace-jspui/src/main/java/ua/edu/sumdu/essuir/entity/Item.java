@@ -26,47 +26,37 @@ public class Item {
 
     @OneToMany(
             mappedBy = "item",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
             fetch = FetchType.EAGER
     )
-    @Where(clause = "metadata_field_id = 133")
+    @Where(clause = "metadata_field_id = 133 and place = 1 and resource_type_id = 2")
     private List<Metadatavalue> metadataFieldsForSpeciality = new ArrayList<>();
 
     @OneToMany(
             mappedBy = "item",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
             fetch = FetchType.EAGER
     )
-    @Where(clause = "metadata_field_id = 134")
+    @Where(clause = "metadata_field_id = 134 and place = 1 and resource_type_id = 2")
     private List<Metadatavalue> metadataFieldsForPresentationDate = new ArrayList<>();
 
     @OneToMany(
             mappedBy = "item",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
             fetch = FetchType.EAGER
     )
-    @Where(clause = "metadata_field_id = 25")
+    @Where(clause = "metadata_field_id = 25 and place = 1 and resource_type_id = 2")
     private List<Metadatavalue> metadataFieldsForLink = new ArrayList<>();
 
     @OneToMany(
             mappedBy = "item",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
             fetch = FetchType.EAGER
     )
-    @Where(clause = "metadata_field_id = 64")
+    @Where(clause = "metadata_field_id = 64 and place = 1 and resource_type_id = 2")
     private List<Metadatavalue> metadataFieldsForTitle = new ArrayList<>();
 
     @OneToMany(
             mappedBy = "item",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
             fetch = FetchType.EAGER
     )
-    @Where(clause = "metadata_field_id = 12")
+    @Where(clause = "metadata_field_id = 12 and place = 1 and resource_type_id = 2")
     private List<Metadatavalue> metadataFieldsForDateAvailable = new ArrayList<>();
 
     @Column(name = "last_modified")
@@ -118,7 +108,6 @@ public class Item {
 
     private String getMetadataFieldValue(List<Metadatavalue> values) {
         return values.stream()
-                .filter(item -> item.getPlace() == 1 && item.getResourceTypeId() == 2)
                 .findAny()
                 .map(Metadatavalue::getTextValue)
                 .orElse("");
