@@ -13,6 +13,6 @@ public interface ItemRepository extends JpaRepository<Item, Integer> {
     @Query("SELECT it " +
             "FROM Metadatavalue mv1 " +
             "LEFT JOIN FETCH Item it ON mv1.resourceId = it.itemId " +
-            "WHERE it.inArchive = true AND (mv1.textValue = 'Bachelous paper' OR mv1.textValue = 'Masters thesis')")
+            "WHERE mv1.textValue = 'Bachelous paper' OR mv1.textValue = 'Masters thesis'")
     List<Item> selectBachelousAndMastersPapersWithMetadataFields();
 }

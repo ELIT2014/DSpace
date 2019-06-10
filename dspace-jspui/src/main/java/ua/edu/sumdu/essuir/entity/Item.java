@@ -10,6 +10,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Entity
+@Where(clause = "in_archive = true")
 public class Item {
     @Id
     @Column(name = "item_id")
@@ -29,40 +30,7 @@ public class Item {
     @Column(name = "withdrawn")
     private Boolean withdrawn;
 
-    @OneToMany(
-            mappedBy = "item"
-    )
-    @LazyCollection(LazyCollectionOption.FALSE)
-    @Where(clause = "metadata_field_id = 133 and place = 1 and resource_type_id = 2")
-    private List<Metadatavalue> metadataFieldsForSpeciality = new ArrayList<>();
 
-    @OneToMany(
-            mappedBy = "item"
-    )
-    @LazyCollection(LazyCollectionOption.FALSE)
-    @Where(clause = "metadata_field_id = 134 and place = 1 and resource_type_id = 2")
-    private List<Metadatavalue> metadataFieldsForPresentationDate = new ArrayList<>();
-
-    @OneToMany(
-            mappedBy = "item"
-    )
-    @LazyCollection(LazyCollectionOption.FALSE)
-    @Where(clause = "metadata_field_id = 25 and place = 1 and resource_type_id = 2")
-    private List<Metadatavalue> metadataFieldsForLink = new ArrayList<>();
-
-    @OneToMany(
-            mappedBy = "item"
-    )
-    @LazyCollection(LazyCollectionOption.FALSE)
-    @Where(clause = "metadata_field_id = 64 and place = 1 and resource_type_id = 2")
-    private List<Metadatavalue> metadataFieldsForTitle = new ArrayList<>();
-
-    @OneToMany(
-            mappedBy = "item"
-    )
-    @LazyCollection(LazyCollectionOption.FALSE)
-    @Where(clause = "metadata_field_id = 12 and place = 1 and resource_type_id = 2")
-    private List<Metadatavalue> metadataFieldsForDateAvailable = new ArrayList<>();
 
     @Column(name = "last_modified")
     private LocalDateTime lastModified;
@@ -71,6 +39,21 @@ public class Item {
     private Boolean discoverable;
 
     public Item() {
+    }
+
+    private Item(Builder builder) {
+        itemId = builder.itemId;
+        submitter = builder.submitter;
+        inArchive = builder.inArchive;
+        owningCollection = builder.owningCollection;
+        withdrawn = builder.withdrawn;
+        lastModified = builder.lastModified;
+        discoverable = builder.discoverable;
+        specialityName = builder.specialityName;
+        presentationDate = builder.presentationDate;
+        title = builder.title;
+        link = builder.link;
+        dateAvailable = builder.dateAvailable;
     }
 
     public EPerson getSubmitter() {
@@ -101,31 +84,143 @@ public class Item {
         return discoverable;
     }
 
-    private String getMetadataFieldValue(List<Metadatavalue> values) {
+    private Optional<String> getMetadataFieldValue(List<Metadatavalue> values) {
         return values.stream()
                 .findAny()
-                .map(Metadatavalue::getTextValue)
-                .orElse("");
+                .map(Metadatavalue::getTextValue);
     }
 
+    @Transient
+    private String specialityName;
+
+    @Transient
+    private String presentationDate;
+
+    @Transient
+    private String title;
+
+    @Transient
+    private String link;
+
+    @Transient
+    private String dateAvailable;
+
     public String getSpecialityName() {
-        return getMetadataFieldValue(metadataFieldsForSpeciality);
+        return specialityName;
     }
 
     public String getPresentationDate() {
-        return getMetadataFieldValue(metadataFieldsForPresentationDate);
+        return presentationDate;
     }
 
     public String getTitle() {
-        return getMetadataFieldValue(metadataFieldsForTitle);
+        return title;
     }
 
     public String getLink() {
-        return getMetadataFieldValue(metadataFieldsForLink);
+        return link;
     }
 
-    public LocalDate getDateAvailable() {
-        return LocalDateTime.parse(getMetadataFieldValue(metadataFieldsForDateAvailable), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")).toLocalDate();
+    public String getDateAvailable() {
+        return dateAvailable;
+//        return LocalDateTime.parse(dateAvailable, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")).toLocalDate();
     }
 
+
+    public static final class Builder {
+        private Integer itemId;
+        private EPerson submitter;
+        private Boolean inArchive;
+        private Integer owningCollection;
+        private Boolean withdrawn;
+        private LocalDateTime lastModified;
+        private Boolean discoverable;
+        private String specialityName;
+        private String presentationDate;
+        private String title;
+        private String link;
+        private String dateAvailable;
+
+        public Builder() {
+        }
+
+        public Builder(Item copy) {
+            this.itemId = copy.getItemId();
+            this.submitter = copy.getSubmitter();
+            this.inArchive = copy.getInArchive();
+            this.owningCollection = copy.getOwningCollection();
+            this.withdrawn = copy.getWithdrawn();
+            this.lastModified = copy.getLastModified();
+            this.discoverable = copy.getDiscoverable();
+            this.specialityName = copy.getSpecialityName();
+            this.presentationDate = copy.getPresentationDate();
+            this.title = copy.getTitle();
+            this.link = copy.getLink();
+            this.dateAvailable = copy.getDateAvailable();
+        }
+
+        public Builder withItemId(Integer itemId) {
+            this.itemId = itemId;
+            return this;
+        }
+
+        public Builder withSubmitter(EPerson submitter) {
+            this.submitter = submitter;
+            return this;
+        }
+
+        public Builder withInArchive(Boolean inArchive) {
+            this.inArchive = inArchive;
+            return this;
+        }
+
+        public Builder withOwningCollection(Integer owningCollection) {
+            this.owningCollection = owningCollection;
+            return this;
+        }
+
+        public Builder withWithdrawn(Boolean withdrawn) {
+            this.withdrawn = withdrawn;
+            return this;
+        }
+
+        public Builder withLastModified(LocalDateTime lastModified) {
+            this.lastModified = lastModified;
+            return this;
+        }
+
+        public Builder withDiscoverable(Boolean discoverable) {
+            this.discoverable = discoverable;
+            return this;
+        }
+
+        public Builder withSpecialityName(String specialityName) {
+            this.specialityName = specialityName;
+            return this;
+        }
+
+        public Builder withPresentationDate(String presentationDate) {
+            this.presentationDate = presentationDate;
+            return this;
+        }
+
+        public Builder withTitle(String title) {
+            this.title = title;
+            return this;
+        }
+
+        public Builder withLink(String link) {
+            this.link = link;
+            return this;
+        }
+
+        public Builder withDateAvailable(String dateAvailable) {
+            this.dateAvailable = dateAvailable;
+            return this;
+        }
+
+        public Item build() {
+            return new Item(this);
+        }
+    }
 }
