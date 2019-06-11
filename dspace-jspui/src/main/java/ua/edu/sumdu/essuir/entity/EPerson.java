@@ -63,7 +63,7 @@ public class EPerson implements Depositor{
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.joining(" "));
-        return name.isEmpty() ? email : name;
+        return name.isEmpty() ? email : String.format("%s (%s)", name, email);
     }
 
     public ChairEntity getChairEntity() {

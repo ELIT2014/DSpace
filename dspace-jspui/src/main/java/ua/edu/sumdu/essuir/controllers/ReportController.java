@@ -119,5 +119,42 @@ public class ReportController {
         model.addObject("data", itemLinks);
         return model;
     }
+
+
+
+
+    @RequestMapping(value = "/itemUploadingReport", method = RequestMethod.GET)
+    public ModelAndView getUploadingStatisticsByDepositor(@RequestParam(value = "from", defaultValue = "01.01.2010") String from,
+                                                      @RequestParam(value = "to", defaultValue = "01.01.2100") String to,
+                                                      @RequestParam("faculty") Optional<String> faculty,
+                                                      @RequestParam("chair") Optional<String> chair,
+                                                      @RequestParam("person") Optional<String> person,
+                                                      ModelAndView model) {
+        List<Item> itemsInSpeciality;
+        LocalDate fromDate = LocalDate.parse(from, format);
+        LocalDate toDate = LocalDate.parse(to, format);
+
+
+       if(faculty.isPresent())
+           System.out.println(faculty.get());
+
+       if(chair.isPresent())
+           System.out.println(chair.get());
+
+       if(person.isPresent())
+           System.out.println(person.get());
+
+
+        List<String> itemLinks = itemsInSpeciality
+                .stream()
+                .sorted(Comparator.comparing(Item::getTitle))
+                .map(item -> String.format("<a href = \"%s\">%s</a>", item.getLink(), item.getTitle()))
+                .collect(Collectors.toList());
+
+        model.setViewName("detailed-report");
+//
+        model.addObject("data", itemLinks);
+        return model;
+    }
 }
 

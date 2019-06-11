@@ -93,7 +93,7 @@ public class DatabaseService {
 
         ua.edu.sumdu.essuir.entity.EPerson eperson = new ua.edu.sumdu.essuir.entity.EPerson.Builder()
                 .withFirstname(record.get(EPERSON.firstname))
-                .withLastname(record.get(EPERSON.firstname))
+                .withLastname(record.get(EPERSON.lastname))
                 .withEmail(record.get(EPERSON.email))
                 .withChairEntity(chairEntity)
                 .build();
