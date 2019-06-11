@@ -1,5 +1,7 @@
 package ua.edu.sumdu.essuir.entity;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
@@ -80,6 +82,34 @@ public class EPerson implements Depositor{
         return lastname;
     }
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        EPerson ePerson = (EPerson) o;
+
+        return new EqualsBuilder()
+                .append(id, ePerson.id)
+                .append(email, ePerson.email)
+                .append(firstname, ePerson.firstname)
+                .append(lastname, ePerson.lastname)
+                .append(chairEntity, ePerson.chairEntity)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(id)
+                .append(email)
+                .append(firstname)
+                .append(lastname)
+                .append(chairEntity)
+                .toHashCode();
+    }
 
     public static final class Builder {
         private Integer id;
