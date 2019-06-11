@@ -34,6 +34,7 @@ public class ReportService {
 
         return new ArrayList<>(result.values());
     }
+
     public List<Faculty> getUsersSubmissionCountBetweenDates(LocalDate from, LocalDate to) {
         List<Item> items = databaseService.fetchItemsInArchive();
         Map<Depositor, Long> data = items.stream()
@@ -42,8 +43,6 @@ public class ReportService {
 
         return collectStatistics(data);
     }
-
-
 
     public List<Item> getItemsInSpeciality(String pattern, LocalDate from, LocalDate to) {
         return specialityReportFetcher.getItemsInSpeciality(pattern, from, to);
