@@ -9,7 +9,7 @@ public class Metadatavalue extends TableImpl<Record> {
 
     public static final Metadatavalue TABLE = new Metadatavalue();
 
-    public final TableField<Record, Integer> resoruceId = createField("resource_id", SQLDataType.INTEGER);
+    public final TableField<Record, Integer> resourceId = createField("resource_id", SQLDataType.INTEGER);
     public final TableField<Record, Integer> place = createField("place", SQLDataType.INTEGER);
     public final TableField<Record, Integer> metadataFieldId = createField("metadata_field_id", SQLDataType.INTEGER);
     public final TableField<Record, Integer> resourceTypeId = createField("resource_type_id", SQLDataType.INTEGER);

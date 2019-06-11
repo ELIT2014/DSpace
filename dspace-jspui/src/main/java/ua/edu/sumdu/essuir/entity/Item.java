@@ -84,12 +84,6 @@ public class Item {
         return discoverable;
     }
 
-    private Optional<String> getMetadataFieldValue(List<Metadatavalue> values) {
-        return values.stream()
-                .findAny()
-                .map(Metadatavalue::getTextValue);
-    }
-
     @Transient
     private String specialityName;
 
@@ -121,9 +115,8 @@ public class Item {
         return link;
     }
 
-    public String getDateAvailable() {
-        return dateAvailable;
-//        return LocalDateTime.parse(dateAvailable, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")).toLocalDate();
+    public LocalDate getDateAvailable() {
+        return LocalDateTime.parse(dateAvailable.isEmpty() ? "2001-01-01T01:01:01Z": dateAvailable, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")).toLocalDate();
     }
 
 
@@ -156,7 +149,7 @@ public class Item {
             this.presentationDate = copy.getPresentationDate();
             this.title = copy.getTitle();
             this.link = copy.getLink();
-            this.dateAvailable = copy.getDateAvailable();
+            this.dateAvailable = copy.getDateAvailable().toString();
         }
 
         public Builder withItemId(Integer itemId) {
