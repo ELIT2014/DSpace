@@ -44,6 +44,36 @@ public class ReportService {
         return collectStatistics(data);
     }
 
+    public List<Item> getUploadedItemsByFacultyName(String faculty, LocalDate from, LocalDate to) {
+        List<Item> items = databaseService.fetchItemsInArchive();
+
+        return items
+                .stream()
+                .filter(item -> isDateInRange.test(item.getDateAvailable(), Pair.of(from, to)))
+                .filter(item -> faculty.equals(item.getSubmitter().getChairEntity().getFacultyEntityName()))
+                .collect(Collectors.toList());
+    }
+
+    public List<Item> getUploadedItemsByChairName(String chair, LocalDate from, LocalDate to) {
+        List<Item> items = databaseService.fetchItemsInArchive();
+
+        return items
+                .stream()
+                .filter(item -> isDateInRange.test(item.getDateAvailable(), Pair.of(from, to)))
+                .filter(item -> chair.equals(item.getSubmitter().getChairEntity().getChairName()))
+                .collect(Collectors.toList());
+    }
+
+    public List<Item> getUploadedItemsByPersonEmail(String person, LocalDate from, LocalDate to) {
+        List<Item> items = databaseService.fetchItemsInArchive();
+
+        return items
+                .stream()
+                .filter(item -> isDateInRange.test(item.getDateAvailable(), Pair.of(from, to)))
+                .filter(item -> person.equals(item.getSubmitter().getEmail()))
+                .collect(Collectors.toList());
+    }
+
     public List<Item> getItemsInSpeciality(String pattern, LocalDate from, LocalDate to) {
         return specialityReportFetcher.getItemsInSpeciality(pattern, from, to);
     }

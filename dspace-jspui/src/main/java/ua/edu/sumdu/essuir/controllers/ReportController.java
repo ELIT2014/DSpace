@@ -3,7 +3,6 @@ package ua.edu.sumdu.essuir.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.tuple.Pair;
 import org.dspace.app.webui.util.UIUtil;
 import org.dspace.authorize.AuthorizeManager;
 import org.json.simple.JSONArray;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import ua.edu.sumdu.essuir.entity.Faculty;
 import ua.edu.sumdu.essuir.entity.Item;
-import ua.edu.sumdu.essuir.entity.Metadatavalue;
 import ua.edu.sumdu.essuir.repository.FacultyRepository;
 import ua.edu.sumdu.essuir.service.ReportService;
 
@@ -26,8 +24,6 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Controller
@@ -120,9 +116,6 @@ public class ReportController {
         return model;
     }
 
-
-
-
     @RequestMapping(value = "/itemUploadingReport", method = RequestMethod.GET)
     public ModelAndView getUploadingStatisticsByDepositor(@RequestParam(value = "from", defaultValue = "01.01.2010") String from,
                                                       @RequestParam(value = "to", defaultValue = "01.01.2100") String to,
@@ -130,19 +123,25 @@ public class ReportController {
                                                       @RequestParam("chair") Optional<String> chair,
                                                       @RequestParam("person") Optional<String> person,
                                                       ModelAndView model) {
-        List<Item> itemsInSpeciality;
+        List<Item> itemsInSpeciality = new ArrayList<>();
         LocalDate fromDate = LocalDate.parse(from, format);
         LocalDate toDate = LocalDate.parse(to, format);
 
 
        if(faculty.isPresent())
-           System.out.println(faculty.get());
+           itemsInSpeciality = reportService.getUploadedItemsByFacultyName(faculty.get(), fromDate, toDate);
 
        if(chair.isPresent())
-           System.out.println(chair.get());
+           itemsInSpeciality = reportService.getUploadedItemsByChairName(chair.get(), fromDate, toDate);
 
-       if(person.isPresent())
-           System.out.println(person.get());
+       if(person.isPresent()) {
+           String name = person.get();
+           String email = name;
+           if(name.contains("(")) {
+               email = name.substring(name.indexOf('('), name.indexOf(')'));
+           }
+           itemsInSpeciality = reportService.getUploadedItemsByPersonEmail(email, fromDate, toDate);
+       }
 
 
         List<String> itemLinks = itemsInSpeciality
@@ -152,7 +151,7 @@ public class ReportController {
                 .collect(Collectors.toList());
 
         model.setViewName("detailed-report");
-//
+
         model.addObject("data", itemLinks);
         return model;
     }
