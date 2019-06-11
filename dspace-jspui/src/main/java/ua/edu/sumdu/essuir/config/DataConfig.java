@@ -1,6 +1,7 @@
 package ua.edu.sumdu.essuir.config;
 
 import liquibase.integration.spring.SpringLiquibase;
+import org.apache.tomcat.jdbc.pool.DataSource;
 import org.dspace.core.ConfigurationManager;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.jooq.SQLDialect;
@@ -20,7 +21,7 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import javax.sql.DataSource;
+
 import java.util.Properties;
 
 @Configuration
@@ -71,12 +72,17 @@ public class DataConfig {
 
     @Bean
     public DataSource dataSource() {
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        DataSource dataSource = new DataSource();
 
         dataSource.setDriverClassName(PROP_DATABASE_DRIVER);
         dataSource.setUrl(PROP_DATABASE_URL);
         dataSource.setUsername(PROP_DATABASE_USERNAME);
         dataSource.setPassword(PROP_DATABASE_PASSWORD);
+
+        dataSource.setTestOnBorrow(true);
+        dataSource.setTestWhileIdle(true);
+        dataSource.setTestOnReturn(true);
+        dataSource.setValidationQuery("SELECT 1");
 
         return dataSource;
     }
@@ -87,7 +93,6 @@ public class DataConfig {
         entityManagerFactoryBean.setDataSource(dataSource());
         entityManagerFactoryBean.setPersistenceProviderClass(HibernatePersistenceProvider.class);
         entityManagerFactoryBean.setPackagesToScan(PROP_ENTITYMANAGER_PACKAGES_TO_SCAN);
-
         entityManagerFactoryBean.setJpaProperties(getHibernateProperties());
 
         return entityManagerFactoryBean;
