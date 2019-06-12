@@ -64,7 +64,7 @@ public class DataConfig {
         DefaultConfiguration jooqConfiguration = new DefaultConfiguration();
         jooqConfiguration.set(connectionProvider());
 
-        SQLDialect dialect = SQLDialect.POSTGRES;
+        SQLDialect dialect = SQLDialect.POSTGRES_9_3;
         jooqConfiguration.set(dialect);
 
         return jooqConfiguration;
