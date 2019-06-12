@@ -138,7 +138,7 @@ public class ReportController {
            String name = person.get();
            String email = name;
            if(name.contains("(")) {
-               email = name.substring(name.indexOf('('), name.indexOf(')'));
+               email = name.substring(name.indexOf('(') + 1, name.indexOf(')'));
            }
            itemsInSpeciality = reportService.getUploadedItemsByPersonEmail(email, fromDate, toDate);
        }
