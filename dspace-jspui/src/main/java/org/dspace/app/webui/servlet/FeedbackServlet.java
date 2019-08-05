@@ -69,7 +69,7 @@ public class FeedbackServlet extends DSpaceServlet
         }
 
         Map<String, String> googleRequestParameters = new HashMap<>();
-        googleRequestParameters.put("secret", "6LdpYrEUAAAAAKP545m97py54Zi2j8NmWQ6Kax-x");
+        googleRequestParameters.put("secret", ConfigurationManager.getProperty("recaptcha.private"));
         googleRequestParameters.put("response", request.getParameter("g-recaptcha-response"));
         googleRequestParameters.put("remoteip", host);
 

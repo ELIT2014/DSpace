@@ -17,6 +17,7 @@
 
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
+<%@ page import="org.dspace.core.ConfigurationManager" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://www.dspace.org/dspace-tags.tld" prefix="dspace" %>
 
@@ -79,7 +80,9 @@
             </div>
         </div>
 
-        <div class="col-sm-offset-4 col-sm-6 g-recaptcha" data-sitekey="6LdpYrEUAAAAAOb7ppjndCX4NJXNLsGWgBg-jPvv"></div>
+        <div class="form-group">
+            <div class="col-sm-offset-4 col-sm-6 g-recaptcha" data-sitekey="<%= ConfigurationManager.getProperty("recaptcha.public") %>"></div>
+        </div>
 
         <div class="form-group">
             <div class="col-sm-offset-4 col-sm-6">
