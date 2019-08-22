@@ -2,6 +2,8 @@ package org.dspace;
 
 import org.dspace.app.webui.servlet.DSpaceServlet;
 import org.dspace.app.webui.util.JSPManager;
+import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.MetadataSchema;
 import org.dspace.core.Context;
 import org.dspace.core.I18nUtil;
 import org.dspace.core.factory.CoreServiceFactory;
@@ -20,6 +22,7 @@ import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.jstl.fmt.LocaleSupport;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 
 @Configurable
 public class HomePageServlet extends DSpaceServlet {
@@ -31,14 +34,16 @@ public class HomePageServlet extends DSpaceServlet {
 
     }
     @Override
-    protected void doGet(HttpServletRequest request,
-                         HttpServletResponse response) throws ServletException, IOException
+    protected void doDSGet(Context context, HttpServletRequest request,
+                           HttpServletResponse response) throws ServletException, IOException,
+            SQLException, AuthorizeException
     {
         NewsService newsService = CoreServiceFactory.getInstance().getNewsService();
-        String topNews = newsService.readNewsFile(I18nUtil.getMessage("news-top.html", request.getLocale()));
-        String sideNews  = newsService.readNewsFile(I18nUtil.getMessage("news-side.html", request.getLocale()));
+        String topNews = newsService.readNewsFile(I18nUtil.getMessage("news-top.html", context.getCurrentLocale()));
+        String sideNews  = newsService.readNewsFile(I18nUtil.getMessage("news-side.html", context.getCurrentLocale()));
         request.setAttribute("top-news", topNews);
         request.setAttribute("side-news", sideNews);
         JSPManager.showJSP(request, response, "home.jsp");
     }
+
 }
