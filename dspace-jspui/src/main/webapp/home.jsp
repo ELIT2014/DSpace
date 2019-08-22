@@ -73,9 +73,17 @@
 
 <dspace:layout locbar="nolink" titlekey="jsp.home.title" feedData="<%= feedData %>">
 
-	<div class="jumbotron">
-		<%= request.getAttribute("top-news") %>.
-	</div>
+	<table width="100%" style="margin-bottom:20px">
+		<tr>
+			<td class="jumbotron" width="75%">
+			<%= request.getAttribute("top-news") %>
+		</td>
+		<td width="20px"/><td valign="top" class="jumbotron">
+			<p align="center" style="margin-bottom:22px"><a href="http://sumdu.edu.ua"><img src="/image/sumdu-logo-tr.gif" style="margin-top: 38px;"></a></p>
+			<%= request.getAttribute("side-news") %>
+		</td></tr>
+	</table>
+
 
 <div class="row">
 <%
@@ -165,7 +173,7 @@ if (submissions != null && submissions.count() > 0)
 }
 %>
 <div class="col-md-4">
-	<%= request.getAttribute("side-news") %>.
+    <%= sideNews %>
 </div>
 </div>
 <div class="container row">
