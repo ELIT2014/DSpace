@@ -48,9 +48,9 @@
 
     Locale sessionLocale = UIUtil.getSessionLocale(request);
     Config.set(request.getSession(), Config.FMT_LOCALE, sessionLocale);
-    NewsService newsService = CoreServiceFactory.getInstance().getNewsService();
-    String topNews = newsService.readNewsFile(LocaleSupport.getLocalizedMessage(pageContext, "news-top.html"));
-    String sideNews = newsService.readNewsFile(LocaleSupport.getLocalizedMessage(pageContext, "news-side.html"));
+//    NewsService newsService = CoreServiceFactory.getInstance().getNewsService();
+//    String topNews = newsService.readNewsFile(LocaleSupport.getLocalizedMessage(pageContext, "news-top.html"));
+//    String sideNews = newsService.readNewsFile(LocaleSupport.getLocalizedMessage(pageContext, "news-side.html"));
 
     ConfigurationService configurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
     
@@ -74,7 +74,7 @@
 <dspace:layout locbar="nolink" titlekey="jsp.home.title" feedData="<%= feedData %>">
 
 	<div class="jumbotron">
-        <%= topNews %>
+		<%= request.getAttribute("top-news") %>.
 	</div>
 
 <div class="row">
@@ -165,7 +165,7 @@ if (submissions != null && submissions.count() > 0)
 }
 %>
 <div class="col-md-4">
-    <%= sideNews %>
+	<%= request.getAttribute("side-news") %>.
 </div>
 </div>
 <div class="container row">

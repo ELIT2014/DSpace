@@ -147,6 +147,11 @@
 
   <!-- Servlets -->
 
+    <servlet>
+        <servlet-name>home-page</servlet-name>
+        <servlet-class>org.dspace.HomePageServlet</servlet-class>
+    </servlet>
+
   <servlet>
     <servlet-name>authorize</servlet-name>
     <servlet-class>org.dspace.app.webui.servlet.admin.AuthorizeAdminServlet</servlet-class>
@@ -815,7 +820,12 @@
     <servlet-name>request-item</servlet-name>
     <url-pattern>/request-item</url-pattern>
   </servlet-mapping>
-  
+
+    <servlet-mapping>
+        <servlet-name>home-page</servlet-name>
+        <url-pattern></url-pattern>
+    </servlet-mapping>
+
   <!-- Icon MIME type -->
   <mime-mapping>
     <extension>ico</extension>
