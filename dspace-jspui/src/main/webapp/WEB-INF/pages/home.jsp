@@ -26,6 +26,8 @@
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://www.dspace.org/dspace-tags.tld" prefix="dspace" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <%@ page import="java.io.File" %>
 <%@ page import="java.util.Enumeration"%>
@@ -76,11 +78,13 @@
 	<table width="100%" style="margin-bottom:20px">
 		<tr>
 			<td class="jumbotron" width="75%">
-			<%= request.getAttribute("top-news") %>
+				${topNews}
+			<%--<%= request.getAttribute("top-news") %>--%>
 		</td>
 		<td width="20px"/><td valign="top" class="jumbotron">
 			<p align="center" style="margin-bottom:22px"><a href="http://sumdu.edu.ua"><img src="/image/sumdu-logo-tr.gif" style="margin-top: 38px;"></a></p>
-			<%= request.getAttribute("side-news") %>
+				${sideNews}
+			<%--<%= request.getAttribute("side-news") %>--%>
 		</td></tr>
 	</table>
 
@@ -224,11 +228,11 @@ if (communities != null && communities.size() != 0)
     	int discovery_panel_cols = 8;
     	int discovery_facet_cols = 4;
     %>
-	<%@ include file="discovery/static-sidebar-facet.jsp" %>
+	<%@ include file="../../discovery/static-sidebar-facet.jsp" %>
 </div>
 
 <div class="row">
-	<%@ include file="discovery/static-tagcloud-facet.jsp" %>
+	<%@ include file="../../discovery/static-tagcloud-facet.jsp" %>
 </div>
 	
 </div>
