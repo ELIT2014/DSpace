@@ -89,6 +89,26 @@
 	</table>
 
 
+	<div class="jumbotron">
+		<h3><fmt:message key="jsp.home.type"/></h3>
+
+		<table border="0" cellpadding="2" width="100%">
+			<tr>
+				<c:forEach items="${submissions}" var="submission" varStatus="listIterator">
+				<td class="standard" width="25%">
+					<a href="<%= request.getContextPath() %>/simple-search?query=&filtername=type&filtertype=equals&filterquery=${submission.searchQuery}&rpp=20&sort_by=dc.date.issued_dt&order=desc">${submission.title}</a>
+					<span class="badge">${submission.count}</span>
+				</td>
+				<c:if test="${listIterator.index % 4 == 3}">
+			</tr>
+			<tr>
+				</c:if>
+				</c:forEach>
+				<td></td><td></td><td></td>
+			</tr>
+		</table>
+	</div>
+
 <div class="row">
 <%
 if (submissions != null && submissions.count() > 0)

@@ -1,8 +1,15 @@
 package org.ssu.entity;
 
-public class ItemTypeResponse {
-    private Long count;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.io.Serializable;
+
+public class ItemTypeResponse implements Serializable {
+    @JsonProperty("count")
+    private Integer count;
+    @JsonProperty("title")
     private String title;
+    @JsonProperty("search_query")
     private String searchQuery;
 
     private ItemTypeResponse(Builder builder) {
@@ -11,7 +18,7 @@ public class ItemTypeResponse {
         searchQuery = builder.title;
     }
 
-    public Long getCount() {
+    public Integer getCount() {
         return count;
     }
 
@@ -24,7 +31,7 @@ public class ItemTypeResponse {
     }
 
     public static final class Builder {
-        private Long count;
+        private Integer count;
         private String title;
 
         public Builder() {
@@ -35,7 +42,7 @@ public class ItemTypeResponse {
             this.title = copy.getTitle();
         }
 
-        public Builder withCount(Long count) {
+        public Builder withCount(Integer count) {
             this.count = count;
             return this;
         }
