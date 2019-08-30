@@ -58,7 +58,7 @@ public class TypeLocalization {
 
         return getTypesCount().entrySet()
                 .stream()
-                .map(item -> new ItemTypeResponse.Builder().withTitle(getTypeLocalized(item.getKey(), locale)).withCount(item.getValue()).build())
+                .map(item -> new ItemTypeResponse.Builder().withTitle(getTypeLocalized(item.getKey(), locale)).withCount(item.getValue()).withSearchQuery(item.getKey()).build())
                 .collect(Collectors.toList());
 
     }

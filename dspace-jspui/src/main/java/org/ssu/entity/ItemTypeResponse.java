@@ -15,7 +15,7 @@ public class ItemTypeResponse implements Serializable {
     private ItemTypeResponse(Builder builder) {
         count = builder.count;
         title = builder.title;
-        searchQuery = builder.title;
+        searchQuery = builder.searchQuery;
     }
 
     public Integer getCount() {
@@ -30,9 +30,11 @@ public class ItemTypeResponse implements Serializable {
         return searchQuery;
     }
 
+
     public static final class Builder {
         private Integer count;
         private String title;
+        private String searchQuery;
 
         public Builder() {
         }
@@ -40,6 +42,7 @@ public class ItemTypeResponse implements Serializable {
         public Builder(ItemTypeResponse copy) {
             this.count = copy.getCount();
             this.title = copy.getTitle();
+            this.searchQuery = copy.getSearchQuery();
         }
 
         public Builder withCount(Integer count) {
@@ -49,6 +52,11 @@ public class ItemTypeResponse implements Serializable {
 
         public Builder withTitle(String title) {
             this.title = title;
+            return this;
+        }
+
+        public Builder withSearchQuery(String searchQuery) {
+            this.searchQuery = searchQuery;
             return this;
         }
 
