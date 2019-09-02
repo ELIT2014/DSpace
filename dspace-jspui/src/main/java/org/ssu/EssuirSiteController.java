@@ -70,4 +70,9 @@ public class EssuirSiteController {
         model.setViewName("home");
         return model;
     }
+
+    @RequestMapping("/provision")
+    public String provisionPage() {
+        return "position";
+    }
 }
