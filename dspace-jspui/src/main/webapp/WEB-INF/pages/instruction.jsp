@@ -27,7 +27,7 @@
 
                 <p style='text-align:justify'>Для того, щоб розміщувати свої матеріали в Спільнотах (посилання), Вам необхідно:</p>
                 <ul>
-                    <li style='text-align:justify'>Ознайомитись із <a href="about.jsp#part3">Загальними принципами розміщення матеріалів та політиками eSSUIR</a>.</li>
+                    <li style='text-align:justify'>Ознайомитись із <a href="about#part3">Загальними принципами розміщення матеріалів та політиками eSSUIR</a>.</li>
                     <li style='text-align:justify'>Якщо Ви погоджуєтесь із цими принципами та матеріал, який Ви хочете розмістити в eSSUIR, відповідає цим принципам:
                         <ul>
                             <li style='text-align:justify'>Зареєструйтесь в архіві.</li>
