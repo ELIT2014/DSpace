@@ -85,4 +85,9 @@ public class EssuirSiteController {
     public String instructionPage() {
         return "instruction";
     }
+
+    @RequestMapping("/contacts")
+    public String contactsPage() {
+        return "contacts";
+    }
 }
