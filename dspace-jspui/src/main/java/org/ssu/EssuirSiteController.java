@@ -90,4 +90,14 @@ public class EssuirSiteController {
     public String contactsPage() {
         return "contacts";
     }
+
+    @RequestMapping("/application1")
+    public String application1Page() {
+        return "application1";
+    }
+
+    @RequestMapping("/application2")
+    public String application2Page() {
+        return "application2";
+    }
 }
