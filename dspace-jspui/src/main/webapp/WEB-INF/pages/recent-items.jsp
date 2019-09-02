@@ -22,7 +22,7 @@
 
         <c:forEach items="${recentItems}" var="item">
             <tr height="30">
-                <td><a href="<%= request.getContextPath() %>/handle/${item.handle}">${item.title}</a></td>
+                <td width="80%"><a href="<%= request.getContextPath() %>/handle/${item.handle}">${item.title}</a></td>
                 <td align="right">[${item.type}]</td>
             </tr>
 
