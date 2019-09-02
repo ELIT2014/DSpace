@@ -100,4 +100,9 @@ public class EssuirSiteController {
     public String application2Page() {
         return "application2";
     }
+
+    @RequestMapping("/structure")
+    public String structurePage() {
+        return "structure";
+    }
 }
