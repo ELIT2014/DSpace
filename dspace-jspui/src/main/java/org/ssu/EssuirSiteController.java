@@ -80,4 +80,9 @@ public class EssuirSiteController {
     public String aboutPage() {
         return "about";
     }
+
+    @RequestMapping("/instruction")
+    public String instructionPage() {
+        return "instruction";
+    }
 }
