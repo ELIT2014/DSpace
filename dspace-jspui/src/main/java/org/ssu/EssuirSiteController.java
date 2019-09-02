@@ -75,4 +75,9 @@ public class EssuirSiteController {
     public String provisionPage() {
         return "position";
     }
+
+    @RequestMapping("/about")
+    public String aboutPage() {
+        return "about";
+    }
 }
