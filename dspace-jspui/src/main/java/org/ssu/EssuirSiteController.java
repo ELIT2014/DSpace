@@ -112,7 +112,7 @@ public class EssuirSiteController {
         Context dspaceContext = UIUtil.obtainContext(request);
         Locale locale = dspaceContext.getCurrentLocale();
         NewsService newsService = CoreServiceFactory.getInstance().getNewsService();
-        String faqFilePath = String.format("faqFilePath%s.html", locale.getLanguage().equals("en") ? "" : locale.getLanguage());
+        String faqFilePath = String.format("faq%s.html", locale.getLanguage().equals("en") ? "" : locale.getLanguage());
         model.addObject("faq", newsService.readNewsFile(faqFilePath));
         model.setViewName("faq");
         return model;
