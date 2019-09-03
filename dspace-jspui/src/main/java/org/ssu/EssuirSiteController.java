@@ -109,6 +109,7 @@ public class EssuirSiteController {
         return "structure";
     }
 
+
     @RequestMapping("/recent-items")
     public ModelAndView recentItemsPage(ModelAndView model, HttpServletRequest request) throws SQLException, RecentSubmissionsException {
         Context context = UIUtil.obtainContext(request);
@@ -124,6 +125,18 @@ public class EssuirSiteController {
                 .collect(Collectors.toList());
         model.addObject("recentItems", recentItems);
         model.setViewName("recent-items");
+        return model;
+    }
+
+    @RequestMapping("/faq")
+    public ModelAndView faqPage(ModelAndView model, HttpServletRequest request) throws SQLException {
+        Context dspaceContext = UIUtil.obtainContext(request);
+        Locale locale = dspaceContext.getCurrentLocale();
+        NewsService newsService = CoreServiceFactory.getInstance().getNewsService();
+        String faqFilePath = String.format("faq%s.html", locale.getLanguage().equals("en") ? "" : "_" + locale.getLanguage());
+        model.addObject("faq", newsService.readNewsFile(faqFilePath));
+        model.setViewName("faq");
+
         return model;
     }
 }
