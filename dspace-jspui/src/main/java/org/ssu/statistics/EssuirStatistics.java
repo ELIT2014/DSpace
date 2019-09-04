@@ -27,9 +27,6 @@ public class EssuirStatistics {
     private MetadatavalueRepository metadatavalueRepository;
 
     @Resource
-    private AuthorsCache authorsCache;
-
-    @Resource
     private DSLContext dsl;
 
     private String getLastUpdate() {
