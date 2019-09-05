@@ -6,21 +6,25 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <%@ page import="org.dspace.core.Context" %>
-<%@ page import="org.dspace.app.webui.util.UIUtil" %>
-<%@ page import="org.dspace.eperson.EPerson" %>
-<%@ page import="java.sql.*" %>
-<%@ page import="org.dspace.core.ConfigurationManager" %>
-<%@ page import="java.util.Locale"%>
-<%@ page import="org.dspace.app.webui.util.UIUtil" %>
+<%@ page import="javax.servlet.jsp.jstl.fmt.LocaleSupport" %>
+<%@ page import="org.dspace.services.factory.DSpaceServicesFactory" %>
 
 
 <%
     org.dspace.core.Context context = org.dspace.app.webui.util.UIUtil.obtainContext(request);
+
 %>
 
 <dspace:layout locbar="commLink" titlekey="jsp.top50items" feedData="NONE">
-
-    <h2><fmt:message key="jsp.top50items"/></h2>
+<%
+    int topPublicationsCount = DSpaceServicesFactory.getInstance().getConfigurationService().getIntProperty("jsp.view.top_publications_count");
+    request.setAttribute("dspace.layout.title", ((String)request.getAttribute("dspace.layout.title")).replace("{0}", String.valueOf(topPublicationsCount)));
+%>
+    <h2>
+        <fmt:message key="jsp.top50items">
+            <fmt:param value="${listSize}"/>
+        </fmt:message>
+    </h2>
 
     <table align="center" width="95%" border="0">
         <tr>
