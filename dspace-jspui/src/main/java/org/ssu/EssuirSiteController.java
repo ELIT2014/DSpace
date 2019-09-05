@@ -145,8 +145,8 @@ public class EssuirSiteController {
 
     @RequestMapping("/top-publications")
     public ModelAndView topPublicationsPage(ModelAndView model, HttpServletRequest request) throws SQLException {
-        List<org.ssu.entity.Item> collect = essuirStatistics.topPublications(10);
-        model.addObject("publicationList", collect);
+        List<org.ssu.entity.Item> publications = essuirStatistics.topPublications(10);
+        model.addObject("publicationList", publications);
         model.setViewName("top-publications");
         return model;
     }
