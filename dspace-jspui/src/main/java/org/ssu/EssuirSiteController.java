@@ -14,6 +14,7 @@ import org.dspace.core.Context;
 import org.dspace.core.I18nUtil;
 import org.dspace.core.factory.CoreServiceFactory;
 import org.dspace.core.service.NewsService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -145,9 +146,10 @@ public class EssuirSiteController {
 
     @RequestMapping("/top-publications")
     public ModelAndView topPublicationsPage(ModelAndView model, HttpServletRequest request) throws SQLException {
-        List<org.ssu.entity.Item> publications = essuirStatistics.topPublications(10);
+        List<org.ssu.entity.Item> publications = essuirStatistics.topPublications(DSpaceServicesFactory.getInstance().getConfigurationService().getIntProperty("jsp.view.top_publications_count"));
         model.addObject("publicationList", publications);
         model.setViewName("top-publications");
+        model.addObject("listSize", publications.size());
         return model;
     }
 
@@ -156,11 +158,12 @@ public class EssuirSiteController {
         Context dspaceContext = UIUtil.obtainContext(request);
         Locale locale = dspaceContext.getCurrentLocale();
         Function<AuthorLocalization, String> extractAuthorData = (author) -> String.format("%s, %s", author.getSurname(locale), author.getInitials(locale));
-        List<Pair<String, Long>> authors = essuirStatistics.topAuthors(10)
+        List<Pair<String, Long>> authors = essuirStatistics.topAuthors(DSpaceServicesFactory.getInstance().getConfigurationService().getIntProperty("jsp.view.top_authors_count"))
                 .stream()
                 .map(author -> Pair.of(extractAuthorData.apply(author.getKey()), author.getValue()))
                 .collect(Collectors.toList());
         model.addObject("authorList", authors);
+        model.addObject("listSize", authors.size());
         model.setViewName("top-authors");
         return model;
     }
