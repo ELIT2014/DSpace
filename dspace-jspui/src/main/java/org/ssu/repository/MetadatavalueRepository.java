@@ -1,5 +1,6 @@
 package org.ssu.repository;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.dspace.content.Item;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.core.Context;
@@ -38,8 +39,7 @@ public class MetadatavalueRepository {
                 .from(HANDLE)
                 .join(METADATAVALUE).on(METADATAVALUE.dspaceObjectId.eq(HANDLE.resourceId))
                 .where(METADATAVALUE.metadataFieldId.eq(64).and(HANDLE.resourceLegacyId.eq(itemId)))
-                .fetchOne()
-                .value1();
+                .fetchOne(METADATAVALUE.value);
     }
 
     public String getItemLinkByItemId(int itemId) {
@@ -47,8 +47,18 @@ public class MetadatavalueRepository {
                 .from(HANDLE)
                 .join(METADATAVALUE).on(METADATAVALUE.dspaceObjectId.eq(HANDLE.resourceId))
                 .where(METADATAVALUE.metadataFieldId.eq(25).and(HANDLE.resourceLegacyId.eq(itemId)))
-                .fetchOne()
-                .value1();
+                .fetchOne(METADATAVALUE.value);
+    }
+
+    public List<Pair<String, Integer>> getItemAuthorAndItemIdMapping() {
+        return dsl.select(METADATAVALUE.value, HANDLE.resourceLegacyId)
+                .from(METADATAVALUE)
+                .leftJoin(HANDLE).on(METADATAVALUE.dspaceObjectId.eq(HANDLE.resourceId))
+                .where(METADATAVALUE.metadataFieldId.eq(3))
+                .fetch()
+                .stream()
+                .map(item -> Pair.of(item.get(METADATAVALUE.value), item.get(HANDLE.resourceLegacyId)))
+                .collect(Collectors.toList());
     }
 
     public Integer getMaximumItemId() {
