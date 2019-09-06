@@ -19,6 +19,21 @@ public class GeneralStatisticsRepository {
     @Resource
     private DSLContext dsl;
 
+
+    public List<GeneralStatistics> findAll() {
+        return dsl.select(GENERAL_STATISTICS.asterisk())
+                .from(GENERAL_STATISTICS)
+                .fetch()
+                .stream()
+                .map(item -> new GeneralStatistics.Builder()
+                        .withYear(item.get(GENERAL_STATISTICS.year))
+                        .withMonth(item.get(GENERAL_STATISTICS.month))
+                        .withDownloadsCount(item.get(GENERAL_STATISTICS.downloadsCount))
+                        .withViewsCount(item.get(GENERAL_STATISTICS.viewCount))
+                        .build()
+                ).collect(Collectors.toList());
+    }
+
     public List<GeneralStatistics> findAllYearsStatistics() {
         return dsl.select(GENERAL_STATISTICS.asterisk())
                 .from(GENERAL_STATISTICS)

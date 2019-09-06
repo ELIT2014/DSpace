@@ -1,6 +1,5 @@
 package org.ssu.entity;
 
-import javax.persistence.*;
 import java.io.Serializable;
 
 public class GeneralStatistics implements Serializable {

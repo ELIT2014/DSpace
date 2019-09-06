@@ -30,7 +30,7 @@
         </tr>
     </table>
     <c:forEach var="yearStatistics" items="${listYearStatistics}" varStatus="cnt" begin="0" end="${listYearStatistics.size() - 1}">
-        <h3><c:out value="${yearStatistics.getYear().toString()}" />&nbsp<%= LocaleSupport.getLocalizedMessage(pageContext, "jsp.general-statistics.year") %></h3>
+        <h3><c:out value="${yearStatistics.year}" />&nbsp<%= LocaleSupport.getLocalizedMessage(pageContext, "jsp.general-statistics.year") %></h3>
         <table width="95%%" align="center" class="table">
             <tr class="oddRowOddCol" align="center">
                 <% for (int i = 0; i < 12; i++) {
@@ -42,9 +42,9 @@
             </tr>
 
             <tr class="evenRowOddCol" align="center">
-                <c:forEach var="cntViews" items="${yearStatistics.getYearViews()}" varStatus="status" begin="0" end="11">
+                <c:forEach var="cntViews" items="${yearStatistics.yearViews}" varStatus="status" begin="0" end="11">
                     <c:choose>
-                        <c:when test="${cnt.index == 0 && yearStatistics.getCurrentMonth() == status.index}">
+                        <c:when test="${cnt.index == 0 && yearStatistics.currentMonth == status.index}">
                             <td id="CurrentMonthStatisticsViews">-</td>
                         </c:when>
                         <c:otherwise>
