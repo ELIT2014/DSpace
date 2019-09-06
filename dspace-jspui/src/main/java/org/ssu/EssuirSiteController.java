@@ -1,6 +1,7 @@
 package org.ssu;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.log4j.Logger;
 import org.dspace.app.webui.components.RecentSubmissionsException;
 import org.dspace.app.webui.components.RecentSubmissionsManager;
 import org.dspace.app.webui.util.UIUtil;
@@ -15,19 +16,26 @@ import org.dspace.core.I18nUtil;
 import org.dspace.core.factory.CoreServiceFactory;
 import org.dspace.core.service.NewsService;
 import org.dspace.services.factory.DSpaceServicesFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.ssu.entity.AuthorLocalization;
 import org.ssu.entity.response.ItemTypeResponse;
 import org.ssu.entity.response.RecentItem;
 import org.ssu.localization.TypeLocalization;
 import org.ssu.statistics.EssuirStatistics;
+import org.ssu.statistics.GeneralStatisticsService;
+import org.ssu.statistics.ScheduledTasks;
 import org.ssu.statistics.StatisticsData;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -37,12 +45,18 @@ import java.util.stream.Collectors;
 @RequestMapping("/")
 @Controller
 public class EssuirSiteController {
-
+    private static Logger log = Logger.getLogger(EssuirSiteController.class);
     @Resource
     private TypeLocalization typeLocalization;
 
     @Resource
     private EssuirStatistics essuirStatistics;
+
+    @Resource
+    private GeneralStatisticsService generalStatisticsService;
+
+    @Resource
+    private ScheduledTasks scheduledTasks;
 
     @RequestMapping("/")
     public ModelAndView homePage(ModelAndView model, HttpServletRequest request) throws SQLException, ItemCountException {
@@ -166,5 +180,43 @@ public class EssuirSiteController {
         model.addObject("listSize", authors.size());
         model.setViewName("top-authors");
         return model;
+    }
+
+    @RequestMapping(value = "/current", method = RequestMethod.GET)
+    @ResponseBody
+    public Map<String, Integer> getTotalStatistics(HttpServletRequest request) {
+        Map<String, Integer> stat = new HashMap<String, Integer>();
+
+        try {
+            org.dspace.core.Context context = org.dspace.app.webui.util.UIUtil.obtainContext(request);
+            StatisticsData sd = essuirStatistics.getTotalStatistic();
+            stat.put("TotalCount", Long.valueOf(sd.getTotalCount()).intValue());
+            stat.put("TotalViews", Long.valueOf(sd.getTotalViews()).intValue());
+            stat.put("TotalDownloads", Long.valueOf(sd.getTotalDownloads()).intValue());
+            stat.put("CurrentMonthStatisticsViews", generalStatisticsService.getCurrentMonthStatisticsViews(sd.getTotalViews()));
+            stat.put("CurrentMonthStatisticsDownloads", generalStatisticsService.getCurrentMonthStatisticsDownloads(sd.getTotalDownloads()));
+            stat.put("CurrentYearStatisticsViews", generalStatisticsService.getCurrentYearStatisticsViews(sd.getTotalViews()));
+            stat.put("CurrentYearStatisticsDownloads", generalStatisticsService.getCurrentYearStatisticsDownloads(sd.getTotalDownloads()));
+            context.complete();
+        } catch (Exception ex) {
+            log.error(ex.getMessage(), ex);
+        }
+        return stat;
+    }
+
+    @RequestMapping(value = "/general-statistics", method = RequestMethod.GET)
+    public String getGeneralStatistics(ModelMap model) {
+        model.addAttribute("listYearStatistics", generalStatisticsService.getListYearsStatistics());
+        return "pub_stat";
+    }
+
+    @RequestMapping(value = "/update-month-statistics", method = RequestMethod.GET)
+    @ResponseBody
+    public String updateStatistics() {
+        if (scheduledTasks.finalizeMonthStatistics()) {
+            return "Statistics updated successfully";
+        } else {
+            return "Errors occurred";
+        }
     }
 }
