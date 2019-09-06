@@ -41,13 +41,13 @@ public class ScheduledTasks {
     }
 
     private Boolean isPreviousMonthStatisticsSavedToDatabase() {
-        DateTime today = DateTime.now();
-        List<GeneralStatistics> statistics = generalStatisticsRepository.findAll();
-        for (GeneralStatistics monthStatistics : statistics) {
-            if(isPreviousMonthStatistics(today, monthStatistics)) {
-                return true;
-            }
-        }
+//        DateTime today = DateTime.now();
+//        List<GeneralStatistics> statistics = generalStatisticsRepository.findAll();
+//        for (GeneralStatistics monthStatistics : statistics) {
+//            if(isPreviousMonthStatistics(today, monthStatistics)) {
+//                return true;
+//            }
+//        }
         return false;
     }
 
@@ -62,53 +62,53 @@ public class ScheduledTasks {
     // Fire at 00:00 on the first day of every month
     @Scheduled(cron = "0 0 0 1 * ?")
     public void addNewEntityByMonth(){
-        DateTime dateTime = DateTime.now();
-        //System.out.println("start schedule");
-        //System.out.println(dateTime.toString());
-        StatisticsData sd;
-        try {
-            Context context = new Context();
-            sd = essuirStatistics.getTotalStatistic();
-            if(dateTime.getMonthOfYear() != 1){
-                GeneralStatistics newMonth = new GeneralStatistics(dateTime.getYear(),
-                        dateTime.getMonthOfYear() - 1,
-                        generalStatisticsService.getCurrentMonthStatisticsViews(sd.getTotalViews()),
-                        generalStatisticsService.getCurrentMonthStatisticsDownloads(sd.getTotalDownloads()));
-                generalStatisticsRepository.save(newMonth);
-                //System.out.println("saved new month");
-            }
-            else {
-                GeneralStatistics newMonth = new GeneralStatistics(dateTime.getYear() - 1,
-                        11,
-                        generalStatisticsService.getCurrentMonthStatisticsViews(sd.getTotalViews()),
-                        generalStatisticsService.getCurrentMonthStatisticsDownloads(sd.getTotalDownloads()));
-                generalStatisticsRepository.save(newMonth);
-                //System.out.println("saved new month");
-                generalStatisticsService.updateListYearsStatistics();
-                YearStatistics currentYear = generalStatisticsService.getListYearsStatistics().get(0);
-                Integer currentYearStatiscticsViews = 0;
-                Integer currentYearStatiscticsDownloads = 0;
-                ArrayList<Integer> tmpViews = currentYear.getYearViews();
-                ArrayList<Integer> tmpDownloads = currentYear.getYearDownloads();
-                for (int i = 0; i < tmpViews.size(); i++) {
-                    currentYearStatiscticsViews += tmpViews.get(i);
-                    currentYearStatiscticsDownloads += tmpDownloads.get(i);
-                }
-
-                GeneralStatistics currentYearResult = generalStatisticsRepository.findCurrentYearTotalStatistics(dateTime.getYear() - 1, -1);
-                currentYearResult.setViewsCount(currentYearStatiscticsViews);
-                currentYearResult.setDownloadsCount(currentYearStatiscticsDownloads);
-                generalStatisticsRepository.save(currentYearResult);
-                GeneralStatistics newYearResult = new GeneralStatistics(dateTime.getYear(), -1, 0, 0);
-                generalStatisticsRepository.save(newYearResult);
-            }
-            generalStatisticsService.updateListYearsStatistics();
-            context.complete();
-            //System.out.println("That's OK");
-        } catch (SQLException e){
-            log.error(e.getMessage(), e);
-            e.printStackTrace();
-        }
+//        DateTime dateTime = DateTime.now();
+//        //System.out.println("start schedule");
+//        //System.out.println(dateTime.toString());
+//        StatisticsData sd;
+//        try {
+//            Context context = new Context();
+//            sd = essuirStatistics.getTotalStatistic();
+//            if(dateTime.getMonthOfYear() != 1){
+//                GeneralStatistics newMonth = new GeneralStatistics(dateTime.getYear(),
+//                        dateTime.getMonthOfYear() - 1,
+//                        generalStatisticsService.getCurrentMonthStatisticsViews(sd.getTotalViews()),
+//                        generalStatisticsService.getCurrentMonthStatisticsDownloads(sd.getTotalDownloads()));
+//                generalStatisticsRepository.save(newMonth);
+//                //System.out.println("saved new month");
+//            }
+//            else {
+//                GeneralStatistics newMonth = new GeneralStatistics(dateTime.getYear() - 1,
+//                        11,
+//                        generalStatisticsService.getCurrentMonthStatisticsViews(sd.getTotalViews()),
+//                        generalStatisticsService.getCurrentMonthStatisticsDownloads(sd.getTotalDownloads()));
+//                generalStatisticsRepository.save(newMonth);
+//                //System.out.println("saved new month");
+//                generalStatisticsService.updateListYearsStatistics();
+//                YearStatistics currentYear = generalStatisticsService.getListYearsStatistics().get(0);
+//                Integer currentYearStatiscticsViews = 0;
+//                Integer currentYearStatiscticsDownloads = 0;
+//                ArrayList<Integer> tmpViews = currentYear.getYearViews();
+//                ArrayList<Integer> tmpDownloads = currentYear.getYearDownloads();
+//                for (int i = 0; i < tmpViews.size(); i++) {
+//                    currentYearStatiscticsViews += tmpViews.get(i);
+//                    currentYearStatiscticsDownloads += tmpDownloads.get(i);
+//                }
+//
+//                GeneralStatistics currentYearResult = generalStatisticsRepository.findCurrentYearTotalStatistics(dateTime.getYear() - 1, -1);
+//                currentYearResult.setViewsCount(currentYearStatiscticsViews);
+//                currentYearResult.setDownloadsCount(currentYearStatiscticsDownloads);
+//                generalStatisticsRepository.save(currentYearResult);
+//                GeneralStatistics newYearResult = new GeneralStatistics(dateTime.getYear(), -1, 0, 0);
+//                generalStatisticsRepository.save(newYearResult);
+//            }
+//            generalStatisticsService.updateListYearsStatistics();
+//            context.complete();
+//            //System.out.println("That's OK");
+//        } catch (SQLException e){
+//            log.error(e.getMessage(), e);
+//            e.printStackTrace();
+//        }
 
     }
 }
