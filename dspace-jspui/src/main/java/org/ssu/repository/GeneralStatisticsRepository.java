@@ -28,8 +28,8 @@ public class GeneralStatisticsRepository {
                 .map(item -> new GeneralStatistics.Builder()
                         .withYear(item.get(GENERAL_STATISTICS.year))
                         .withMonth(item.get(GENERAL_STATISTICS.month))
-                        .withDownloadsCount(item.get(GENERAL_STATISTICS.downloadsCount))
-                        .withViewsCount(item.get(GENERAL_STATISTICS.viewCount))
+                        .withDownloadsCount(item.get(GENERAL_STATISTICS.downloadsCount).longValue())
+                        .withViewsCount(item.get(GENERAL_STATISTICS.viewCount).longValue())
                         .build()
                 ).collect(Collectors.toList());
     }
@@ -44,8 +44,8 @@ public class GeneralStatisticsRepository {
                 .map(item -> new GeneralStatistics.Builder()
                         .withYear(item.get(GENERAL_STATISTICS.year))
                         .withMonth(item.get(GENERAL_STATISTICS.month))
-                        .withDownloadsCount(item.get(GENERAL_STATISTICS.downloadsCount))
-                        .withViewsCount(item.get(GENERAL_STATISTICS.viewCount))
+                        .withDownloadsCount(item.get(GENERAL_STATISTICS.downloadsCount).longValue())
+                        .withViewsCount(item.get(GENERAL_STATISTICS.viewCount).longValue())
                         .build()
                 ).collect(Collectors.toList());
 

@@ -5,8 +5,8 @@ import java.io.Serializable;
 public class GeneralStatistics implements Serializable {
     private Integer year;
     private Integer month;
-    private Integer viewsCount;
-    private Integer downloadsCount;
+    private Long viewsCount;
+    private Long downloadsCount;
 
     private GeneralStatistics(Builder builder) {
         year = builder.year;
@@ -23,11 +23,11 @@ public class GeneralStatistics implements Serializable {
         return month;
     }
 
-    public Integer getViewsCount() {
+    public Long getViewsCount() {
         return viewsCount;
     }
 
-    public Integer getDownloadsCount() {
+    public Long getDownloadsCount() {
         return downloadsCount;
     }
 
@@ -35,8 +35,8 @@ public class GeneralStatistics implements Serializable {
     public static final class Builder {
         private Integer year;
         private Integer month;
-        private Integer viewsCount;
-        private Integer downloadsCount;
+        private Long viewsCount;
+        private Long downloadsCount;
 
         public Builder() {
         }
@@ -58,12 +58,12 @@ public class GeneralStatistics implements Serializable {
             return this;
         }
 
-        public Builder withViewsCount(Integer viewsCount) {
+        public Builder withViewsCount(Long viewsCount) {
             this.viewsCount = viewsCount;
             return this;
         }
 
-        public Builder withDownloadsCount(Integer downloadsCount) {
+        public Builder withDownloadsCount(Long downloadsCount) {
             this.downloadsCount = downloadsCount;
             return this;
         }

@@ -13,7 +13,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class GeneralStatisticsService {
@@ -30,10 +32,10 @@ public class GeneralStatisticsService {
                 .collect(Collectors.groupingBy(GeneralStatistics::getYear));
 
 
-        Function<List<GeneralStatistics>, Integer> getDownloadCount = (data) -> data.stream().filter(item -> item.getMonth() == -1).mapToInt(GeneralStatistics::getDownloadsCount).sum();
-        Function<List<GeneralStatistics>, Integer> getViewCount = (data) -> data.stream().filter(item -> item.getMonth() == -1).mapToInt(GeneralStatistics::getViewsCount).sum();
-        Function<List<GeneralStatistics>, List<Integer>> getViewByMonth = (data) -> data.stream().sorted(Comparator.comparing(GeneralStatistics::getMonth)).filter(item -> item.getMonth() != -1).map(GeneralStatistics::getViewsCount).collect(Collectors.toList());
-        Function<List<GeneralStatistics>, List<Integer>> getDownloadsByMonth = (data) -> data.stream().sorted(Comparator.comparing(GeneralStatistics::getMonth)).filter(item -> item.getMonth() != -1).map(GeneralStatistics::getDownloadsCount).collect(Collectors.toList());
+        Function<List<GeneralStatistics>, Long> getDownloadCount = (data) -> data.stream().filter(item -> item.getMonth() == -1).mapToLong(GeneralStatistics::getDownloadsCount).sum();
+        Function<List<GeneralStatistics>, Long> getViewCount = (data) -> data.stream().filter(item -> item.getMonth() == -1).mapToLong(GeneralStatistics::getViewsCount).sum();
+        Function<List<GeneralStatistics>, List<Long>> getViewByMonth = (data) -> data.stream().sorted(Comparator.comparing(GeneralStatistics::getMonth)).filter(item -> item.getMonth() != -1).map(GeneralStatistics::getViewsCount).collect(Collectors.toList());
+        Function<List<GeneralStatistics>, List<Long>> getDownloadsByMonth = (data) -> data.stream().sorted(Comparator.comparing(GeneralStatistics::getMonth)).filter(item -> item.getMonth() != -1).map(GeneralStatistics::getDownloadsCount).collect(Collectors.toList());
 
         cacheListYearsStatistics = collect.entrySet()
                 .stream()
@@ -55,39 +57,36 @@ public class GeneralStatisticsService {
         return cacheListYearsStatistics;
     }
 
-    public Integer getCurrentMonthStatisticsViews(long totalViews) {
-        Integer res = getCurrentYearStatisticsViews(totalViews);
-        List<Integer> currentYearStatisticsViews = cacheListYearsStatistics.get(0).getYearViews();
-        for (int i = 0; i < currentYearStatisticsViews.size(); i++) {
-            res -= currentYearStatisticsViews.get(i);
-        }
-        return res;
+    public Long getCurrentMonthStatisticsViews(StatisticsData statisticsData) {
+        return getCurrentYearStatisticsViews(statisticsData)- getMonthStatistics(YearStatistics::getYearViews);
     }
 
-    public Integer getCurrentMonthStatisticsDownloads(long totalDownloads) {
-        Integer res = getCurrentYearStatisticsDownloads(totalDownloads);
-        List<Integer> currentYearStatisticsDownloads = cacheListYearsStatistics.get(0).getYearDownloads();
-        for (int i = 0; i < currentYearStatisticsDownloads.size(); i++) {
-            res -= currentYearStatisticsDownloads.get(i);
-        }
-        return res;
+    public Long getCurrentMonthStatisticsDownloads(StatisticsData statisticsData) {
+        return getCurrentYearStatisticsDownloads(statisticsData) - getMonthStatistics(YearStatistics::getYearDownloads);
     }
 
-    public Integer getCurrentYearStatisticsViews(long totalViews) {
-        Integer res = Long.valueOf(totalViews).intValue();
-        for (int i = 0; i < cacheListYearsStatistics.size(); i++) {
-            res -= cacheListYearsStatistics.get(i).getTotalYearViews();
-        }
-        return res;
+    public Long getCurrentYearStatisticsViews(StatisticsData statisticsData) {
+        return statisticsData.getTotalViews() - getCurrentYearStatistics(YearStatistics::getTotalYearViews);
     }
 
-    public Integer getCurrentYearStatisticsDownloads(long totalDownloads) {
-        Integer res = Long.valueOf(totalDownloads).intValue();
-        for (int i = 0; i < cacheListYearsStatistics.size(); i++) {
-            if (cacheListYearsStatistics.get(i).getYear() != LocalDate.now().getYear())
-                res -= cacheListYearsStatistics.get(i).getTotalYearDownloads();
-        }
-        return res;
+    public Long getCurrentYearStatisticsDownloads(StatisticsData statisticsData) {
+        return statisticsData.getTotalDownloads() - getCurrentYearStatistics(YearStatistics::getTotalYearDownloads);
+    }
+
+    private Long getMonthStatistics(Function<YearStatistics, List<Long>> dataTransform) {
+        return cacheListYearsStatistics
+                .stream()
+                .filter(entry -> entry.getYear().equals(LocalDate.now().getYear()))
+                .flatMapToLong(item -> dataTransform.apply(item).stream().mapToLong(t -> t))
+                .sum();
+    }
+
+    private Long getCurrentYearStatistics(ToLongFunction<YearStatistics> mappingFunction) {
+        return cacheListYearsStatistics
+                .stream()
+                .filter(entry -> !entry.getYear().equals(LocalDate.now().getYear()))
+                .mapToLong(mappingFunction)
+                .sum();
     }
 
 }

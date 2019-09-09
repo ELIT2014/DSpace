@@ -184,23 +184,16 @@ public class EssuirSiteController {
 
     @RequestMapping(value = "/current", method = RequestMethod.GET)
     @ResponseBody
-    public Map<String, Integer> getTotalStatistics(HttpServletRequest request) {
-        Map<String, Integer> stat = new HashMap<String, Integer>();
-
-        try {
-            org.dspace.core.Context context = org.dspace.app.webui.util.UIUtil.obtainContext(request);
-            StatisticsData sd = essuirStatistics.getTotalStatistic();
-            stat.put("TotalCount", Long.valueOf(sd.getTotalCount()).intValue());
-            stat.put("TotalViews", Long.valueOf(sd.getTotalViews()).intValue());
-            stat.put("TotalDownloads", Long.valueOf(sd.getTotalDownloads()).intValue());
-            stat.put("CurrentMonthStatisticsViews", generalStatisticsService.getCurrentMonthStatisticsViews(sd.getTotalViews()));
-            stat.put("CurrentMonthStatisticsDownloads", generalStatisticsService.getCurrentMonthStatisticsDownloads(sd.getTotalDownloads()));
-            stat.put("CurrentYearStatisticsViews", generalStatisticsService.getCurrentYearStatisticsViews(sd.getTotalViews()));
-            stat.put("CurrentYearStatisticsDownloads", generalStatisticsService.getCurrentYearStatisticsDownloads(sd.getTotalDownloads()));
-            context.complete();
-        } catch (Exception ex) {
-            log.error(ex.getMessage(), ex);
-        }
+    public Map<String, Long> getTotalStatistics(HttpServletRequest request)  {
+        Map<String, Long> stat = new HashMap<>();
+        StatisticsData statisticsData = essuirStatistics.getTotalStatistic();
+        stat.put("TotalCount", statisticsData.getTotalCount());
+        stat.put("TotalViews", statisticsData.getTotalViews());
+        stat.put("TotalDownloads", statisticsData.getTotalDownloads());
+        stat.put("CurrentMonthStatisticsViews", generalStatisticsService.getCurrentMonthStatisticsViews(statisticsData));
+        stat.put("CurrentMonthStatisticsDownloads", generalStatisticsService.getCurrentMonthStatisticsDownloads(statisticsData));
+        stat.put("CurrentYearStatisticsViews", generalStatisticsService.getCurrentYearStatisticsViews(statisticsData));
+        stat.put("CurrentYearStatisticsDownloads", generalStatisticsService.getCurrentYearStatisticsDownloads(statisticsData));
         return stat;
     }
 
