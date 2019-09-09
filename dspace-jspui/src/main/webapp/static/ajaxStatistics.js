@@ -3,13 +3,15 @@ function show(){
         url: "/current",
         cache: false,
         success: function(data){
-            document.getElementById('TotalCount').innerText = data.TotalCount;
-            document.getElementById('TotalViews').innerText = data.TotalViews;
-            document.getElementById('TotalDownloads').innerText = data.TotalDownloads;
-            document.getElementById('CurrentMonthStatisticsViews').innerText = data.CurrentMonthStatisticsViews;
-            document.getElementById('CurrentMonthStatisticsDownloads').innerText = data.CurrentMonthStatisticsDownloads;
-            document.getElementById('CurrentYearStatisticsViews').innerText = data.CurrentYearStatisticsViews;
-            document.getElementById('CurrentYearStatisticsDownloads').innerText = data.CurrentYearStatisticsDownloads;
+            console.log(data);
+            var response = JSON.parse(data);
+            document.getElementById('TotalCount').innerText = response.total_count;
+            document.getElementById('TotalViews').innerText = response.total_views;
+            document.getElementById('TotalDownloads').innerText = response.total_downloads;
+            document.getElementById('CurrentMonthStatisticsViews').innerText = response.current_month_statistics_views;
+            document.getElementById('CurrentMonthStatisticsDownloads').innerText = response.current_month_statistics_downloads;
+            document.getElementById('CurrentYearStatisticsViews').innerText = response.current_year_statistics_views;
+            document.getElementById('CurrentYearStatisticsDownloads').innerText = response.current_year_statistics_downloads;
         }
     });
 }

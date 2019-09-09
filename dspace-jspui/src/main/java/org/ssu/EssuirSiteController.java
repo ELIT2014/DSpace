@@ -1,5 +1,7 @@
 package org.ssu;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 import org.dspace.app.webui.components.RecentSubmissionsException;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.ssu.entity.AuthorLocalization;
+import org.ssu.entity.response.GeneralStatisticsResponse;
 import org.ssu.entity.response.ItemTypeResponse;
 import org.ssu.entity.response.RecentItem;
 import org.ssu.localization.TypeLocalization;
@@ -184,17 +187,9 @@ public class EssuirSiteController {
 
     @RequestMapping(value = "/current", method = RequestMethod.GET)
     @ResponseBody
-    public Map<String, Long> getTotalStatistics(HttpServletRequest request)  {
-        Map<String, Long> stat = new HashMap<>();
-        StatisticsData statisticsData = essuirStatistics.getTotalStatistic();
-        stat.put("TotalCount", statisticsData.getTotalCount());
-        stat.put("TotalViews", statisticsData.getTotalViews());
-        stat.put("TotalDownloads", statisticsData.getTotalDownloads());
-        stat.put("CurrentMonthStatisticsViews", generalStatisticsService.getCurrentMonthStatisticsViews(statisticsData));
-        stat.put("CurrentMonthStatisticsDownloads", generalStatisticsService.getCurrentMonthStatisticsDownloads(statisticsData));
-        stat.put("CurrentYearStatisticsViews", generalStatisticsService.getCurrentYearStatisticsViews(statisticsData));
-        stat.put("CurrentYearStatisticsDownloads", generalStatisticsService.getCurrentYearStatisticsDownloads(statisticsData));
-        return stat;
+    public String getTotalStatistics(HttpServletRequest request) throws JsonProcessingException {
+        return new ObjectMapper()
+                .writeValueAsString(generalStatisticsService.collectGeneralStatistics());
     }
 
     @RequestMapping(value = "/general-statistics", method = RequestMethod.GET)

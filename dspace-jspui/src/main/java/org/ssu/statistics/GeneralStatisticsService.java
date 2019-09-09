@@ -1,12 +1,13 @@
 package org.ssu.statistics;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.ssu.entity.GeneralStatistics;
 import org.ssu.entity.YearStatistics;
+import org.ssu.entity.response.GeneralStatisticsResponse;
 import org.ssu.repository.GeneralStatisticsRepository;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -15,15 +16,17 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class GeneralStatisticsService {
 
     private List<YearStatistics> cacheListYearsStatistics = new ArrayList<>();
 
-    @Autowired
+    @Resource
     private GeneralStatisticsRepository generalStatisticsRepository;
+
+    @Resource
+    private EssuirStatistics essuirStatistics;
 
     @PostConstruct
     public void updateListYearsStatistics() {
@@ -53,23 +56,37 @@ public class GeneralStatisticsService {
                 .collect(Collectors.toList());
     }
 
+
+    public GeneralStatisticsResponse collectGeneralStatistics() {
+        StatisticsData statisticsData = essuirStatistics.getTotalStatistic();
+        return new GeneralStatisticsResponse.Builder()
+                .withTotalCount(statisticsData.getTotalCount())
+                .withTotalViews(statisticsData.getTotalViews())
+                .withTotalDownloads(statisticsData.getTotalDownloads())
+                .withCurrentMonthStatisticsViews(getCurrentMonthStatisticsViews(statisticsData))
+                .withCurrentMonthStatisticsDownloads(getCurrentMonthStatisticsDownloads(statisticsData))
+                .withCurrentYearStatisticsDownloads(getCurrentYearStatisticsDownloads(statisticsData))
+                .withCurrentYearStatisticsViews(getCurrentYearStatisticsViews(statisticsData))
+                .build();
+    }
+
     public List<YearStatistics> getListYearsStatistics() {
         return cacheListYearsStatistics;
     }
 
-    public Long getCurrentMonthStatisticsViews(StatisticsData statisticsData) {
-        return getCurrentYearStatisticsViews(statisticsData)- getMonthStatistics(YearStatistics::getYearViews);
+    private Long getCurrentMonthStatisticsViews(StatisticsData statisticsData) {
+        return getCurrentYearStatisticsViews(statisticsData) - getMonthStatistics(YearStatistics::getYearViews);
     }
 
-    public Long getCurrentMonthStatisticsDownloads(StatisticsData statisticsData) {
+    private Long getCurrentMonthStatisticsDownloads(StatisticsData statisticsData) {
         return getCurrentYearStatisticsDownloads(statisticsData) - getMonthStatistics(YearStatistics::getYearDownloads);
     }
 
-    public Long getCurrentYearStatisticsViews(StatisticsData statisticsData) {
+    private Long getCurrentYearStatisticsViews(StatisticsData statisticsData) {
         return statisticsData.getTotalViews() - getCurrentYearStatistics(YearStatistics::getTotalYearViews);
     }
 
-    public Long getCurrentYearStatisticsDownloads(StatisticsData statisticsData) {
+    private Long getCurrentYearStatisticsDownloads(StatisticsData statisticsData) {
         return statisticsData.getTotalDownloads() - getCurrentYearStatistics(YearStatistics::getTotalYearDownloads);
     }
 
