@@ -1,24 +1,18 @@
 package org.ssu.statistics;
 
-import org.apache.log4j.Logger;
-import org.dspace.core.Context;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.ssu.entity.GeneralStatistics;
-import org.ssu.entity.YearStatistics;
 import org.ssu.repository.GeneralStatisticsRepository;
 
 import javax.annotation.Resource;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
 
 @Service
 public class ScheduledTasks {
-
-    private static Logger log = Logger.getLogger(ScheduledTasks.class);
+    @Resource
+    private EssuirStatistics essuirStatistics;
 
     @Autowired
     private GeneralStatisticsService generalStatisticsService;
@@ -26,89 +20,16 @@ public class ScheduledTasks {
     @Autowired
     private GeneralStatisticsRepository generalStatisticsRepository;
 
-    @Resource
-    private EssuirStatistics essuirStatistics;
-
-    private Boolean isPreviousMonthStatistics(DateTime now, GeneralStatistics monthStatistics) {
-        int previousMonth = now.getMonthOfYear() - 1;
-        int previousYear = now.getYear();
-        if (now.getMonthOfYear() == 1) {
-            previousMonth = 12;
-            previousYear = now.getYear() - 1;
-        }
-
-        return (monthStatistics.getMonth().equals(previousMonth) && monthStatistics.getYear().equals(previousYear));
-    }
-
-    private Boolean isPreviousMonthStatisticsSavedToDatabase() {
-//        DateTime today = DateTime.now();
-//        List<GeneralStatistics> statistics = generalStatisticsRepository.findAll();
-//        for (GeneralStatistics monthStatistics : statistics) {
-//            if(isPreviousMonthStatistics(today, monthStatistics)) {
-//                return true;
-//            }
-//        }
-        return false;
-    }
-
-    public Boolean finalizeMonthStatistics() {
-        if (!isPreviousMonthStatisticsSavedToDatabase()) {
-            addNewEntityByMonth();
-            return true;
-        }
-        return false;
-    }
-
-    // Fire at 00:00 on the first day of every month
-    @Scheduled(cron = "0 0 0 1 * ?")
-    public void addNewEntityByMonth(){
-//        DateTime dateTime = DateTime.now();
-//        //System.out.println("start schedule");
-//        //System.out.println(dateTime.toString());
-//        StatisticsData sd;
-//        try {
-//            Context context = new Context();
-//            sd = essuirStatistics.getTotalStatistic();
-//            if(dateTime.getMonthOfYear() != 1){
-//                GeneralStatistics newMonth = new GeneralStatistics(dateTime.getYear(),
-//                        dateTime.getMonthOfYear() - 1,
-//                        generalStatisticsService.getCurrentMonthStatisticsViews(sd.getTotalViews()),
-//                        generalStatisticsService.getCurrentMonthStatisticsDownloads(sd.getTotalDownloads()));
-//                generalStatisticsRepository.save(newMonth);
-//                //System.out.println("saved new month");
-//            }
-//            else {
-//                GeneralStatistics newMonth = new GeneralStatistics(dateTime.getYear() - 1,
-//                        11,
-//                        generalStatisticsService.getCurrentMonthStatisticsViews(sd.getTotalViews()),
-//                        generalStatisticsService.getCurrentMonthStatisticsDownloads(sd.getTotalDownloads()));
-//                generalStatisticsRepository.save(newMonth);
-//                //System.out.println("saved new month");
-//                generalStatisticsService.updateListYearsStatistics();
-//                YearStatistics currentYear = generalStatisticsService.getListYearsStatistics().get(0);
-//                Integer currentYearStatiscticsViews = 0;
-//                Integer currentYearStatiscticsDownloads = 0;
-//                ArrayList<Integer> tmpViews = currentYear.getYearViews();
-//                ArrayList<Integer> tmpDownloads = currentYear.getYearDownloads();
-//                for (int i = 0; i < tmpViews.size(); i++) {
-//                    currentYearStatiscticsViews += tmpViews.get(i);
-//                    currentYearStatiscticsDownloads += tmpDownloads.get(i);
-//                }
-//
-//                GeneralStatistics currentYearResult = generalStatisticsRepository.findCurrentYearTotalStatistics(dateTime.getYear() - 1, -1);
-//                currentYearResult.setViewsCount(currentYearStatiscticsViews);
-//                currentYearResult.setDownloadsCount(currentYearStatiscticsDownloads);
-//                generalStatisticsRepository.save(currentYearResult);
-//                GeneralStatistics newYearResult = new GeneralStatistics(dateTime.getYear(), -1, 0, 0);
-//                generalStatisticsRepository.save(newYearResult);
-//            }
-//            generalStatisticsService.updateListYearsStatistics();
-//            context.complete();
-//            //System.out.println("That's OK");
-//        } catch (SQLException e){
-//            log.error(e.getMessage(), e);
-//            e.printStackTrace();
-//        }
-
+    @Scheduled(cron = "0 0 0/3 1-2 * ? *")
+    public void finalizeMonthStatistics() {
+        LocalDate previousMonth = LocalDate.now().minusDays(25);
+        StatisticsData statisticsData = essuirStatistics.getTotalStatistic();
+        GeneralStatistics generalStatistics = new GeneralStatistics.Builder()
+                .withMonth(previousMonth.getMonthValue() - 1)
+                .withYear(previousMonth.getYear())
+                .withViewsCount(generalStatisticsService.getCurrentMonthStatisticsViews(statisticsData))
+                .withDownloadsCount(generalStatisticsService.getCurrentMonthStatisticsDownloads(statisticsData))
+                .build();
+        generalStatisticsRepository.save(generalStatistics);
     }
 }
