@@ -4,25 +4,25 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class GeneralStatisticsResponse {
     @JsonProperty("total_count")
-    private Long totalCount;
+    private Integer totalCount;
 
     @JsonProperty("total_views")
-    private Long totalViews;
+    private Integer totalViews;
 
     @JsonProperty("total_downloads")
-    private Long totalDownloads;
+    private Integer totalDownloads;
 
     @JsonProperty("current_month_statistics_views")
-    private Long currentMonthStatisticsViews;
+    private Integer currentMonthStatisticsViews;
 
     @JsonProperty("current_month_statistics_downloads")
-    private Long currentMonthStatisticsDownloads;
+    private Integer currentMonthStatisticsDownloads;
 
     @JsonProperty("current_year_statistics_views")
-    private Long currentYearStatisticsViews;
+    private Integer currentYearStatisticsViews;
 
     @JsonProperty("current_year_statistics_downloads")
-    private Long currentYearStatisticsDownloads;
+    private Integer currentYearStatisticsDownloads;
 
     private GeneralStatisticsResponse(Builder builder) {
         totalCount = builder.totalCount;
@@ -35,43 +35,43 @@ public class GeneralStatisticsResponse {
     }
 
 
-    public Long getTotalCount() {
+    public Integer getTotalCount() {
         return totalCount;
     }
 
-    public Long getTotalViews() {
+    public Integer getTotalViews() {
         return totalViews;
     }
 
-    public Long getTotalDownloads() {
+    public Integer getTotalDownloads() {
         return totalDownloads;
     }
 
-    public Long getCurrentMonthStatisticsViews() {
+    public Integer getCurrentMonthStatisticsViews() {
         return currentMonthStatisticsViews;
     }
 
-    public Long getCurrentMonthStatisticsDownloads() {
+    public Integer getCurrentMonthStatisticsDownloads() {
         return currentMonthStatisticsDownloads;
     }
 
-    public Long getCurrentYearStatisticsViews() {
+    public Integer getCurrentYearStatisticsViews() {
         return currentYearStatisticsViews;
     }
 
-    public Long getCurrentYearStatisticsDownloads() {
+    public Integer getCurrentYearStatisticsDownloads() {
         return currentYearStatisticsDownloads;
     }
 
 
     public static final class Builder {
-        private Long totalCount;
-        private Long totalViews;
-        private Long totalDownloads;
-        private Long currentMonthStatisticsViews;
-        private Long currentMonthStatisticsDownloads;
-        private Long currentYearStatisticsViews;
-        private Long currentYearStatisticsDownloads;
+        private Integer totalCount;
+        private Integer totalViews;
+        private Integer totalDownloads;
+        private Integer currentMonthStatisticsViews;
+        private Integer currentMonthStatisticsDownloads;
+        private Integer currentYearStatisticsViews;
+        private Integer currentYearStatisticsDownloads;
 
         public Builder() {
         }
@@ -86,37 +86,37 @@ public class GeneralStatisticsResponse {
             this.currentYearStatisticsDownloads = copy.getCurrentYearStatisticsDownloads();
         }
 
-        public Builder withTotalCount(Long totalCount) {
+        public Builder withTotalCount(Integer totalCount) {
             this.totalCount = totalCount;
             return this;
         }
 
-        public Builder withTotalViews(Long totalViews) {
+        public Builder withTotalViews(Integer totalViews) {
             this.totalViews = totalViews;
             return this;
         }
 
-        public Builder withTotalDownloads(Long totalDownloads) {
+        public Builder withTotalDownloads(Integer totalDownloads) {
             this.totalDownloads = totalDownloads;
             return this;
         }
 
-        public Builder withCurrentMonthStatisticsViews(Long currentMonthStatisticsViews) {
+        public Builder withCurrentMonthStatisticsViews(Integer currentMonthStatisticsViews) {
             this.currentMonthStatisticsViews = currentMonthStatisticsViews;
             return this;
         }
 
-        public Builder withCurrentMonthStatisticsDownloads(Long currentMonthStatisticsDownloads) {
+        public Builder withCurrentMonthStatisticsDownloads(Integer currentMonthStatisticsDownloads) {
             this.currentMonthStatisticsDownloads = currentMonthStatisticsDownloads;
             return this;
         }
 
-        public Builder withCurrentYearStatisticsViews(Long currentYearStatisticsViews) {
+        public Builder withCurrentYearStatisticsViews(Integer currentYearStatisticsViews) {
             this.currentYearStatisticsViews = currentYearStatisticsViews;
             return this;
         }
 
-        public Builder withCurrentYearStatisticsDownloads(Long currentYearStatisticsDownloads) {
+        public Builder withCurrentYearStatisticsDownloads(Integer currentYearStatisticsDownloads) {
             this.currentYearStatisticsDownloads = currentYearStatisticsDownloads;
             return this;
         }

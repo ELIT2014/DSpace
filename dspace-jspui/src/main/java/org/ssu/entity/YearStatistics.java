@@ -5,10 +5,10 @@ import java.util.List;
 public class YearStatistics {
 
     private Integer year;
-    private Long totalYearViews;
-    private Long totalYearDownloads;
-    private List<Long> yearViews;
-    private List<Long> yearDownloads;
+    private Integer totalYearViews;
+    private Integer totalYearDownloads;
+    private List<Integer> yearViews;
+    private List<Integer> yearDownloads;
     private Integer currentMonth;
 
     private YearStatistics(Builder builder) {
@@ -24,19 +24,19 @@ public class YearStatistics {
         return year;
     }
 
-    public Long getTotalYearViews() {
+    public Integer getTotalYearViews() {
         return totalYearViews;
     }
 
-    public Long getTotalYearDownloads() {
+    public Integer getTotalYearDownloads() {
         return totalYearDownloads;
     }
 
-    public List<Long> getYearViews() {
+    public List<Integer> getYearViews() {
         return yearViews;
     }
 
-    public List<Long> getYearDownloads() {
+    public List<Integer> getYearDownloads() {
         return yearDownloads;
     }
 
@@ -47,10 +47,10 @@ public class YearStatistics {
 
     public static final class Builder {
         private Integer year;
-        private Long totalYearViews;
-        private Long totalYearDownloads;
-        private List<Long> yearViews;
-        private List<Long> yearDownloads;
+        private Integer totalYearViews;
+        private Integer totalYearDownloads;
+        private List<Integer> yearViews;
+        private List<Integer> yearDownloads;
         private Integer currentMonth;
 
         public Builder() {
@@ -70,27 +70,27 @@ public class YearStatistics {
             return this;
         }
 
-        public Builder withTotalYearViews(Long totalYearViews) {
+        public Builder withTotalYearViews(Integer totalYearViews) {
             this.totalYearViews = totalYearViews;
             return this;
         }
 
-        public Builder withTotalYearDownloads(Long totalYearDownloads) {
+        public Builder withTotalYearDownloads(Integer totalYearDownloads) {
             this.totalYearDownloads = totalYearDownloads;
             return this;
         }
 
-        public Builder withYearViews(List<Long> yearViews) {
+        public Builder withYearViews(List<Integer> yearViews) {
             this.yearViews = yearViews;
             while(this.yearViews.size() < 12)
-                this.yearViews.add(0L);
+                this.yearViews.add(0);
             return this;
         }
 
-        public Builder withYearDownloads(List<Long> yearDownloads) {
+        public Builder withYearDownloads(List<Integer> yearDownloads) {
             this.yearDownloads = yearDownloads;
             while(this.yearDownloads.size() < 12)
-                this.yearDownloads.add(0L);
+                this.yearDownloads.add(0);
             return this;
         }
 
