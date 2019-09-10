@@ -3,7 +3,6 @@ function show(){
         url: "/current",
         cache: false,
         success: function(data){
-            console.log(data);
             var response = JSON.parse(data);
             document.getElementById('TotalCount').innerText = response.total_count;
             document.getElementById('TotalViews').innerText = response.total_views;

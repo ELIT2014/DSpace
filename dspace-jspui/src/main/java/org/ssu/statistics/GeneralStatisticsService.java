@@ -14,7 +14,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.function.ToLongFunction;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,15 +28,14 @@ public class GeneralStatisticsService {
     @Resource
     private EssuirStatistics essuirStatistics;
 
+    private Predicate<YearStatistics> isCurrentYear = (entry) -> entry.getYear().equals(LocalDate.now().getYear());
+
     @PostConstruct
     public void updateListYearsStatistics() {
         Map<Integer, List<GeneralStatistics>> collect = generalStatisticsRepository.findAll()
                 .stream()
                 .collect(Collectors.groupingBy(GeneralStatistics::getYear));
 
-
-        Function<List<GeneralStatistics>, Long> getDownloadCount = (data) -> data.stream().filter(item -> item.getMonth() == -1).mapToLong(GeneralStatistics::getDownloadsCount).sum();
-        Function<List<GeneralStatistics>, Long> getViewCount = (data) -> data.stream().filter(item -> item.getMonth() == -1).mapToLong(GeneralStatistics::getViewsCount).sum();
         Function<List<GeneralStatistics>, List<Long>> getViewByMonth = (data) -> data.stream().sorted(Comparator.comparing(GeneralStatistics::getMonth)).filter(item -> item.getMonth() != -1).map(GeneralStatistics::getViewsCount).collect(Collectors.toList());
         Function<List<GeneralStatistics>, List<Long>> getDownloadsByMonth = (data) -> data.stream().sorted(Comparator.comparing(GeneralStatistics::getMonth)).filter(item -> item.getMonth() != -1).map(GeneralStatistics::getDownloadsCount).collect(Collectors.toList());
 
@@ -46,10 +45,10 @@ public class GeneralStatisticsService {
                         new YearStatistics.Builder()
                                 .withYearViews(getViewByMonth.apply(item.getValue()))
                                 .withYearDownloads(getDownloadsByMonth.apply(item.getValue()))
-                                .withTotalYearDownloads(getDownloadCount.apply(item.getValue()))
-                                .withTotalYearViews(getViewCount.apply(item.getValue()))
+                                .withTotalYearDownloads(getDownloadsByMonth.apply(item.getValue()).stream().mapToLong(Long::valueOf).sum())
+                                .withTotalYearViews(getViewByMonth.apply(item.getValue()).stream().mapToLong(Long::valueOf).sum())
                                 .withYear(item.getKey())
-                                .withCurrentMonth(item.getValue().size() < 12 ? item.getValue().size() : -1)
+                                .withCurrentMonth(LocalDate.now().getMonthValue() - 1)
                                 .build()
                 )
                 .sorted(Comparator.comparing(YearStatistics::getYear).reversed())
@@ -75,35 +74,32 @@ public class GeneralStatisticsService {
     }
 
     private Long getCurrentMonthStatisticsViews(StatisticsData statisticsData) {
-        return getCurrentYearStatisticsViews(statisticsData) - getMonthStatistics(YearStatistics::getYearViews);
+        return statisticsData.getTotalViews()
+                - getCumulativeStatisticsByMonthForYear(YearStatistics::getYearViews, isCurrentYear)
+                - getCumulativeStatisticsByMonthForYear(YearStatistics::getYearViews, isCurrentYear.negate());
     }
 
     private Long getCurrentMonthStatisticsDownloads(StatisticsData statisticsData) {
-        return getCurrentYearStatisticsDownloads(statisticsData) - getMonthStatistics(YearStatistics::getYearDownloads);
+        return statisticsData.getTotalDownloads()
+                - getCumulativeStatisticsByMonthForYear(YearStatistics::getYearDownloads, isCurrentYear)
+                - getCumulativeStatisticsByMonthForYear(YearStatistics::getYearDownloads, isCurrentYear.negate());
     }
 
     private Long getCurrentYearStatisticsViews(StatisticsData statisticsData) {
-        return statisticsData.getTotalViews() - getCurrentYearStatistics(YearStatistics::getTotalYearViews);
+        return statisticsData.getTotalViews()
+                - getCumulativeStatisticsByMonthForYear(YearStatistics::getYearViews, isCurrentYear.negate());
     }
 
     private Long getCurrentYearStatisticsDownloads(StatisticsData statisticsData) {
-        return statisticsData.getTotalDownloads() - getCurrentYearStatistics(YearStatistics::getTotalYearDownloads);
+        return statisticsData.getTotalDownloads()
+                - getCumulativeStatisticsByMonthForYear(YearStatistics::getYearDownloads, isCurrentYear.negate());
     }
 
-    private Long getMonthStatistics(Function<YearStatistics, List<Long>> dataTransform) {
+    private Long getCumulativeStatisticsByMonthForYear(Function<YearStatistics, List<Long>> dataTransform, Predicate<YearStatistics> isCurrentYear) {
         return cacheListYearsStatistics
                 .stream()
-                .filter(entry -> entry.getYear().equals(LocalDate.now().getYear()))
+                .filter(isCurrentYear)
                 .flatMapToLong(item -> dataTransform.apply(item).stream().mapToLong(t -> t))
                 .sum();
     }
-
-    private Long getCurrentYearStatistics(ToLongFunction<YearStatistics> mappingFunction) {
-        return cacheListYearsStatistics
-                .stream()
-                .filter(entry -> !entry.getYear().equals(LocalDate.now().getYear()))
-                .mapToLong(mappingFunction)
-                .sum();
-    }
-
 }

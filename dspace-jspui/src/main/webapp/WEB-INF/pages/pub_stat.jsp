@@ -48,7 +48,7 @@
                             <td id="CurrentMonthStatisticsViews">-</td>
                         </c:when>
                         <c:otherwise>
-                            <td><c:out value="${cntViews.toString()}"/></td>
+                            <td><c:out value="${cntViews}"/></td>
                         </c:otherwise>
                     </c:choose>
                 </c:forEach>
@@ -56,19 +56,19 @@
                     <td><span id="CurrentYearStatisticsViews"></span> - <%= LocaleSupport.getLocalizedMessage(pageContext, "jsp.general-statistics.views") %></td>
                 </c:if>
                 <c:if test="${cnt.index != 0}">
-                    <td><c:out value="${yearStatistics.getTotalYearViews().toString()}"/> - <%= LocaleSupport.getLocalizedMessage(pageContext, "jsp.general-statistics.views") %></td>
+                    <td><c:out value="${yearStatistics.totalYearViews}"/> - <%= LocaleSupport.getLocalizedMessage(pageContext, "jsp.general-statistics.views") %></td>
                 </c:if>
 
             </tr>
 
             <tr class="oddRowOddCol" align="center">
-                <c:forEach var="cntDownloads" items="${yearStatistics.getYearDownloads()}" varStatus="status" begin="0" end="11">
+                <c:forEach var="cntDownloads" items="${yearStatistics.yearDownloads}" varStatus="status" begin="0" end="11">
                     <c:choose>
-                        <c:when test="${cnt.index == 0 && yearStatistics.getCurrentMonth() == status.index}">
+                        <c:when test="${cnt.index == 0 && yearStatistics.currentMonth == status.index}">
                             <td id="CurrentMonthStatisticsDownloads">-</td>
                         </c:when>
                         <c:otherwise>
-                            <td><c:out value="${cntDownloads.toString()}"/></td>
+                            <td><c:out value="${cntDownloads}"/></td>
                         </c:otherwise>
                     </c:choose>
                 </c:forEach>
@@ -76,7 +76,7 @@
                     <td ><span id="CurrentYearStatisticsDownloads"></span > - <%= LocaleSupport.getLocalizedMessage(pageContext, "jsp.general-statistics.downloads") %></td>
                 </c:if>
                 <c:if test="${cnt.index != 0}">
-                    <td><c:out value="${yearStatistics.getTotalYearDownloads().toString()}"/> - <%= LocaleSupport.getLocalizedMessage(pageContext, "jsp.general-statistics.downloads") %></td>
+                    <td><c:out value="${yearStatistics.totalYearDownloads}"/> - <%= LocaleSupport.getLocalizedMessage(pageContext, "jsp.general-statistics.downloads") %></td>
                 </c:if>
 
             </tr>
