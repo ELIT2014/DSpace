@@ -18,7 +18,6 @@ import org.dspace.core.I18nUtil;
 import org.dspace.core.factory.CoreServiceFactory;
 import org.dspace.core.service.NewsService;
 import org.dspace.services.factory.DSpaceServicesFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.ssu.entity.AuthorLocalization;
-import org.ssu.entity.response.GeneralStatisticsResponse;
 import org.ssu.entity.response.ItemTypeResponse;
 import org.ssu.entity.response.RecentItem;
 import org.ssu.localization.TypeLocalization;
@@ -38,7 +36,6 @@ import org.ssu.statistics.StatisticsData;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -198,13 +195,9 @@ public class EssuirSiteController {
         return "pub_stat";
     }
 
-    @RequestMapping(value = "/update-month-statistics", method = RequestMethod.GET)
-    @ResponseBody
-    public String updateStatistics() {
-        if (scheduledTasks.finalizeMonthStatistics()) {
-            return "Statistics updated successfully";
-        } else {
-            return "Errors occurred";
-        }
+
+    @RequestMapping(value = "/update-statistics", method = RequestMethod.GET)
+    public void update() {
+        scheduledTasks.finalizeMonthStatistics();
     }
 }

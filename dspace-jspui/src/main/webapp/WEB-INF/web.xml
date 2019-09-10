@@ -898,7 +898,7 @@
 
     <servlet-mapping>
         <servlet-name>Spring MVC Servlet</servlet-name>
-        <url-pattern>/update-month-statistics</url-pattern>
+        <url-pattern>/update-statistics</url-pattern>
     </servlet-mapping>
 
   <!-- Icon MIME type -->
