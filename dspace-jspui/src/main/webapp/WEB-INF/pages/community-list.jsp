@@ -21,11 +21,13 @@
         <c:forEach items="${communities}" var="community">
 
             <mytaglib:displayCommunity community="${community}"/>
-            <ul>
-                <c:forEach items="${commMap.get(community.ID.toString())}" var="inner">
-                    <mytaglib:displayCommunity community="${inner}"/>
-                </c:forEach>
-            </ul>
+            <li>
+                <ul>
+                    <c:forEach items="${commMap.get(community.ID.toString())}" var="inner">
+                        <mytaglib:displayCommunity community="${inner}"/>
+                    </c:forEach>
+                </ul>
+            </li>
         </c:forEach>
         </ul>
     </div>
