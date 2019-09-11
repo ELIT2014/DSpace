@@ -1,3 +1,5 @@
+<%@ page import="javax.servlet.jsp.jstl.fmt.LocaleSupport" %>
+<%@ page import="org.dspace.app.webui.servlet.admin.EditCommunitiesServlet" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
@@ -14,40 +16,40 @@
 %>
 
 <dspace:layout locbar="commLink" titlekey="jsp.community-list.title" feedData="NONE">
+    <c:if test="${isAdmin}">
+        <dspace:sidebar>
+            <div class="panel panel-warning">
+            <div class="panel-heading">
+                <fmt:message key="jsp.admintools"/>
+                <span class="pull-right">
+                        <dspace:popup page="<%= LocaleSupport.getLocalizedMessage(pageContext, \"help.site-admin\")%>"><fmt:message key="jsp.adminhelp"/></dspace:popup>
+                    </span>
+            </div>
+            <div class="panel-body">
+                <form method="post" action="<%=request.getContextPath()%>/dspace-admin/edit-communities">
+                    <input type="hidden" name="action" value="<%=EditCommunitiesServlet.START_CREATE_COMMUNITY%>" />
+                    <input class="btn btn-default" type="submit" name="submit" value="<fmt:message key="jsp.community-list.create.button"/>" />
+                </form>
+            </div>
+            </div>
+        </dspace:sidebar>
+    </c:if>
+
     <h1><fmt:message key="jsp.community-list.title"/></h1>
     <p><fmt:message key="jsp.community-list.text1"/></p>
     <div class = "tree well">
         <ul>
         <c:forEach items="${communities}" var="community">
 
-            <mytaglib:displayCommunity community="${community}"/>
+            <mytaglib:displayCommunity community="${community}" itemCounter="${itemCounter}"/>
             <li>
                 <ul>
-                    <c:forEach items="${commMap.get(community.ID.toString())}" var="inner">
-                        <mytaglib:displayCommunity community="${inner}"/>
+                    <c:forEach items="${innerCommunities.get(community.ID.toString())}" var="inner">
+                        <mytaglib:displayCommunity community="${inner}" itemCounter="${itemCounter}"/>
                     </c:forEach>
                 </ul>
             </li>
         </c:forEach>
         </ul>
     </div>
-
-
-    <script>
-        // $(function () {
-        //     $('.tree li:has(ul)').addClass('parent_li').find(' > span').attr('title', 'Collapse this branch');
-        //     $('.tree li.parent_li > .icon-plus-sign').on('click', function (e) {
-        //         var children = $(this).parent('li.parent_li').find(' > ul > li');
-        //         children.show('fast');
-        //         $(this).attr('title', 'Collapse this branch').find(' > i').addClass('icon-minus-sign').removeClass('icon-plus-sign');
-        //     }
-        //     $('.tree li.parent_li > .icon-minus-sign').on('click', function (e) {
-        //         var children = $(this).parent('li.parent_li').find(' > ul > li');
-        //         children.hide('fast');
-        //         $(this).attr('title', 'Expand this branch').find(' > i').addClass('icon-plus-sign').removeClass('icon-minus-sign');
-        //     }
-        //     e.stopPropagation();
-        // });
-    </script>
-
 </dspace:layout>

@@ -5,6 +5,8 @@ import org.dspace.app.webui.components.RecentSubmissionsException;
 import org.dspace.app.webui.components.RecentSubmissionsManager;
 import org.dspace.app.webui.servlet.CommunityListServlet;
 import org.dspace.app.webui.util.UIUtil;
+import org.dspace.authorize.factory.AuthorizeServiceFactory;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.browse.ItemCountException;
 import org.dspace.browse.ItemCounter;
 import org.dspace.content.Community;
@@ -175,14 +177,14 @@ public class EssuirSiteController {
     }
 
     @RequestMapping("community-list")
-    public ModelAndView getCommunityList(ModelAndView model, HttpServletRequest request, HttpServletResponse response) throws SQLException {
+    public ModelAndView getCommunityList(ModelAndView model, HttpServletRequest request, HttpServletResponse response) throws SQLException, ItemCountException {
         Context dspaceContext = UIUtil.obtainContext(request);
-        CommunityResponse build = communityService.build(dspaceContext);
+        CommunityResponse communityResponse = communityService.build(dspaceContext);
 
-
-        model.addObject("communities", build.getCommunities());
-        model.addObject("commMap", build.getCommMap());
-        model.addObject("colMap", build.getColMap());
+        model.addObject("communities", communityResponse.getCommunities());
+        model.addObject("innerCommunities", communityResponse.getCommMap());
+        model.addObject("isAdmin", communityResponse.getIsAdmin());
+        model.addObject("itemCounter", new ItemCounter(dspaceContext));
 
         model.setViewName("community-list");
         return model;

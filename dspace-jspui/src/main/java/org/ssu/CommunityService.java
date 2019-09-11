@@ -16,73 +16,31 @@ import java.util.Map;
 
 @Service
 public class CommunityService {
-    private final transient org.dspace.content.service.CommunityService communityService
-            = ContentServiceFactory.getInstance().getCommunityService();
-    AuthorizeService authorizeService
-            = AuthorizeServiceFactory.getInstance().getAuthorizeService();
+    private final transient org.dspace.content.service.CommunityService communityService = ContentServiceFactory.getInstance().getCommunityService();
+    private final transient AuthorizeService authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
 
     public CommunityResponse build(Context context) throws SQLException {
-        Map<String, List<Collection>> colMap;
-
-        // This will map communityIDs to arrays of sub-communities
-        Map<String, List<Community>> commMap;
-
-        colMap = new HashMap<>();
-        commMap = new HashMap<>();
-
-//        log.info(LogManager.getHeader(context, "view_community_list", ""));
-
+        Map<String, List<Community>> subCommunities;
+        subCommunities = new HashMap<>();
         List<Community> communities = communityService.findAllTop(context);
-
-        for (Community c : communities) {
-            build(c, colMap, commMap);
+        for (Community community : communities) {
+            build(community, subCommunities);
         }
-
-        // can they admin communities?
-        if (authorizeService.isAdmin(context)) {
-            // set a variable to create an edit button
-//            request.setAttribute("admin_button", Boolean.TRUE);
-        }
-
-//        request.setAttribute("communities", communities);
-//        request.setAttribute("collections.map", colMap);
-//        request.setAttribute("subcommunities.map", commMp);
-
-        System.out.println("=====================================");
-        System.out.println("=====================================");
-        System.out.println(communities);
-        System.out.println("=====================================");
-        System.out.println(colMap);
-        System.out.println("=====================================");
-        System.out.println(commMap);
-        System.out.println("=====================================");
-        System.out.println("=====================================");
-        System.out.println("=====================================");
-
         return new CommunityResponse.Builder()
-                .withColMap(colMap)
-                .withCommMap(commMap)
+                .withCommMap(subCommunities)
+                .withIsAdmin(authorizeService.isAdmin(context))
                 .withCommunities(communities)
                 .build();
     }
 
-    private void build(Community c, Map<String, List<Collection>> colMap, Map<String, List<Community>> commMap)
-            throws SQLException {
+    private void build(Community community, Map<String, List<Community>> commMap) {
+        String comID = community.getID().toString();
+        List<Community> communities = community.getSubcommunities();
 
-        String comID = c.getID().toString();
-
-        // Find collections in community
-        List<Collection> colls = c.getCollections();
-        colMap.put(comID, colls);
-
-        // Find subcommunties in community
-        List<Community> comms = c.getSubcommunities();
-
-        // Get all subcommunities for each communities if they have some
-        if (comms.size() > 0) {
-            commMap.put(comID, comms);
-            for (Community sub : comms) {
-                build(sub, colMap, commMap);
+        if (communities.size() > 0) {
+            commMap.put(comID, communities);
+            for (Community sub : communities) {
+                build(sub, commMap);
             }
         }
     }

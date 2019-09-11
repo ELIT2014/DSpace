@@ -8,40 +8,40 @@ import java.util.Map;
 
 public class CommunityResponse {
     private List<Community> communities;
-    private Map<String, List<Collection>> colMap;
     private Map<String, List<Community>> commMap;
+    private Boolean isAdmin;
 
     private CommunityResponse(Builder builder) {
         communities = builder.communities;
-        colMap = builder.colMap;
         commMap = builder.commMap;
+        isAdmin = builder.isAdmin;
     }
 
     public List<Community> getCommunities() {
         return communities;
     }
 
-    public Map<String, List<Collection>> getColMap() {
-        return colMap;
-    }
-
     public Map<String, List<Community>> getCommMap() {
         return commMap;
+    }
+
+    public Boolean getIsAdmin() {
+        return isAdmin;
     }
 
 
     public static final class Builder {
         private List<Community> communities;
-        private Map<String, List<Collection>> colMap;
         private Map<String, List<Community>> commMap;
+        private Boolean isAdmin;
 
         public Builder() {
         }
 
         public Builder(CommunityResponse copy) {
             this.communities = copy.getCommunities();
-            this.colMap = copy.getColMap();
             this.commMap = copy.getCommMap();
+            this.isAdmin = copy.getIsAdmin();
         }
 
         public Builder withCommunities(List<Community> communities) {
@@ -49,13 +49,13 @@ public class CommunityResponse {
             return this;
         }
 
-        public Builder withColMap(Map<String, List<Collection>> colMap) {
-            this.colMap = colMap;
+        public Builder withCommMap(Map<String, List<Community>> commMap) {
+            this.commMap = commMap;
             return this;
         }
 
-        public Builder withCommMap(Map<String, List<Community>> commMap) {
-            this.commMap = commMap;
+        public Builder withIsAdmin(Boolean isAdmin) {
+            this.isAdmin = isAdmin;
             return this;
         }
 
