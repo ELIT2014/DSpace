@@ -11,9 +11,11 @@ import org.springframework.stereotype.Service;
 import org.ssu.entity.response.CommunityResponse;
 
 import java.sql.SQLException;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class CommunityService {
@@ -23,7 +25,10 @@ public class CommunityService {
     public CommunityResponse build(Context context) throws SQLException {
         Map<String, List<Community>> subCommunities;
         subCommunities = new HashMap<>();
-        List<Community> communities = communityService.findAllTop(context);
+        List<Community> communities = communityService.findAllTop(context)
+                .stream()
+                .sorted(Comparator.comparing(Community::getName))
+                .collect(Collectors.toList());
         for (Community community : communities) {
             build(community, subCommunities, context);
         }
@@ -37,7 +42,10 @@ public class CommunityService {
     private void build(Community community, Map<String, List<Community>> commMap, Context context) throws SQLException {
         if(authorizeService.authorizeActionBoolean(context, community, Constants.READ)) {
             String comID = community.getID().toString();
-            List<Community> communities = community.getSubcommunities();
+            List<Community> communities = community.getSubcommunities()
+                    .stream()
+                    .sorted(Comparator.comparing(Community::getName))
+                    .collect(Collectors.toList());
 
             for(Collection collection : community.getCollections()) {
                 if(!authorizeService.authorizeActionBoolean(context, collection, Constants.READ)) {
