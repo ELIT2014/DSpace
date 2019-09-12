@@ -5,6 +5,7 @@ import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.factory.ContentServiceFactory;
+import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.springframework.stereotype.Service;
 import org.ssu.entity.response.CommunityResponse;
@@ -24,7 +25,7 @@ public class CommunityService {
         subCommunities = new HashMap<>();
         List<Community> communities = communityService.findAllTop(context);
         for (Community community : communities) {
-            build(community, subCommunities);
+            build(community, subCommunities, context);
         }
         return new CommunityResponse.Builder()
                 .withCommMap(subCommunities)
@@ -33,14 +34,22 @@ public class CommunityService {
                 .build();
     }
 
-    private void build(Community community, Map<String, List<Community>> commMap) {
-        String comID = community.getID().toString();
-        List<Community> communities = community.getSubcommunities();
+    private void build(Community community, Map<String, List<Community>> commMap, Context context) throws SQLException {
+        if(authorizeService.authorizeActionBoolean(context, community, Constants.READ)) {
+            String comID = community.getID().toString();
+            List<Community> communities = community.getSubcommunities();
 
-        if (communities.size() > 0) {
-            commMap.put(comID, communities);
-            for (Community sub : communities) {
-                build(sub, commMap);
+            for(Collection collection : community.getCollections()) {
+                if(!authorizeService.authorizeActionBoolean(context, collection, Constants.READ)) {
+                    community.removeCollection(collection);
+                }
+            }
+
+            if (communities.size() > 0) {
+                commMap.put(comID, communities);
+                for (Community sub : communities) {
+                    build(sub, commMap, context);
+                }
             }
         }
     }
