@@ -6,7 +6,10 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 import org.dspace.app.webui.components.RecentSubmissionsException;
 import org.dspace.app.webui.components.RecentSubmissionsManager;
+import org.dspace.app.webui.servlet.CommunityListServlet;
 import org.dspace.app.webui.util.UIUtil;
+import org.dspace.authorize.factory.AuthorizeServiceFactory;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.browse.ItemCountException;
 import org.dspace.browse.ItemCounter;
 import org.dspace.content.Community;
@@ -25,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.ssu.entity.AuthorLocalization;
+import org.ssu.entity.response.CommunityResponse;
 import org.ssu.entity.response.ItemTypeResponse;
 import org.ssu.entity.response.RecentItem;
 import org.ssu.localization.TypeLocalization;
@@ -35,6 +39,7 @@ import org.ssu.statistics.StatisticsData;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Locale;
@@ -48,6 +53,9 @@ public class EssuirSiteController {
     private static Logger log = Logger.getLogger(EssuirSiteController.class);
     @Resource
     private TypeLocalization typeLocalization;
+
+    @Resource
+    private CommunityService communityService;
 
     @Resource
     private EssuirStatistics essuirStatistics;
@@ -199,5 +207,20 @@ public class EssuirSiteController {
     @RequestMapping(value = "/update-statistics", method = RequestMethod.GET)
     public void update() {
         scheduledTasks.finalizeMonthStatistics();
+    }
+  
+    @RequestMapping("community-list")
+    public ModelAndView getCommunityList(ModelAndView model, HttpServletRequest request, HttpServletResponse response) throws SQLException, ItemCountException {
+        Context dspaceContext = UIUtil.obtainContext(request);
+        CommunityResponse communityResponse = communityService.build(dspaceContext);
+
+        model.addObject("communities", communityResponse.getCommunities());
+        model.addObject("innerCommunities", communityResponse.getCommMap());
+        model.addObject("isAdmin", communityResponse.getIsAdmin());
+        model.addObject("itemCounter", new ItemCounter(dspaceContext));
+
+        model.setViewName("community-list");
+        return model;
+
     }
 }
