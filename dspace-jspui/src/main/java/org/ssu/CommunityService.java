@@ -8,6 +8,7 @@ import org.dspace.browse.BrowseException;
 import org.dspace.browse.BrowseInfo;
 import org.dspace.browse.BrowserScope;
 import org.dspace.content.*;
+import org.dspace.content.Collection;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
@@ -15,14 +16,12 @@ import org.dspace.core.Context;
 import org.springframework.stereotype.Service;
 import org.ssu.entity.response.CommunityResponse;
 import org.ssu.entity.response.ItemResponse;
+import org.ssu.localization.TypeLocalization;
 import org.ssu.statistics.EssuirStatistics;
 
 import javax.annotation.Resource;
 import java.sql.SQLException;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -31,6 +30,10 @@ public class CommunityService {
 
     @Resource
     private EssuirStatistics essuirStatistics;
+
+    @Resource
+    private TypeLocalization typeLocalization;
+
 
     private final transient org.dspace.content.service.CommunityService communityService = ContentServiceFactory.getInstance().getCommunityService();
     private final transient AuthorizeService authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
@@ -76,6 +79,8 @@ public class CommunityService {
     }
 
     public List<ItemResponse> getItems(Context context, BrowserScope browserScope) throws BrowseException {
+        Locale locale = context.getCurrentLocale();
+
         Function<Item, Integer> extractIssuedYearForItem = (item) -> {
             List<MetadataValue> metadataArray = itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
             DCDate dd = new DCDate(metadataArray.get(0).getValue());
@@ -93,6 +98,7 @@ public class CommunityService {
                 .stream()
                 .findFirst()
                 .map(MetadataValue::getValue)
+                .map(type -> typeLocalization.getTypeLocalized(type, locale))
                 .orElse("Unknown");
 
         BrowseEngine browseEngine = new BrowseEngine(context);
