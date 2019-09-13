@@ -10,8 +10,7 @@ import org.dspace.app.webui.servlet.CommunityListServlet;
 import org.dspace.app.webui.util.UIUtil;
 import org.dspace.authorize.factory.AuthorizeServiceFactory;
 import org.dspace.authorize.service.AuthorizeService;
-import org.dspace.browse.ItemCountException;
-import org.dspace.browse.ItemCounter;
+import org.dspace.browse.*;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataSchema;
@@ -21,6 +20,8 @@ import org.dspace.core.I18nUtil;
 import org.dspace.core.factory.CoreServiceFactory;
 import org.dspace.core.service.NewsService;
 import org.dspace.services.factory.DSpaceServicesFactory;
+import org.dspace.sort.SortException;
+import org.dspace.sort.SortOption;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.ssu.entity.AuthorLocalization;
 import org.ssu.entity.response.CommunityResponse;
+import org.ssu.entity.response.ItemResponse;
 import org.ssu.entity.response.ItemTypeResponse;
 import org.ssu.entity.response.RecentItem;
 import org.ssu.localization.TypeLocalization;
@@ -220,6 +222,25 @@ public class EssuirSiteController {
         model.addObject("itemCounter", new ItemCounter(dspaceContext));
 
         model.setViewName("community-list");
+        return model;
+
+    }
+
+    @RequestMapping("/dateissued-browse")
+    public ModelAndView getItemsByDate(ModelAndView model, HttpServletRequest request, HttpServletResponse response) throws SQLException, ItemCountException, BrowseException, SortException {
+        Context dspaceContext = UIUtil.obtainContext(request);
+        BrowseInfo attribute = (BrowseInfo) request.getAttribute("browse.info");
+        BrowserScope browserScope = new BrowserScope(dspaceContext);
+
+        SortOption so = SortOption.getSortOption(2);
+        BrowseIndex newBi = BrowseIndex.getBrowseIndex(so);
+        browserScope.setResultsPerPage(20);
+        browserScope.setOffset(0);
+        browserScope.setBrowseIndex(newBi);
+        List<ItemResponse> items = communityService.getItems(dspaceContext, browserScope);
+        model.addObject("items", items);
+
+        model.setViewName("dateissued-browse");
         return model;
 
     }

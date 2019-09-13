@@ -143,4 +143,12 @@ public class EssuirStatistics {
     }
 
 
+    public Integer getViewsForItem(Integer itemId) {
+        return getStatistics(STATISTICS.sequenceId.lessThan(0).and(STATISTICS.itemId.eq(itemId))).getOrDefault(itemId, 0L).intValue();
+    }
+
+    public Integer getDownloadsForItem(Integer itemId) {
+        return getStatistics(STATISTICS.sequenceId.greaterOrEqual(0).and(STATISTICS.itemId.eq(itemId))).getOrDefault(itemId, 0L).intValue();
+    }
+
 }
