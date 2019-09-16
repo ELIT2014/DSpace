@@ -230,6 +230,7 @@ public class EssuirSiteController {
     public ModelAndView getItemsByDate(ModelAndView model, HttpServletRequest request, HttpServletResponse response) throws SQLException, ItemCountException, BrowseException, SortException {
         Context dspaceContext = UIUtil.obtainContext(request);
         BrowseInfo attribute = (BrowseInfo) request.getAttribute("browse.info");
+
         BrowserScope browserScope = new BrowserScope(dspaceContext);
 
         SortOption so = SortOption.getSortOption(2);
@@ -237,8 +238,14 @@ public class EssuirSiteController {
         browserScope.setResultsPerPage(20);
         browserScope.setOffset(0);
         browserScope.setBrowseIndex(newBi);
+
+        BrowseEngine be = new BrowseEngine(dspaceContext);
+        BrowseInfo browseInfo = be.browse(browserScope);
         List<ItemResponse> items = communityService.getItems(dspaceContext, browserScope);
         model.addObject("items", items);
+        model.addObject("startIndex", browseInfo.getStart());
+        model.addObject("finishIndex", browseInfo.getFinish());
+        model.addObject("totalItems", browseInfo.getTotal());
 
         model.setViewName("dateissued-browse");
         return model;
