@@ -16,6 +16,7 @@ import org.dspace.core.Context;
 import org.springframework.stereotype.Service;
 import org.ssu.entity.response.CommunityResponse;
 import org.ssu.entity.response.ItemResponse;
+import org.ssu.localization.AuthorsCache;
 import org.ssu.localization.TypeLocalization;
 import org.ssu.statistics.EssuirStatistics;
 
@@ -33,6 +34,9 @@ public class CommunityService {
 
     @Resource
     private TypeLocalization typeLocalization;
+
+    @Resource
+    private AuthorsCache authorsCache;
 
 
     private final transient org.dspace.content.service.CommunityService communityService = ContentServiceFactory.getInstance().getCommunityService();
@@ -91,6 +95,9 @@ public class CommunityService {
             itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "contributor", "*", Item.ANY)
                     .stream()
                     .map(MetadataValue::getValue)
+                    .map(author -> authorsCache.getAuthorLocalization(author))
+                    .map(author -> String.format("%s, %s", author.getSurname(locale), author.getInitials(locale)))
+                    .distinct()
                     .collect(Collectors.joining("; "));
 
         Function<Item, String> getItemType = (item) ->

@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://www.dspace.org/dspace-tags.tld" prefix="dspace" %>
-<%@ taglib uri='http://java.sun.com/jsp/jstl/core' prefix='c'%>
+<%@ taglib uri='http://java.sun.com/jsp/jstl/core' prefix='c' %>
 
 <dspace:layout locbar="commLink" titlekey="jsp.top50items" feedData="NONE">
     <div class="panel panel-primary">
@@ -11,8 +11,13 @@
                 <fmt:param value="${finishIndex}"/>
                 <fmt:param value="${totalItems}"/>
             </fmt:message>
+            <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#exampleModal">
+                Launch demo modal
+            </button>
         </div>
-        <table align="center" class="table" summary="This table browses all dspace content" >
+
+
+        <table align="center" class="table" summary="This table browses all dspace content">
             <thead>
             <tr>
                 <th id="t1" class="oddRowEvenCol"><strong>Рік випуску</strong></th>
@@ -24,17 +29,77 @@
             </tr>
             </thead>
             <tbody>
-        <c:forEach items="${items}" var="item">
-            <tr>
-                <td align="right" class="oddRowEvenCol"><strong>${item.year}</strong></td>
-                <td class="oddRowOddCol"><a href="/handle/${item.handle}">${item.title}</a></td>
-                <td class="oddRowEvenCol">${item.authors}</td>
-                <td class="oddRowOddCol">${item.type}</td>
-                <td class="oddRowEvenCol">${item.views}</td>
-                <td class="oddRowOddCol">${item.downloads}</td>
-            </tr>
-        </c:forEach>
+            <c:forEach items="${items}" var="item">
+                <tr>
+                    <td align="right" class="oddRowEvenCol"><strong>${item.year}</strong></td>
+                    <td class="oddRowOddCol"><a href="/handle/${item.handle}">${item.title}</a></td>
+                    <td class="oddRowEvenCol">${item.authors}</td>
+                    <td class="oddRowOddCol">${item.type}</td>
+                    <td class="oddRowEvenCol">${item.views}</td>
+                    <td class="oddRowOddCol">${item.downloads}</td>
+                </tr>
+            </c:forEach>
             </tbody>
         </table>
     </div>
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form action="dateissued-browse" method="get">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+
+
+                        <div class="form-group row">
+                            <label for="sort_by" class="col-sm-6 col-form-label"><fmt:message
+                                    key="browse.full.sort-by"/></label>
+                            <div class="col-sm-6">
+                                <select class="form-control" id="sort_by" name="sort_by">
+                                    <c:forEach items="${sortOptions}" var="sortOption">
+                                        <c:choose>
+                                            <c:when test="${sortOption.name.equals(sortedBy.name)}">
+                                                <option value="${sortOption.number}" selected="selected"><fmt:message
+                                                        key="browse.sort-by.${sortOption.name}"/></option>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <option value="${sortOption.number}"><fmt:message
+                                                        key="browse.sort-by.${sortOption.name}"/></option>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </c:forEach>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="order"><fmt:message key="browse.full.order"/></label>
+                            <div class="col-sm-6">
+                                <select id = "order" name="order">
+                                    <option value="ASC" <%= ascSelected %>><fmt:message key="browse.order.asc" /></option>
+                                    <option value="DESC" <%= descSelected %>><fmt:message key="browse.order.desc" /></option>
+                                </select>
+                            </div>
+                        </div>
+
+
+
+
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 </dspace:layout>

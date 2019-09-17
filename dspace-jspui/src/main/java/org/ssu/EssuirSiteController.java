@@ -6,10 +6,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 import org.dspace.app.webui.components.RecentSubmissionsException;
 import org.dspace.app.webui.components.RecentSubmissionsManager;
-import org.dspace.app.webui.servlet.CommunityListServlet;
 import org.dspace.app.webui.util.UIUtil;
-import org.dspace.authorize.factory.AuthorizeServiceFactory;
-import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.browse.*;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
@@ -26,6 +23,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.ssu.entity.AuthorLocalization;
@@ -210,7 +208,7 @@ public class EssuirSiteController {
     public void update() {
         scheduledTasks.finalizeMonthStatistics();
     }
-  
+
     @RequestMapping("community-list")
     public ModelAndView getCommunityList(ModelAndView model, HttpServletRequest request, HttpServletResponse response) throws SQLException, ItemCountException {
         Context dspaceContext = UIUtil.obtainContext(request);
@@ -227,25 +225,31 @@ public class EssuirSiteController {
     }
 
     @RequestMapping("/dateissued-browse")
-    public ModelAndView getItemsByDate(ModelAndView model, HttpServletRequest request, HttpServletResponse response) throws SQLException, ItemCountException, BrowseException, SortException {
+    public ModelAndView getItemsByDate(ModelAndView model, HttpServletRequest request, HttpServletResponse response,
+                                       @RequestParam(value = "sort_by", defaultValue = "1") Integer sortBy,
+                                       @RequestParam(value="order", defaultValue = "ASC") String sortOrder) throws SQLException, BrowseException, SortException {
         Context dspaceContext = UIUtil.obtainContext(request);
-        BrowseInfo attribute = (BrowseInfo) request.getAttribute("browse.info");
 
         BrowserScope browserScope = new BrowserScope(dspaceContext);
-
-        SortOption so = SortOption.getSortOption(2);
-        BrowseIndex newBi = BrowseIndex.getBrowseIndex(so);
+        BrowseIndex newBi = BrowseIndex.getItemBrowseIndex();
+        browserScope.setSortBy(sortBy);
+        browserScope.setOrder(sortOrder);
         browserScope.setResultsPerPage(20);
         browserScope.setOffset(0);
         browserScope.setBrowseIndex(newBi);
 
-        BrowseEngine be = new BrowseEngine(dspaceContext);
-        BrowseInfo browseInfo = be.browse(browserScope);
+
         List<ItemResponse> items = communityService.getItems(dspaceContext, browserScope);
+        BrowseEngine browseEngine = new BrowseEngine(dspaceContext);
+        BrowseInfo browseInfo = browseEngine.browse(browserScope);
+
         model.addObject("items", items);
         model.addObject("startIndex", browseInfo.getStart());
         model.addObject("finishIndex", browseInfo.getFinish());
         model.addObject("totalItems", browseInfo.getTotal());
+        model.addObject("sortedBy", browseInfo.getSortOption());
+        model.addObject("sortOptions", SortOption.getSortOptions().stream().filter(SortOption::isVisible).collect(Collectors.toSet()));
+
 
         model.setViewName("dateissued-browse");
         return model;
