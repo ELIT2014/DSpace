@@ -22,9 +22,11 @@ import org.ssu.statistics.EssuirStatistics;
 
 import javax.annotation.Resource;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class CommunityService {
@@ -82,13 +84,19 @@ public class CommunityService {
         }
     }
 
-    public List<ItemResponse> getItems(Context context, BrowserScope browserScope) throws BrowseException {
+    public List<ItemResponse> getItems(Context context, BrowseInfo browserInfo) throws BrowseException {
         Locale locale = context.getCurrentLocale();
 
         Function<Item, Integer> extractIssuedYearForItem = (item) -> {
-            List<MetadataValue> metadataArray = itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
-            DCDate dd = new DCDate(metadataArray.get(0).getValue());
-            return dd.getYear();
+            List<MetadataValue> dateIssuedMetadata = itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
+            List<MetadataValue> dateAvailableMetadata = itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "available", Item.ANY);
+
+            return dateIssuedMetadata.stream()
+                    .findFirst()
+                    .map(MetadataValue::getValue)
+                    .map(DCDate::new)
+                    .map(DCDate::getYear)
+                    .orElse(null);
         };
 
         Function<Item, String> extractAuthorListForItem = (item) ->
@@ -108,8 +116,8 @@ public class CommunityService {
                 .map(type -> typeLocalization.getTypeLocalized(type, locale))
                 .orElse("Unknown");
 
-        BrowseEngine browseEngine = new BrowseEngine(context);
-        return browseEngine.browse(browserScope).getBrowseItemResults()
+
+        return browserInfo.getBrowseItemResults()
                 .stream()
                 .map(item -> new ItemResponse.Builder()
                 .withTitle(item.getName())
@@ -120,6 +128,7 @@ public class CommunityService {
                         .withViews(essuirStatistics.getViewsForItem(item.getLegacyId()))
                         .withDownloads(essuirStatistics.getDownloadsForItem(item.getLegacyId()))
                         .build())
+                .filter(item -> item.getYear() != null)
                 .collect(Collectors.toList());
     }
 }

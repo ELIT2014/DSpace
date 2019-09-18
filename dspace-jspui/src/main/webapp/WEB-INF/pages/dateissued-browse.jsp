@@ -79,17 +79,46 @@
                         </div>
 
                         <div class="form-group row">
-                            <label for="order"><fmt:message key="browse.full.order"/></label>
+                            <label for="order" class="col-sm-6 col-form-label"><fmt:message key="browse.full.order"/></label>
                             <div class="col-sm-6">
-                                <select id = "order" name="order">
-                                    <option value="ASC" <%= ascSelected %>><fmt:message key="browse.order.asc" /></option>
-                                    <option value="DESC" <%= descSelected %>><fmt:message key="browse.order.desc" /></option>
+                                <select id = "order" name="order" class="form-control">
+                                    <option value="ASC"
+                                    <c:if test="${\"ACS\".equals(sortOrder)}">
+                                        selected="selected"
+                                    </c:if>
+                                    ><fmt:message key="browse.order.asc" /></option>
+                                    <option value="DESC"
+                                            <c:if test="${\"DESC\".equals(sortOrder)}">
+                                                selected="selected"
+                                            </c:if>
+                                    ><fmt:message key="browse.order.desc" /></option>
                                 </select>
                             </div>
                         </div>
 
 
 
+                        <div class="form-group row">
+                            <label for="rpp" class="col-sm-6 col-form-label"><fmt:message key="browse.full.rpp"/></label>
+                        <div class="col-sm-6">
+                            <select id = "rpp" name="rpp" class="form-control">
+                                <c:forEach begin="5" end="100" step="5" var="index">
+                                    <option value="${index}"
+                                            <c:if test="${index == rpp}">
+                                                selected="selected"
+                                            </c:if>
+                                    >${index}</option>
+                                </c:forEach>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="year" class="col-sm-6 col-form-label"><fmt:message key="browse.nav.date.jump"/></label>
+                        <div class="col-sm-6">
+                            <input type="text" class="yearpicker form-control" value="${selectedYear}" name="year" id="year"/>
+                        </div>
+                    </div>
 
 
                     </div>
@@ -101,5 +130,9 @@
             </div>
         </div>
     </div>
-
+    <script>
+        $(document).ready(function(){
+            $('.yearpicker').yearpicker();
+        });
+    </script>
 </dspace:layout>
