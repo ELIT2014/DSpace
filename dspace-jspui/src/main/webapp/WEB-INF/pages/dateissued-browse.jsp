@@ -11,9 +11,10 @@
                 <fmt:param value="${finishIndex}"/>
                 <fmt:param value="${totalItems}"/>
             </fmt:message>
-            <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#exampleModal">
-                Launch demo modal
-            </button>
+            <%--<button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#exampleModal">--%>
+                <%--Launch demo modal--%>
+            <%--</button>--%>
+            <a href="#" class="pull-right glyphicon glyphicon-cog" aria-hidden="true"  data-toggle="modal" data-target="#searchModal"></a>
         </div>
 
 
@@ -43,16 +44,18 @@
         </table>
     </div>
 
-    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    <div class="modal fade" id="searchModal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel"
          aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <form action="dateissued-browse" method="get">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+
+                        <h4 class="modal-title" id="searchModalLabel"><fmt:message key="jsp.search.filter.applied"/>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
+                        </h4>
                     </div>
                     <div class="modal-body">
 
@@ -96,8 +99,6 @@
                             </div>
                         </div>
 
-
-
                         <div class="form-group row">
                             <label for="rpp" class="col-sm-6 col-form-label"><fmt:message key="browse.full.rpp"/></label>
                         <div class="col-sm-6">
@@ -120,11 +121,10 @@
                         </div>
                     </div>
 
-
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save changes</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal"><fmt:message key="jsp.tools.group-select-list.close.button"/></button>
+                        <button type="submit" class="btn btn-primary"><fmt:message key="browse.nav.go"/></button>
                     </div>
                 </form>
             </div>
