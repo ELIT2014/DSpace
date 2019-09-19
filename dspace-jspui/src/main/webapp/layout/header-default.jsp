@@ -56,6 +56,7 @@
         <link rel="stylesheet" href="<%= request.getContextPath() %>/static/css/bootstrap/dspace-theme.css" type="text/css" />
         <link rel="stylesheet" href="<%= request.getContextPath() %>/static/css/treeview.css" type="text/css"/>
         <link rel="stylesheet" href="<%= request.getContextPath() %>/static/css/yearpicker.css">
+        <link rel="stylesheet" href="<%= request.getContextPath() %>/static/css/pagination.css">
 
     <%
     if (!"NONE".equals(feedRef))

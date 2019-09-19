@@ -130,8 +130,76 @@
             </div>
         </div>
     </div>
+
+
+
+    <%
+//        int perPage = ConfigurationManager.getIntProperty("webui.collectionhome.perpage", 20);
+//        if(rpp != 0) {
+//            perPage = rpp;
+//        }
+//        int totalPublications = bi.getTotal();
+//        int from = bi.getStart();
+//        int to = bi.getFinish();
+//        int totalPages = (int) Math.ceil(Double.valueOf(totalPublications) / perPage);
+//        int currentPage = bi.getOffset() / perPage + 1;
+//
+//
+//        int leftPage = Math.max(1, currentPage - 2);
+//        int rightPage = Math.min(totalPages, currentPage + 2);
+//        if(currentPage == 1 && bi.hasPrevPage()) {
+//            currentPage = 2;
+//        }
+//        if(totalPages == 1 && bi.hasPrevPage()) {
+//            totalPages = 2;
+//        }
+    %>
+
+
+    <ul class="cd-pagination no-space move-buttons custom-icons">
+        <%--<% if(!isSinglePage) { %>--%>
+        <li class="button">
+            <a href="${prevPageUrl}" class = "${prevPageDisabled}"><fmt:message key="pagination.prev"/></a>
+        </li>
+        <%--<% } %>--%>
+
+        <%--<% if(leftPage > 1) {%>--%>
+        <%--<li><a href="<%= linkBase %>" <% if(1 == currentPage) { %> class="current" <% } %> >1</a></li>--%>
+        <%--<% if(leftPage > 2) {%>--%>
+        <%--<li><span>...</span></li>--%>
+        <%--<%  }  %>--%>
+        <%--<%  }  %>--%>
+
+            <c:forEach items="${links}" var="link">
+                ${link}
+            </c:forEach>
+        <%--<% for(int i = leftPage; i <= rightPage; i++) {--%>
+            <%--String link = linkBase + "offset=" + Integer.valueOf(perPage * (i - 1)).toString();--%>
+
+        <%--%>--%>
+                <%--<li><a href="<%= link %>" <% if(i == currentPage) { %> class="current" <% } %> > <%= i %></a></li>--%>
+                <%--<%  }  %>--%>
+
+
+        <%--<% if(rightPage < totalPages) {%>--%>
+        <%--<% if(rightPage < totalPages - 1) {%>--%>
+        <%--<li><span>...</span></li>--%>
+        <%--<%  }  %>--%>
+        <%--<li><a href="<%= linkBase + "offset=" + Integer.valueOf(perPage * (totalPages - 1)).toString() %>" <% if(totalPages == currentPage) { %> class="current" <% } %> ><%= totalPages %></a></li>--%>
+        <%--<%  }  %>--%>
+
+        <%--<% if(!isSinglePage) { %>--%>
+        <li class="button">
+            <a href="${nextPageUrl}" class = "${nextPageDisabled}"><fmt:message key="pagination.next"/></a>
+        </li>
+        <%--<% } %>--%>
+
+
+    </ul>
+
     <script>
         $(document).ready(function(){
+            console.log('in document ready');
             $('.yearpicker').yearpicker();
         });
     </script>
