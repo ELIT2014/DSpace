@@ -1,9 +1,9 @@
 <%@ tag body-content="empty" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-<%@ attribute name="sortOptions" rtexprvalue="true" required="true" type="java.util.List"
+<%@ attribute name="sortOptions" rtexprvalue="true" required="true" type="java.util.Set"
               description="Sort options list" %>
 
 <%@ attribute name="sortedBy" rtexprvalue="true" required="true" type="org.dspace.sort.SortOption"
@@ -17,12 +17,14 @@
             <c:forEach items="${sortOptions}" var="sortOption">
                 <c:choose>
                     <c:when test="${sortOption.name.equals(sortedBy.name)}">
-                        <option value="${sortOption.number}" selected="selected"><fmt:message
-                                key="browse.sort-by.${sortOption.name}"/></option>
+                        <option value="${sortOption.number}" selected="selected">
+                            <fmt:message key="browse.sort-by.${sortOption.name}"/>
+                        </option>
                     </c:when>
                     <c:otherwise>
-                        <option value="${sortOption.number}"><fmt:message
-                                key="browse.sort-by.${sortOption.name}"/></option>
+                        <option value="${sortOption.number}">
+                            <fmt:message key="browse.sort-by.${sortOption.name}"/>
+                        </option>
                     </c:otherwise>
                 </c:choose>
             </c:forEach>
