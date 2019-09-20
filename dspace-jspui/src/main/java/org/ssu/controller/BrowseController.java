@@ -6,6 +6,7 @@ import org.dspace.core.Context;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.sort.SortException;
 import org.dspace.sort.SortOption;
+import org.hibernate.type.IntegerType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -97,7 +98,7 @@ public class BrowseController {
         model.addObject("sortedBy", browseInfo.getSortOption());
         model.addObject("sortOrder", sortOrder);
         model.addObject("rpp", resultsPerPage);
-        model.addObject("selectedYear", year.orElse(LocalDate.now().getYear()));
+        model.addObject("selectedYear", year.map(String::valueOf).orElse(""));
         model.addObject("sortOptions", SortOption.getSortOptions().stream().filter(SortOption::isVisible).collect(Collectors.toSet()));
         model.addObject("prevPageUrl", String.format("%s&page=%d", currentPageURL, currentPage - 1));
         model.addObject("prevPageDisabled", browseInfo.hasPrevPage()? "" : "disabled");
