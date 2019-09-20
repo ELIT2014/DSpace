@@ -7,7 +7,6 @@ import org.dspace.browse.BrowseInfo;
 import org.dspace.content.*;
 import org.dspace.content.Collection;
 import org.dspace.content.factory.ContentServiceFactory;
-import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.springframework.stereotype.Service;
@@ -30,15 +29,11 @@ public class CommunityService {
     private EssuirStatistics essuirStatistics;
 
     @Resource
-    private TypeLocalization typeLocalization;
-
-    @Resource
-    private AuthorsCache authorsCache;
-
+    private ItemService itemService;
 
     private final transient org.dspace.content.service.CommunityService communityService = ContentServiceFactory.getInstance().getCommunityService();
     private final transient AuthorizeService authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
-    transient private final ItemService itemService = ContentServiceFactory.getInstance().getItemService();
+
     public CommunityResponse build(Context context) throws SQLException {
         Map<String, List<Community>> subCommunities;
         subCommunities = new HashMap<>();
@@ -79,48 +74,25 @@ public class CommunityService {
         }
     }
 
+
     public List<ItemResponse> getItems(Context context, BrowseInfo browserInfo) throws BrowseException {
         Locale locale = context.getCurrentLocale();
 
-        Function<Item, Integer> extractIssuedYearForItem = (item) -> {
-            List<MetadataValue> dateIssuedMetadata = itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
-            List<MetadataValue> dateAvailableMetadata = itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "available", Item.ANY);
-
-            return dateIssuedMetadata.stream()
-                    .findFirst()
-                    .map(MetadataValue::getValue)
-                    .map(DCDate::new)
-                    .map(DCDate::getYear)
-                    .orElse(null);
-        };
-
         Function<Item, String> extractAuthorListForItem = (item) ->
-            itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "contributor", "*", Item.ANY)
+            itemService.extractAuthorListForItem(item)
                     .stream()
-                    .map(MetadataValue::getValue)
-                    .map(author -> authorsCache.getAuthorLocalization(author))
-                    .distinct()
                     .map(author -> String.format("%s, %s", author.getSurname(locale), author.getInitials(locale)))
                     .map(author -> String.format("<a href=\"/browse?type=author&value=%s\">%s</a>", author, author))
                     .collect(Collectors.joining("; "));
-
-        Function<Item, String> getItemType = (item) ->
-                itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "type", "*", Item.ANY)
-                .stream()
-                .findFirst()
-                .map(MetadataValue::getValue)
-                .map(type -> typeLocalization.getTypeLocalized(type, locale))
-                .orElse("Unknown");
-
 
         return browserInfo.getBrowseItemResults()
                 .stream()
                 .map(item -> new ItemResponse.Builder()
                 .withTitle(item.getName())
-                        .withYear(extractIssuedYearForItem.apply(item))
+                        .withYear(itemService.extractIssuedYearForItem(item))
                         .withHandle(item.getHandle())
                         .withAuthors(extractAuthorListForItem.apply(item))
-                        .withType(getItemType.apply(item))
+                        .withType(itemService.getItemTypeLocalized(item, locale))
                         .withViews(essuirStatistics.getViewsForItem(item.getLegacyId()))
                         .withDownloads(essuirStatistics.getDownloadsForItem(item.getLegacyId()))
                         .build())
