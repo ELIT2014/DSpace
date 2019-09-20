@@ -903,7 +903,7 @@
 
     <servlet-mapping>
         <servlet-name>Spring MVC Servlet</servlet-name>
-        <url-pattern>/dateissued-browse</url-pattern>
+        <url-pattern>/browse/dateissued</url-pattern>
     </servlet-mapping>
 
   <!-- Icon MIME type -->

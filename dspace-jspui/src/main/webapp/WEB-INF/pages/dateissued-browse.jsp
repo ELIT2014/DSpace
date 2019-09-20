@@ -59,7 +59,7 @@
          aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <form action="dateissued-browse" method="get" autocomplete="off">
+                <form action="" method="get" autocomplete="off">
                     <div class="modal-header">
 
                         <h4 class="modal-title" id="searchModalLabel"><fmt:message key="jsp.search.filter.applied"/>

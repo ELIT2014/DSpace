@@ -1,12 +1,9 @@
-package org.ssu;
+package org.ssu.service;
 
-import org.dspace.app.webui.util.UIUtil;
 import org.dspace.authorize.factory.AuthorizeServiceFactory;
 import org.dspace.authorize.service.AuthorizeService;
-import org.dspace.browse.BrowseEngine;
 import org.dspace.browse.BrowseException;
 import org.dspace.browse.BrowseInfo;
-import org.dspace.browse.BrowserScope;
 import org.dspace.content.*;
 import org.dspace.content.Collection;
 import org.dspace.content.factory.ContentServiceFactory;
@@ -16,17 +13,15 @@ import org.dspace.core.Context;
 import org.springframework.stereotype.Service;
 import org.ssu.entity.response.CommunityResponse;
 import org.ssu.entity.response.ItemResponse;
-import org.ssu.localization.AuthorsCache;
-import org.ssu.localization.TypeLocalization;
-import org.ssu.statistics.EssuirStatistics;
+import org.ssu.service.localization.AuthorsCache;
+import org.ssu.service.localization.TypeLocalization;
+import org.ssu.service.statistics.EssuirStatistics;
 
 import javax.annotation.Resource;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class CommunityService {
@@ -104,8 +99,9 @@ public class CommunityService {
                     .stream()
                     .map(MetadataValue::getValue)
                     .map(author -> authorsCache.getAuthorLocalization(author))
-                    .map(author -> String.format("%s, %s", author.getSurname(locale), author.getInitials(locale)))
                     .distinct()
+                    .map(author -> String.format("%s, %s", author.getSurname(locale), author.getInitials(locale)))
+                    .map(author -> String.format("<a href=\"/browse?type=author&value=%s\">%s</a>", author, author))
                     .collect(Collectors.joining("; "));
 
         Function<Item, String> getItemType = (item) ->
