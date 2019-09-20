@@ -58,11 +58,11 @@ public class BrowseController {
 
     @RequestMapping("/dateissued")
     public ModelAndView getItemsByDate(ModelAndView model, HttpServletRequest request, HttpServletResponse response,
-                                       @RequestParam(value = "sort_by", defaultValue = "1") Integer sortBy,
-                                       @RequestParam(value="order", defaultValue = "ASC") String sortOrder,
+                                       @RequestParam(value = "sort_by", defaultValue = "1", required = false) Integer sortBy,
+                                       @RequestParam(value="order", defaultValue = "ASC", required = false) String sortOrder,
                                        @RequestParam(value="year", required = false) Integer yearParameter,
                                        @RequestParam(value="page", required = false, defaultValue = "1") Integer page,
-                                       @RequestParam(value = "rpp") String perPage) throws SQLException, BrowseException, SortException {
+                                       @RequestParam(value = "rpp", required = false) String perPage) throws SQLException, BrowseException, SortException {
 
         Context dspaceContext = UIUtil.obtainContext(request);
         BrowseEngine browseEngine = new BrowseEngine(dspaceContext);
