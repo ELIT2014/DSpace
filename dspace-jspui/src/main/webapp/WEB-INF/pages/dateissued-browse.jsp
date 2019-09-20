@@ -3,7 +3,7 @@
 <%@ taglib uri="http://www.dspace.org/dspace-tags.tld" prefix="dspace" %>
 <%@ taglib uri='http://java.sun.com/jsp/jstl/core' prefix='c' %>
 
-<dspace:layout locbar="commLink" titlekey="jsp.top50items" feedData="NONE">
+<dspace:layout locbar="commLink" titlekey="browse.page-title">
     <div class="panel panel-primary">
         <div class="panel-heading text-center">
             <fmt:message key="browse.full.range">
