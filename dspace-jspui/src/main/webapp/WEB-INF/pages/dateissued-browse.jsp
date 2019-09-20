@@ -16,6 +16,7 @@
 
 
         <table align="center" class="table" summary="This table browses all dspace content">
+            <colgroup><col width="130"><col width="60%"><col width="40%"></colgroup>
             <thead>
             <tr>
                 <th id="t1" class="oddRowEvenCol"><strong>Рік випуску</strong></th>
