@@ -58,7 +58,7 @@ public class BrowseController {
 
     @RequestMapping("/dateissued")
     public ModelAndView getItemsByDate(ModelAndView model, HttpServletRequest request, HttpServletResponse response,
-                                       @RequestParam(value = "sort_by", defaultValue = "1", required = false) Integer sortBy,
+                                       @RequestParam(value = "sort_by", defaultValue = "2", required = false) Integer sortBy,
                                        @RequestParam(value="order", defaultValue = "ASC", required = false) String sortOrder,
                                        @RequestParam(value="year", required = false) Integer yearParameter,
                                        @RequestParam(value="page", required = false, defaultValue = "1") Integer page,
