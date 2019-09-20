@@ -60,6 +60,7 @@
     <script>
         $(document).ready(function(){
             $('.yearpicker').yearpicker();
+            $('.yearpicker').val("${selectedYear}");
         });
     </script>
 </dspace:layout>
