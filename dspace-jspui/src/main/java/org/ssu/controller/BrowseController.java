@@ -146,7 +146,7 @@ public class BrowseController {
                 .withSortOrder(sortOrder)
                 .withStartsWith(Optional.ofNullable(startsWith))
                 .withPage(page)
-                .withItemsPerPage(perPage)
+                .withItemsPerPage(getResultsPerPage(perPage))
                 .build();
 
         BrowseInfo browseInfo = createBrowseInfoWithParameters(dspaceContext, requestParameters);

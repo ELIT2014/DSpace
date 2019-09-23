@@ -12,7 +12,7 @@
                 <fmt:param value="${finishIndex}"/>
                 <fmt:param value="${totalItems}"/>
             </fmt:message>
-            <a href="#" class="pull-right glyphicon glyphicon-cog" aria-hidden="true"  data-toggle="modal" data-target="#searchModal"></a>
+            <a href="#" class="pull-right glyphicon glyphicon-filter" aria-hidden="true"  data-toggle="modal" data-target="#searchModal"></a>
         </div>
 
         <essuir:browseExtendedTable items="${items}" />
