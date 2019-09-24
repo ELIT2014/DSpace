@@ -235,10 +235,10 @@ public class EssuirSiteController {
                                      @RequestParam(value = "email", required = false) String email,
                                      @RequestParam(value = "feedback", required = false) String feedback,
                                      @RequestParam(value = "fakeVariable", required = false, defaultValue = "") String message,
-                                     @RequestParam(value = "fakeVariable", required = false, defaultValue = "true") String messageClass) {
+                                     @RequestParam(value = "fakeVariable", required = false, defaultValue = "true") String messageType) {
 
         model.addObject("message", message);
-        model.addObject("messageClass", messageClass);
+        model.addObject("messageClass", messageType);
         model.addObject("email", StringEscapeUtils.escapeHtml(email));
         model.addObject("feedback", StringEscapeUtils.escapeHtml(feedback));
 
@@ -255,24 +255,23 @@ public class EssuirSiteController {
         Context dspaceContext = UIUtil.obtainContext(request);
         Locale locale = dspaceContext.getCurrentLocale();
 
-        boolean isEmailFilled = !StringUtils.isEmpty(email);
         boolean isFeedbackTextFilled = !StringUtils.isEmpty(feedback);
         boolean isEmailCorrect = EmailValidator.getInstance().isValid(email);
-        boolean addFieldsFilled = (!isEmailFilled || !isFeedbackTextFilled || !isEmailCorrect);
-        String message = "";
-        String messageClass = "success";
 
-        if (!isEmailCorrect || !isEmailFilled) {
+        String message = "";
+        String messageType = "success";
+
+        if (!isEmailCorrect) {
             message = I18nUtil.getMessage("feedback.email.incorrect", locale);
-            messageClass = "warning";
+            messageType = "warning";
         }
 
         if(!isFeedbackTextFilled) {
             message = I18nUtil.getMessage("feedback.feedback.empty", locale);
-            messageClass = "warning";
+            messageType = "warning";
         }
 
-        if(!addFieldsFilled) {
+        if(isFeedbackTextFilled && isEmailCorrect) {
             EPerson currentUser = dspaceContext.getCurrentUser();
             Email emailTemplate = Email.getEmail(I18nUtil.getEmailFilename(dspaceContext.getCurrentLocale(), "feedback"));
             emailTemplate.addRecipient(DSpaceServicesFactory.getInstance().getConfigurationService().getProperty("feedback.recipient"));
@@ -292,10 +291,10 @@ public class EssuirSiteController {
             } catch (MessagingException | IOException e) {
                 log.error(e);
                 message = I18nUtil.getMessage("jsp.error.integrity.list4", locale);
-                messageClass = "danger";
+                messageType = "danger";
             }
 
         }
-        return feedbackPage(model, request, email, feedback, message, messageClass);
+        return feedbackPage(model, request, email, feedback, message, messageType);
     }
 }
