@@ -23,12 +23,14 @@ import org.dspace.core.factory.CoreServiceFactory;
 import org.dspace.core.service.NewsService;
 import org.dspace.eperson.EPerson;
 import org.dspace.services.factory.DSpaceServicesFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
 import org.ssu.entity.AuthorLocalization;
 import org.ssu.entity.response.CommunityResponse;
@@ -236,7 +238,9 @@ public class EssuirSiteController {
                                      @RequestParam(value = "feedback", required = false) String feedback,
                                      @RequestParam(value = "fakeVariable", required = false, defaultValue = "") String message,
                                      @RequestParam(value = "fakeVariable", required = false, defaultValue = "true") String messageType) {
+        String recaptchaPublicKey = DSpaceServicesFactory.getInstance().getConfigurationService().getProperty("recaptcha.public");
 
+        model.addObject("recaptchaPublicKey", recaptchaPublicKey);
         model.addObject("message", message);
         model.addObject("messageClass", messageType);
         model.addObject("email", StringEscapeUtils.escapeHtml(email));
@@ -246,6 +250,18 @@ public class EssuirSiteController {
         return model;
     }
 
+    private boolean checkGoogleRecaptcha(HttpServletRequest request) {
+        String host = DSpaceServicesFactory.getInstance().getConfigurationService().getProperty("dspace.hostname");
+        Map<String, String> googleRequestParameters = new HashMap<>();
+        googleRequestParameters.put("secret", DSpaceServicesFactory.getInstance().getConfigurationService().getProperty("recaptcha.private"));
+        googleRequestParameters.put("response", request.getParameter("g-recaptcha-response"));
+        googleRequestParameters.put("remoteip", host);
+
+        ResponseEntity<Map> recaptchaResponseEntity = new RestTemplate()
+                .postForEntity("https://www.google.com/recaptcha/api/siteverify?secret={secret}&response={response}&remoteip={remoteip}", googleRequestParameters, Map.class, googleRequestParameters);
+        Map<String, Object> googleCaptchaVerifyRepsonse = recaptchaResponseEntity.getBody();
+       return (Boolean)googleCaptchaVerifyRepsonse.get("success");
+    }
 
     @RequestMapping(value = "/feedback", method = RequestMethod.POST)
     public ModelAndView sendFeedback(ModelAndView model,
@@ -255,6 +271,7 @@ public class EssuirSiteController {
         Context dspaceContext = UIUtil.obtainContext(request);
         Locale locale = dspaceContext.getCurrentLocale();
 
+        boolean verifyStatus = checkGoogleRecaptcha(request);
         boolean isFeedbackTextFilled = !StringUtils.isEmpty(feedback);
         boolean isEmailCorrect = EmailValidator.getInstance().isValid(email);
 
@@ -271,7 +288,12 @@ public class EssuirSiteController {
             messageType = "warning";
         }
 
-        if(isFeedbackTextFilled && isEmailCorrect) {
+        if(!verifyStatus) {
+            message = I18nUtil.getMessage("feedback.captcha.fail", locale);
+            messageType = "warning";
+        }
+
+        if(isFeedbackTextFilled && isEmailCorrect && verifyStatus) {
             EPerson currentUser = dspaceContext.getCurrentUser();
             Email emailTemplate = Email.getEmail(I18nUtil.getEmailFilename(dspaceContext.getCurrentLocale(), "feedback"));
             emailTemplate.addRecipient(DSpaceServicesFactory.getInstance().getConfigurationService().getProperty("feedback.recipient"));

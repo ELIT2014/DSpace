@@ -27,10 +27,13 @@
                     <textarea name="feedback" id="feedback" rows="6" cols="50" class="form-control">${feedback}</textarea></div>
             </div>
             <div class="form-group">
+                <div class="col-sm-offset-4 col-sm-6 g-recaptcha" data-sitekey="${recaptchaPublicKey}"></div>
+            </div>
+            <div class="form-group">
                 <div class="col-sm-offset-2 col-sm-10">
                     <input type="submit" name="submit"  class="btn btn-default" value="<fmt:message key="jsp.feedback.form.send"/>"/>
                 </div>
             </div>
     </form>
-
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </dspace:layout>
