@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Controller
@@ -52,7 +53,7 @@ public class HandleController {
 
     private ModelAndView displayItem(HttpServletRequest request, ModelAndView model, Item item, Locale locale) {
         essuirStatistics.updateItemViews(request, item.getLegacyId());
-
+        Map<String, Integer> itemViewsByCountry = essuirStatistics.getItemViewsByCountry(item.getLegacyId());
         List<String> authors = itemService.extractAuthorListForItem(item).stream()
                 .map(author -> String.format("%s, %s", author.getSurname(locale), author.getInitials(locale)))
                 .collect(Collectors.toList());
@@ -68,6 +69,7 @@ public class HandleController {
         model.addObject("publisher", itemService.getPublisherForItem(item));
         model.addObject("citation", itemService.getCitationForItem(item));
         model.addObject("abstracts", itemService.getAbstractsForItem(item));
+        model.addObject("views", itemViewsByCountry);
 
         model.setViewName("item-display");
         return model;

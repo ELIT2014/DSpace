@@ -15,6 +15,8 @@ import org.ssu.repository.MetadatavalueRepository;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -170,8 +172,14 @@ public class EssuirStatistics {
                 .execute();
     }
 
-    public Map<String, Integer> getItemViews(Integer itemId) {
-        return null;
+    public Map<String, Integer> getItemViewsByCountry(Integer itemId) {
+        return dsl.select(STATISTICS.countryCode, DSL.sum(STATISTICS.viewCount))
+                .from(STATISTICS)
+                .where(STATISTICS.itemId.eq(itemId).and(STATISTICS.sequenceId.lessThan(0)))
+                .groupBy(STATISTICS.countryCode)
+                .fetch()
+                .stream()
+                .collect(Collectors.toMap(entry -> entry.get(STATISTICS.countryCode), entry -> entry.get(DSL.sum(STATISTICS.viewCount)).intValue()));
     }
 
 }

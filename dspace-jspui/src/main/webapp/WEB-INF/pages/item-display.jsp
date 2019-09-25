@@ -78,21 +78,27 @@
         </tr>
     </table>
     <div class="row">
-
-        <div class="panel panel-default col-md-5">
-            <div class="panel-heading">Views</div>
+        <div class="col-md-6">
+        <div class="panel panel-info">
+            <div class="panel-heading text-center"><h3 class="panel-title">Views</h3></div>
             <div class="panel-body">
-                Panel content
+                <c:forEach items="${views}" var="entry">
+                    <img src = "/flags/${entry.key.toLowerCase()}.gif" alt="${entry.key}"> ${entry.key} --- ${entry.value} <br/>
+                </c:forEach>
             </div>
         </div>
-
-        <div class="panel panel-default col-md-5 col-md-offset-2">
-            <div class="panel-heading">Downloads</div>
-            <div class="panel-body">
-                Panel content
-            </div>
         </div>
 
+        <div class="col-md-6">
+            <div class="panel panel-info">
+                <div class="panel-heading">Views</div>
+                <div class="panel-body">
+                    <c:forEach items="${views}" var="entry">
+                        <img src = "/flags/${entry.key.toLowerCase()}.gif" alt="${entry.key}"> ${entry.key} --- ${entry.value} <br/>
+                    </c:forEach>
+                </div>
+            </div>
+        </div>
     </div>
     <p class="submitFormHelp alert alert-info"><fmt:message key="jsp.display-item.copyright"/></p>
 </dspace:layout>
