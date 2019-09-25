@@ -35,6 +35,15 @@ public class ItemService {
                 .map(DCDate::getYear)
                 .orElse(null);
     }
+
+    public String getURIForItem(Item item) {
+        return itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "identifier", "uri", Item.ANY)
+                .stream()
+                .map(MetadataValue::getValue)
+                .findFirst()
+                .orElse("");
+    }
+
     public String getAlternativeTitleForItem(Item item) {
         return itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "title", "alternative", Item.ANY)
                 .stream()
@@ -52,6 +61,13 @@ public class ItemService {
                 .collect(Collectors.toList());
     }
 
+    public List<String> getKeywordsForItem(Item item) {
+        return itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "subject", null, Item.ANY)
+                .stream()
+                .sorted((a, b) -> Integer.compare(a.getPlace(), b.getPlace()))
+                .map(MetadataValue::getValue)
+                .collect(Collectors.toList());
+    }
 
     public String getItemTypeLocalized(Item item, Locale locale) {
         return itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "type", "*", Item.ANY)

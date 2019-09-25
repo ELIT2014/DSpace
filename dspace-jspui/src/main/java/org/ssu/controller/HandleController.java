@@ -1,6 +1,8 @@
 package org.ssu.controller;
 
 import org.dspace.app.webui.util.UIUtil;
+import org.dspace.authorize.factory.AuthorizeServiceFactory;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.core.Constants;
@@ -17,6 +19,7 @@ import org.ssu.service.ItemService;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
@@ -24,6 +27,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/")
 public class HandleController {
     private HandleService handleService = HandleServiceFactory.getInstance().getHandleService();
+    private AuthorizeService authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
     @Resource
     private ItemService itemService;
 
@@ -32,27 +36,30 @@ public class HandleController {
         Context dspaceContext = UIUtil.obtainContext(request);
         DSpaceObject dSpaceObject = handleService.resolveToObject(dspaceContext, "123456789/" + itemId);
         Locale locale = dspaceContext.getCurrentLocale();
+        if(authorizeService.authorizeActionBoolean(dspaceContext, dSpaceObject, Constants.READ)) {
+            if (dSpaceObject.getType() == Constants.ITEM) {
+                return displayItem(model, (Item) dSpaceObject, locale);
+            }
 
-        if(dSpaceObject.getType() == Constants.ITEM) {
-            return displayItem(model, (Item)dSpaceObject, locale);
+            System.out.println(dSpaceObject.getType());
         }
-
-        System.out.println(dSpaceObject.getType());
         return null;
     }
 
     private ModelAndView displayItem(ModelAndView model, Item item, Locale locale) {
 
-        String authors = itemService.extractAuthorListForItem(item).stream()
+        List<String> authors = itemService.extractAuthorListForItem(item).stream()
                 .map(author -> String.format("%s, %s", author.getSurname(locale), author.getInitials(locale)))
-                .collect(Collectors.joining(System.lineSeparator()));
+                .collect(Collectors.toList());
 
         model.addObject("title", item.getName());
         model.addObject("titleAlternative", itemService.getAlternativeTitleForItem(item));
-        model.addObject("owningCollection", item.getOwningCollection());
+        model.addObject("owningCollections", item.getCollections());
         model.addObject("type", itemService.getItemTypeLocalized(item, locale));
         model.addObject("authors", authors);
-
+        model.addObject("keywords", itemService.getKeywordsForItem(item));
+        model.addObject("year", itemService.extractIssuedYearForItem(item));
+        model.addObject("uri", itemService.getURIForItem(item));
 
         model.setViewName("item-display");
         return model;
