@@ -9,11 +9,14 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.handle.service.HandleService;
+import org.dspace.statistics.util.LocationUtils;
+import org.jvnet.jaxb2_commons.xml.bind.model.MList;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
+import org.ssu.entity.response.CountryStatisticsResponse;
 import org.ssu.service.ItemService;
 import org.ssu.service.statistics.EssuirStatistics;
 
@@ -53,7 +56,16 @@ public class HandleController {
 
     private ModelAndView displayItem(HttpServletRequest request, ModelAndView model, Item item, Locale locale) {
         essuirStatistics.updateItemViews(request, item.getLegacyId());
-        Map<String, Integer> itemViewsByCountry = essuirStatistics.getItemViewsByCountry(item.getLegacyId());
+        List<CountryStatisticsResponse> itemViewsByCountry = essuirStatistics.getItemViewsByCountry(item.getLegacyId())
+                .entrySet()
+                .stream()
+                .map(country -> new CountryStatisticsResponse.Builder()
+                        .withCountryCode(country.getKey())
+                        .withCountryName(LocationUtils.getCountryName("--".equals(country.getKey()) ? "" : country.getKey(), locale))
+                        .withCount(country.getValue())
+                        .build()
+                ).collect(Collectors.toList());
+
         List<String> authors = itemService.extractAuthorListForItem(item).stream()
                 .map(author -> String.format("%s, %s", author.getSurname(locale), author.getInitials(locale)))
                 .collect(Collectors.toList());

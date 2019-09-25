@@ -82,8 +82,15 @@
         <div class="panel panel-info">
             <div class="panel-heading text-center"><h3 class="panel-title">Views</h3></div>
             <div class="panel-body">
-                <c:forEach items="${views}" var="entry">
-                    <img src = "/flags/${entry.key.toLowerCase()}.gif" alt="${entry.key}"> ${entry.key} --- ${entry.value} <br/>
+                <c:forEach items="${views}" var="country">
+                    <div class="row">
+                    <div class="col-md-8">
+                        <img src = "/flags/${country.countryCode.toLowerCase()}.gif" alt="${country.countryName}"> ${country.countryName}
+                    </div>
+                    <div class="col-md-3">
+                            ${country.count}
+                    </div>
+                    </div>
                 </c:forEach>
             </div>
         </div>
@@ -93,8 +100,8 @@
             <div class="panel panel-info">
                 <div class="panel-heading">Views</div>
                 <div class="panel-body">
-                    <c:forEach items="${views}" var="entry">
-                        <img src = "/flags/${entry.key.toLowerCase()}.gif" alt="${entry.key}"> ${entry.key} --- ${entry.value} <br/>
+                    <c:forEach items="${views}" var="country">
+                        <img src = "/flags/${country.countryCode}.gif" alt="${country.countryName}"> ${country.countryName} ${country.count} <br/>
                     </c:forEach>
                 </div>
             </div>
