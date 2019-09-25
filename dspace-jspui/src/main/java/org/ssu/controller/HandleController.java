@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.ssu.service.ItemService;
+import org.ssu.service.statistics.EssuirStatistics;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -31,6 +32,9 @@ public class HandleController {
     @Resource
     private ItemService itemService;
 
+    @Resource
+    private EssuirStatistics essuirStatistics;
+
     @RequestMapping(value = "/123456789/{itemId}")
     public ModelAndView entrypoint(HttpServletRequest request, @PathVariable("itemId") String itemId, ModelAndView model) throws SQLException {
         Context dspaceContext = UIUtil.obtainContext(request);
@@ -38,7 +42,7 @@ public class HandleController {
         Locale locale = dspaceContext.getCurrentLocale();
         if(authorizeService.authorizeActionBoolean(dspaceContext, dSpaceObject, Constants.READ)) {
             if (dSpaceObject.getType() == Constants.ITEM) {
-                return displayItem(model, (Item) dSpaceObject, locale);
+                return displayItem(request, model, (Item) dSpaceObject, locale);
             }
 
             System.out.println(dSpaceObject.getType());
@@ -46,7 +50,8 @@ public class HandleController {
         return null;
     }
 
-    private ModelAndView displayItem(ModelAndView model, Item item, Locale locale) {
+    private ModelAndView displayItem(HttpServletRequest request, ModelAndView model, Item item, Locale locale) {
+        essuirStatistics.updateItemViews(request, item.getLegacyId());
 
         List<String> authors = itemService.extractAuthorListForItem(item).stream()
                 .map(author -> String.format("%s, %s", author.getSurname(locale), author.getInitials(locale)))

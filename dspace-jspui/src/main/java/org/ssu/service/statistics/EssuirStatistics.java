@@ -9,10 +9,12 @@ import org.springframework.stereotype.Service;
 
 import org.ssu.entity.AuthorLocalization;
 import org.ssu.entity.statistics.StatisticsData;
+import org.ssu.service.GeoIpService;
 import org.ssu.service.localization.AuthorsCache;
 import org.ssu.repository.MetadatavalueRepository;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -35,6 +37,9 @@ public class EssuirStatistics {
 
     @Resource
     private DSLContext dsl;
+
+    @Resource
+    private GeoIpService geoIpService;
 
     private String getLastUpdate() {
         return dsl.select(METADATAVALUE.value)
@@ -150,6 +155,23 @@ public class EssuirStatistics {
 
     public Integer getDownloadsForItem(Integer itemId) {
         return getStatistics(STATISTICS.sequenceId.greaterOrEqual(0).and(STATISTICS.itemId.eq(itemId))).getOrDefault(itemId, 0L).intValue();
+    }
+
+    public void updateItemViews(HttpServletRequest request, Integer itemId) {
+        String countryCode = geoIpService.getCountryCode(request);
+        System.out.println(countryCode);
+        dsl.insertInto(STATISTICS)
+                .set(STATISTICS.itemId, itemId)
+                .set(STATISTICS.sequenceId, -1)
+                .set(STATISTICS.countryCode, countryCode)
+                .set(STATISTICS.viewCount, 1)
+                .onDuplicateKeyUpdate()
+                .set(STATISTICS.viewCount, STATISTICS.viewCount.plus(1))
+                .execute();
+    }
+
+    public Map<String, Integer> getItemViews(Integer itemId) {
+        return null;
     }
 
 }

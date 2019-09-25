@@ -77,4 +77,22 @@
             </td>
         </tr>
     </table>
+    <div class="row">
+
+        <div class="panel panel-default col-md-5">
+            <div class="panel-heading">Views</div>
+            <div class="panel-body">
+                Panel content
+            </div>
+        </div>
+
+        <div class="panel panel-default col-md-5 col-md-offset-2">
+            <div class="panel-heading">Downloads</div>
+            <div class="panel-body">
+                Panel content
+            </div>
+        </div>
+
+    </div>
+    <p class="submitFormHelp alert alert-info"><fmt:message key="jsp.display-item.copyright"/></p>
 </dspace:layout>
