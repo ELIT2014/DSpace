@@ -35,6 +35,13 @@ public class ItemService {
                 .map(DCDate::getYear)
                 .orElse(null);
     }
+    public String getAlternativeTitleForItem(Item item) {
+        return itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "title", "alternative", Item.ANY)
+                .stream()
+                .map(MetadataValue::getValue)
+                .findFirst()
+                .orElse("");
+    }
 
     public List<AuthorLocalization> extractAuthorListForItem(Item item) {
         return itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "contributor", "*", Item.ANY)
