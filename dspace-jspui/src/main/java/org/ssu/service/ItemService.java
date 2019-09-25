@@ -11,6 +11,7 @@ import org.ssu.service.localization.AuthorsCache;
 import org.ssu.service.localization.TypeLocalization;
 
 import javax.annotation.Resource;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -34,6 +35,22 @@ public class ItemService {
                 .map(DCDate::new)
                 .map(DCDate::getYear)
                 .orElse(null);
+    }
+
+    public String getCitationForItem(Item item) {
+        return itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "identifier", "citation", Item.ANY)
+                .stream()
+                .map(MetadataValue::getValue)
+                .findFirst()
+                .orElse("");
+    }
+
+    public String getPublisherForItem(Item item) {
+        return itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "publisher", null, Item.ANY)
+                .stream()
+                .map(MetadataValue::getValue)
+                .findFirst()
+                .orElse("");
     }
 
     public String getURIForItem(Item item) {
@@ -64,7 +81,15 @@ public class ItemService {
     public List<String> getKeywordsForItem(Item item) {
         return itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "subject", null, Item.ANY)
                 .stream()
-                .sorted((a, b) -> Integer.compare(a.getPlace(), b.getPlace()))
+                .sorted(Comparator.comparingInt(MetadataValue::getPlace))
+                .map(MetadataValue::getValue)
+                .collect(Collectors.toList());
+    }
+
+    public List<String> getAbstractsForItem(Item item) {
+        return itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "description", "abstract", Item.ANY)
+                .stream()
+                .sorted(Comparator.comparingInt(MetadataValue::getPlace))
                 .map(MetadataValue::getValue)
                 .collect(Collectors.toList());
     }

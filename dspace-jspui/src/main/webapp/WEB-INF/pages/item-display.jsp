@@ -24,8 +24,6 @@
                 <c:forEach items="${authors}" var="author">
                     <a href="/browse/author/${author}">${author}</a><br/>
                 </c:forEach>
-
-
             </td>
         </tr>
         <tr>
@@ -49,7 +47,25 @@
 
         <tr>
             <td>URI</td>
-            <td>${uri}</td>
+            <td><a href="${uri}">${uri}</a></td>
+        </tr>
+
+        <tr>
+            <td>Publisher</td>
+            <td>${publisher}</td>
+        </tr>
+
+        <tr>
+            <td>Citation</td>
+            <td>${citation}</td>
+        </tr>
+        <tr>
+            <td>Abstract</td>
+            <td>
+                <c:forEach items="${abstracts}" var="abstractText">
+                    ${abstractText}<br/>
+                </c:forEach>
+            </td>
         </tr>
 
         <tr>

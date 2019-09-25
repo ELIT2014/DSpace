@@ -60,6 +60,9 @@ public class HandleController {
         model.addObject("keywords", itemService.getKeywordsForItem(item));
         model.addObject("year", itemService.extractIssuedYearForItem(item));
         model.addObject("uri", itemService.getURIForItem(item));
+        model.addObject("publisher", itemService.getPublisherForItem(item));
+        model.addObject("citation", itemService.getCitationForItem(item));
+        model.addObject("abstracts", itemService.getAbstractsForItem(item));
 
         model.setViewName("item-display");
         return model;
