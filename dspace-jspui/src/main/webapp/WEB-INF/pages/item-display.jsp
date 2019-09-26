@@ -98,14 +98,22 @@
 
         <div class="col-md-6">
             <div class="panel panel-info">
-                <div class="panel-heading">Views</div>
+                <div class="panel-heading text-center"><h3 class="panel-title">Downloads</h3></div>
                 <div class="panel-body">
-                    <c:forEach items="${views}" var="country">
-                        <img src = "/flags/${country.countryCode}.gif" alt="${country.countryName}"> ${country.countryName} ${country.count} <br/>
+                    <c:forEach items="${downloads}" var="country">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <img src = "/flags/${country.countryCode.toLowerCase()}.gif" alt="${country.countryName}"> ${country.countryName}
+                            </div>
+                            <div class="col-md-3">
+                                    ${country.count}
+                            </div>
+                        </div>
                     </c:forEach>
                 </div>
             </div>
         </div>
+
     </div>
     <p class="submitFormHelp alert alert-info"><fmt:message key="jsp.display-item.copyright"/></p>
 </dspace:layout>

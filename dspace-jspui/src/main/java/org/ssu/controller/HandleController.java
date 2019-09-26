@@ -66,6 +66,16 @@ public class HandleController {
                         .build()
                 ).collect(Collectors.toList());
 
+        List<CountryStatisticsResponse> itemDownloadsByCountry = essuirStatistics.getItemDownloadsByCountry(item.getLegacyId())
+                .entrySet()
+                .stream()
+                .map(country -> new CountryStatisticsResponse.Builder()
+                        .withCountryCode(country.getKey())
+                        .withCountryName(LocationUtils.getCountryName("--".equals(country.getKey()) ? "" : country.getKey(), locale))
+                        .withCount(country.getValue())
+                        .build()
+                ).collect(Collectors.toList());
+
         List<String> authors = itemService.extractAuthorListForItem(item).stream()
                 .map(author -> String.format("%s, %s", author.getSurname(locale), author.getInitials(locale)))
                 .collect(Collectors.toList());
@@ -82,6 +92,7 @@ public class HandleController {
         model.addObject("citation", itemService.getCitationForItem(item));
         model.addObject("abstracts", itemService.getAbstractsForItem(item));
         model.addObject("views", itemViewsByCountry);
+        model.addObject("downloads", itemDownloadsByCountry);
 
         model.setViewName("item-display");
         return model;

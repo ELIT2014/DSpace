@@ -161,7 +161,7 @@ public class EssuirStatistics {
 
     public void updateItemViews(HttpServletRequest request, Integer itemId) {
         String countryCode = geoIpService.getCountryCode(request);
-        System.out.println(countryCode);
+
         dsl.insertInto(STATISTICS)
                 .set(STATISTICS.itemId, itemId)
                 .set(STATISTICS.sequenceId, -1)
@@ -182,4 +182,13 @@ public class EssuirStatistics {
                 .collect(Collectors.toMap(entry -> entry.get(STATISTICS.countryCode), entry -> entry.get(DSL.sum(STATISTICS.viewCount)).intValue()));
     }
 
+    public Map<String, Integer> getItemDownloadsByCountry(Integer itemId) {
+        return dsl.select(STATISTICS.countryCode, DSL.sum(STATISTICS.viewCount))
+                .from(STATISTICS)
+                .where(STATISTICS.itemId.eq(itemId).and(STATISTICS.sequenceId.greaterOrEqual(0)))
+                .groupBy(STATISTICS.countryCode)
+                .fetch()
+                .stream()
+                .collect(Collectors.toMap(entry -> entry.get(STATISTICS.countryCode), entry -> entry.get(DSL.sum(STATISTICS.viewCount)).intValue()));
+    }
 }
