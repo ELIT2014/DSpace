@@ -3,8 +3,11 @@ package org.ssu.controller;
 import org.dspace.app.webui.util.UIUtil;
 import org.dspace.authorize.factory.AuthorizeServiceFactory;
 import org.dspace.authorize.service.AuthorizeService;
+import org.dspace.content.Bitstream;
+import org.dspace.content.Bundle;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.handle.factory.HandleServiceFactory;
@@ -16,16 +19,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
+import org.ssu.entity.response.BitstreamResponse;
 import org.ssu.entity.response.CountryStatisticsResponse;
 import org.ssu.service.ItemService;
 import org.ssu.service.statistics.EssuirStatistics;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Controller
@@ -33,6 +37,7 @@ import java.util.stream.Collectors;
 public class HandleController {
     private HandleService handleService = HandleServiceFactory.getInstance().getHandleService();
     private AuthorizeService authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
+    private org.dspace.content.service.ItemService dspaceItemService = ContentServiceFactory.getInstance().getItemService();
     @Resource
     private ItemService itemService;
 
@@ -54,7 +59,9 @@ public class HandleController {
         return null;
     }
 
-    private ModelAndView displayItem(HttpServletRequest request, ModelAndView model, Item item, Locale locale) {
+    private ModelAndView displayItem(HttpServletRequest request, ModelAndView model, Item item, Locale locale) throws SQLException {
+        Context dspaceContext = UIUtil.obtainContext(request);
+
         essuirStatistics.updateItemViews(request, item.getLegacyId());
         List<CountryStatisticsResponse> itemViewsByCountry = essuirStatistics.getItemViewsByCountry(item.getLegacyId())
                 .entrySet()
@@ -64,7 +71,9 @@ public class HandleController {
                         .withCountryName(LocationUtils.getCountryName("--".equals(country.getKey()) ? "" : country.getKey(), locale))
                         .withCount(country.getValue())
                         .build()
-                ).collect(Collectors.toList());
+                )
+                .sorted(Comparator.comparing(CountryStatisticsResponse::getCountryName))
+                .collect(Collectors.toList());
 
         List<CountryStatisticsResponse> itemDownloadsByCountry = essuirStatistics.getItemDownloadsByCountry(item.getLegacyId())
                 .entrySet()
@@ -74,12 +83,44 @@ public class HandleController {
                         .withCountryName(LocationUtils.getCountryName("--".equals(country.getKey()) ? "" : country.getKey(), locale))
                         .withCount(country.getValue())
                         .build()
-                ).collect(Collectors.toList());
+                )
+                .sorted(Comparator.comparing(CountryStatisticsResponse::getCountryName))
+                .collect(Collectors.toList());
 
         List<String> authors = itemService.extractAuthorListForItem(item).stream()
                 .map(author -> String.format("%s, %s", author.getSurname(locale), author.getInitials(locale)))
                 .collect(Collectors.toList());
 
+        Function<Bitstream, String> getBitstreamFormat = (bitstream) -> {
+            try {
+                return bitstream.getFormatDescription(dspaceContext);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return "";
+        };
+
+        Function<Bitstream, String> getLinkForBitstream = (bitstream) -> {
+            try {
+                return String.format("%s/bitstream/%s/%s/%s", request.getContextPath(), item.getHandle(), bitstream.getSequenceID(), UIUtil.encodeBitstreamName(bitstream.getName(), Constants.DEFAULT_ENCODING));
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            return bitstream.getHandle();
+        };
+
+        List<Bundle> bundles = dspaceItemService.getBundles(item, "ORIGINAL");
+        List<BitstreamResponse> bitstreams = bundles.stream()
+                .flatMap(bundle -> bundle.getBitstreams().stream())
+                .map(bitstream -> new BitstreamResponse.Builder()
+                        .withDownloadCount(itemDownloadsByCountry.stream().mapToInt(CountryStatisticsResponse::getCount).sum())
+                        .withFormat(getBitstreamFormat.apply(bitstream))
+                        .withFilename(bitstream.getName())
+                        .withHandle(bitstream.getHandle())
+                        .withLink(getLinkForBitstream.apply(bitstream))
+                        .withSize(UIUtil.formatFileSize(bitstream.getSizeBytes()))
+                        .build())
+                .collect(Collectors.toList());
         model.addObject("title", item.getName());
         model.addObject("titleAlternative", itemService.getAlternativeTitleForItem(item));
         model.addObject("owningCollections", item.getCollections());
@@ -93,6 +134,7 @@ public class HandleController {
         model.addObject("abstracts", itemService.getAbstractsForItem(item));
         model.addObject("views", itemViewsByCountry);
         model.addObject("downloads", itemDownloadsByCountry);
+        model.addObject("bundles", bitstreams);
 
         model.setViewName("item-display");
         return model;

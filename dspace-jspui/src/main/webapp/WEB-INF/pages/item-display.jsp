@@ -72,38 +72,21 @@
             <td>In collections</td>
             <td>
                 <c:forEach items="${owningCollections}" var="collection">
-                    <a href = "${collection.handle}">${collection.name}</a> <br/>
+                    <a href="${collection.handle}">${collection.name}</a> <br/>
                 </c:forEach>
             </td>
         </tr>
     </table>
     <div class="row">
         <div class="col-md-6">
-        <div class="panel panel-info">
-            <div class="panel-heading text-center"><h3 class="panel-title">Views</h3></div>
-            <div class="panel-body">
-                <c:forEach items="${views}" var="country">
-                    <div class="row">
-                    <div class="col-md-8">
-                        <img src = "/flags/${country.countryCode.toLowerCase()}.gif" alt="${country.countryName}"> ${country.countryName}
-                    </div>
-                    <div class="col-md-3">
-                            ${country.count}
-                    </div>
-                    </div>
-                </c:forEach>
-            </div>
-        </div>
-        </div>
-
-        <div class="col-md-6">
             <div class="panel panel-info">
-                <div class="panel-heading text-center"><h3 class="panel-title">Downloads</h3></div>
+                <div class="panel-heading text-center"><h3 class="panel-title">Views</h3></div>
                 <div class="panel-body">
-                    <c:forEach items="${downloads}" var="country">
+                    <c:forEach items="${views}" var="country">
                         <div class="row">
                             <div class="col-md-8">
-                                <img src = "/flags/${country.countryCode.toLowerCase()}.gif" alt="${country.countryName}"> ${country.countryName}
+                                <img src="/flags/${country.countryCode.toLowerCase()}.gif"
+                                     alt="${country.countryName}"> ${country.countryName}
                             </div>
                             <div class="col-md-3">
                                     ${country.count}
@@ -114,6 +97,54 @@
             </div>
         </div>
 
+        <div class="col-md-6">
+            <div class="panel panel-info">
+                <div class="panel-heading text-center"><h3 class="panel-title">Downloads</h3></div>
+                <div class="panel-body">
+                    <c:forEach items="${downloads}" var="country">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <img src="/flags/${country.countryCode.toLowerCase()}.gif"
+                                     alt="${country.countryName}"> ${country.countryName}
+                            </div>
+                            <div class="col-md-3">
+                                    ${country.count}
+                            </div>
+                        </div>
+                    </c:forEach>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="panel panel-info">
+        <div class="panel-heading text-center"><h3 class="panel-title">Files</h3></div>
+        <div class="panel-body">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>File</th>
+                    <th>Size</th>
+                    <th>Format</th>
+                    <th>Downloads</th>
+                    <%--<th></th>--%>
+                </tr>
+                </thead>
+                <tbody>
+                    <c:forEach items="${bundles}" var="bundle">
+                        <tr>
+                            <td><a href="${bundle.link}">${bundle.filename}</a></td>
+                            <td>${bundle.size}</td>
+                            <td>${bundle.format}</td>
+                            <td>${bundle.downloadCount}</td>
+                            <%--<td><a class="btn btn-primary" target="_blank" href="/bitstream/123456789/29791/1/m3451.pdf">Download</a></td>--%>
+                        </tr>
+                    </c:forEach>
+                </tbody>
+            </table>
+        </div>
     </div>
     <p class="submitFormHelp alert alert-info"><fmt:message key="jsp.display-item.copyright"/></p>
 </dspace:layout>
