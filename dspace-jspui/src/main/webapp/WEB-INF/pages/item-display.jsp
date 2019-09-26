@@ -10,16 +10,16 @@
 
     <table class="table table-hover">
         <tr>
-            <td>Title</td>
+            <td><fmt:message key="org.dspace.app.webui.jsptag.ItemListTag.title" /> </td>
             <td>${title}</td>
         </tr>
 
         <tr>
-            <td>Title alternative</td>
+            <td><fmt:message key="metadata.dc.title.alternative" /></td>
             <td>${titleAlternative}</td>
         </tr>
         <tr>
-            <td>Author</td>
+            <td><fmt:message key="org.dspace.app.webui.jsptag.ItemListTag.authors" /> </td>
             <td>
                 <c:forEach items="${authors}" var="author">
                     <a href="/browse/author/${author}">${author}</a><br/>
@@ -27,7 +27,7 @@
             </td>
         </tr>
         <tr>
-            <td>Keywords</td>
+            <td><fmt:message key="metadata.dc.subject" /></td>
             <td>
                 <c:forEach items="${keywords}" var="keyword">
                     <a href="/browse/keyword/${keyword}">${keyword}</a><br/>
@@ -36,31 +36,31 @@
         </tr>
 
         <tr>
-            <td>Type</td>
+            <td><fmt:message key="metadata.dc.type" /></td>
             <td>${type}</td>
         </tr>
 
         <tr>
-            <td>Year</td>
+            <td><fmt:message key="org.dspace.app.webui.jsptag.ItemListTag.issueDate" /></td>
             <td>${year}</td>
         </tr>
 
         <tr>
-            <td>URI</td>
+            <td><fmt:message key="metadata.dc.identifier.uri" /></td>
             <td><a href="${uri}">${uri}</a></td>
         </tr>
 
         <tr>
-            <td>Publisher</td>
+            <td><fmt:message key="metadata.dc.publisher" /></td>
             <td>${publisher}</td>
         </tr>
 
         <tr>
-            <td>Citation</td>
+            <td><fmt:message key="metadata.dc.identifier.citation" /></td>
             <td>${citation}</td>
         </tr>
         <tr>
-            <td>Abstract</td>
+            <td><fmt:message key="metadata.dc.description.abstract" /></td>
             <td>
                 <c:forEach items="${abstracts}" var="abstractText">
                     ${abstractText}<br/>
@@ -69,7 +69,7 @@
         </tr>
 
         <tr>
-            <td>In collections</td>
+            <td><fmt:message key="org.dspace.app.webui.jsptag.ItemTag.appears" /></td>
             <td>
                 <c:forEach items="${owningCollections}" var="collection">
                     <a href="${collection.handle}">${collection.name}</a> <br/>
@@ -125,9 +125,9 @@
             <table class="table">
                 <thead>
                 <tr>
-                    <th>File</th>
-                    <th>Size</th>
-                    <th>Format</th>
+                    <th><fmt:message key="org.dspace.app.webui.jsptag.ItemTag.file" /></th>
+                    <th<fmt:message key="org.dspace.app.webui.jsptag.ItemTag.filesize" /></th>
+                    <th><fmt:message key="org.dspace.app.webui.jsptag.ItemTag.fileformat" /></th>
                     <th>Downloads</th>
                     <%--<th></th>--%>
                 </tr>
