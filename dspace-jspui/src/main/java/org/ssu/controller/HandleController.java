@@ -135,6 +135,7 @@ public class HandleController {
         model.addObject("views", itemViewsByCountry);
         model.addObject("downloads", itemDownloadsByCountry);
         model.addObject("bundles", bitstreams);
+        model.addObject("handle", item.getHandle());
 
         model.setViewName("item-display");
         return model;

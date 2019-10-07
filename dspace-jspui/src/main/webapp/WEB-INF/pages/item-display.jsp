@@ -3,23 +3,64 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
 
 <dspace:layout title="${title}">
-    <div class="well">
-        <fmt:message key="jsp.display-item.identifier"/>
-        <code>${uri}</code>
+    <div id="fb-root"></div>
+    <script async defer crossorigin="anonymous"
+            src="https://connect.facebook.net/ru_RU/sdk.js#xfbml=1&version=v4.0"></script>
+    <script>!function (d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0], p = /^http:/.test(d.location) ? 'http' : 'https';
+        if (!d.getElementById(id)) {
+            js = d.createElement(s);
+            js.id = id;
+            js.src = p + '://platform.twitter.com/widgets.js';
+            fjs.parentNode.insertBefore(js, fjs);
+        }
+    }(document, 'script', 'twitter-wjs');</script>
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <fmt:message key="jsp.display-item.identifier"/>
+            <code>${uri}</code>
+            <br/>
+            <div class="row" style="margin-top:3px">
+                <div class="col-md-11">
+                    <fmt:message key="jsp.suggestbar.title"/>:
+
+                    <a href="https://twitter.com/share" class="twitter-share-button" data-hashtags="SumDU" >Tweet</a>
+                    <div class="fb-share-button" data-href="https://essuir.sumdu.edu.ua/" data-layout="button"
+                         style="vertical-align: top;"
+                         data-size="small"><a target="_blank"
+                                              href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fessuir.sumdu.edu.ua%2F&amp;src=sdkpreparse"
+                                              class="fb-xfbml-parse-ignore">Поделиться</a>
+                    </div>
+
+                    <a href="/suggest?handle=${handle}" class="btn btn-info btn-xs" style="vertical-align: top;"><fmt:message key="jsp.display-item.suggest"/></a>
+
+                </div>
+
+            </div>
+
+        </div>
     </div>
+
+
+    <%--<div class="well">--%>
+
+    <%--<br/>--%>
+
+    <%--</div>--%>
 
     <table class="table table-hover">
         <tr>
-            <td><fmt:message key="org.dspace.app.webui.jsptag.ItemListTag.title" /> </td>
+            <td><fmt:message key="org.dspace.app.webui.jsptag.ItemListTag.title"/></td>
             <td>${title}</td>
         </tr>
 
         <tr>
-            <td><fmt:message key="metadata.dc.title.alternative" /></td>
+            <td><fmt:message key="metadata.dc.title.alternative"/></td>
             <td>${titleAlternative}</td>
         </tr>
         <tr>
-            <td><fmt:message key="org.dspace.app.webui.jsptag.ItemListTag.authors" /> </td>
+            <td><fmt:message key="org.dspace.app.webui.jsptag.ItemListTag.authors"/></td>
             <td>
                 <c:forEach items="${authors}" var="author">
                     <a href="/browse/author/${author}">${author}</a><br/>
@@ -27,7 +68,7 @@
             </td>
         </tr>
         <tr>
-            <td><fmt:message key="metadata.dc.subject" /></td>
+            <td><fmt:message key="metadata.dc.subject"/></td>
             <td>
                 <c:forEach items="${keywords}" var="keyword">
                     <a href="/browse/keyword/${keyword}">${keyword}</a><br/>
@@ -36,31 +77,31 @@
         </tr>
 
         <tr>
-            <td><fmt:message key="metadata.dc.type" /></td>
+            <td><fmt:message key="metadata.dc.type"/></td>
             <td>${type}</td>
         </tr>
 
         <tr>
-            <td><fmt:message key="org.dspace.app.webui.jsptag.ItemListTag.issueDate" /></td>
+            <td><fmt:message key="org.dspace.app.webui.jsptag.ItemListTag.issueDate"/></td>
             <td>${year}</td>
         </tr>
 
         <tr>
-            <td><fmt:message key="metadata.dc.identifier.uri" /></td>
+            <td><fmt:message key="metadata.dc.identifier.uri"/></td>
             <td><a href="${uri}">${uri}</a></td>
         </tr>
 
         <tr>
-            <td><fmt:message key="metadata.dc.publisher" /></td>
+            <td><fmt:message key="metadata.dc.publisher"/></td>
             <td>${publisher}</td>
         </tr>
 
         <tr>
-            <td><fmt:message key="metadata.dc.identifier.citation" /></td>
+            <td><fmt:message key="metadata.dc.identifier.citation"/></td>
             <td>${citation}</td>
         </tr>
         <tr>
-            <td><fmt:message key="metadata.dc.description.abstract" /></td>
+            <td><fmt:message key="metadata.dc.description.abstract"/></td>
             <td>
                 <c:forEach items="${abstracts}" var="abstractText">
                     ${abstractText}<br/>
@@ -69,7 +110,7 @@
         </tr>
 
         <tr>
-            <td><fmt:message key="org.dspace.app.webui.jsptag.ItemTag.appears" /></td>
+            <td><fmt:message key="org.dspace.app.webui.jsptag.ItemTag.appears"/></td>
             <td>
                 <c:forEach items="${owningCollections}" var="collection">
                     <a href="${collection.handle}">${collection.name}</a> <br/>
@@ -115,6 +156,8 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div class="row">
 
     </div>
 
@@ -125,23 +168,23 @@
             <table class="table">
                 <thead>
                 <tr>
-                    <th><fmt:message key="org.dspace.app.webui.jsptag.ItemTag.file" /></th>
-                    <th<fmt:message key="org.dspace.app.webui.jsptag.ItemTag.filesize" /></th>
-                    <th><fmt:message key="org.dspace.app.webui.jsptag.ItemTag.fileformat" /></th>
+                    <th><fmt:message key="org.dspace.app.webui.jsptag.ItemTag.file"/></th>
+                    <th><fmt:message key="org.dspace.app.webui.jsptag.ItemTag.filesize"/></th>
+                    <th><fmt:message key="org.dspace.app.webui.jsptag.ItemTag.fileformat"/></th>
                     <th>Downloads</th>
-                    <%--<th></th>--%>
+                        <%--<th></th>--%>
                 </tr>
                 </thead>
                 <tbody>
-                    <c:forEach items="${bundles}" var="bundle">
-                        <tr>
-                            <td><a href="${bundle.link}">${bundle.filename}</a></td>
-                            <td>${bundle.size}</td>
-                            <td>${bundle.format}</td>
-                            <td>${bundle.downloadCount}</td>
+                <c:forEach items="${bundles}" var="bundle">
+                    <tr>
+                        <td><a href="${bundle.link}">${bundle.filename}</a></td>
+                        <td>${bundle.size}</td>
+                        <td>${bundle.format}</td>
+                        <td>${bundle.downloadCount}</td>
                             <%--<td><a class="btn btn-primary" target="_blank" href="/bitstream/123456789/29791/1/m3451.pdf">Download</a></td>--%>
-                        </tr>
-                    </c:forEach>
+                    </tr>
+                </c:forEach>
                 </tbody>
             </table>
         </div>
