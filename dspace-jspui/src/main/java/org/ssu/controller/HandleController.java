@@ -59,6 +59,23 @@ public class HandleController {
         return null;
     }
 
+    @RequestMapping("/item-download/{itemId}/{bitstreamId}")
+    public ModelAndView downloadBitstream(HttpServletRequest request, @PathVariable("itemId") UUID itemId, @PathVariable("bitstreamId") UUID bitstreamId) throws SQLException {
+        Context dspaceContext = UIUtil.obtainContext(request);
+        Function<Bitstream, String> getLinkForBitstream = (bitstream) -> {
+            try {
+                Item item = dspaceItemService.find(dspaceContext, itemId);
+                return String.format("%s/bitstream/%s/%s/%s", request.getContextPath(), item.getHandle(), bitstream.getSequenceID(), UIUtil.encodeBitstreamName(bitstream.getName(), Constants.DEFAULT_ENCODING));
+            } catch (UnsupportedEncodingException | SQLException e) {
+                e.printStackTrace();
+            }
+            return bitstream.getHandle();
+        };
+
+        Bitstream bitstream = ContentServiceFactory.getInstance().getBitstreamService().find(dspaceContext, bitstreamId);
+        return new ModelAndView("redirect:" + getLinkForBitstream.apply(bitstream));
+    }
+
     private ModelAndView displayItem(HttpServletRequest request, ModelAndView model, Item item, Locale locale) throws SQLException {
         Context dspaceContext = UIUtil.obtainContext(request);
 
@@ -100,14 +117,7 @@ public class HandleController {
             return "";
         };
 
-        Function<Bitstream, String> getLinkForBitstream = (bitstream) -> {
-            try {
-                return String.format("%s/bitstream/%s/%s/%s", request.getContextPath(), item.getHandle(), bitstream.getSequenceID(), UIUtil.encodeBitstreamName(bitstream.getName(), Constants.DEFAULT_ENCODING));
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-            return bitstream.getHandle();
-        };
+
 
         List<Bundle> bundles = dspaceItemService.getBundles(item, "ORIGINAL");
         List<BitstreamResponse> bitstreams = bundles.stream()
@@ -117,7 +127,7 @@ public class HandleController {
                         .withFormat(getBitstreamFormat.apply(bitstream))
                         .withFilename(bitstream.getName())
                         .withHandle(bitstream.getHandle())
-                        .withLink(getLinkForBitstream.apply(bitstream))
+                        .withLink(String.format("%s/handle/item-download/%s/%s", request.getContextPath(), item.getID(), bitstream.getID()))
                         .withSize(UIUtil.formatFileSize(bitstream.getSizeBytes()))
                         .build())
                 .collect(Collectors.toList());

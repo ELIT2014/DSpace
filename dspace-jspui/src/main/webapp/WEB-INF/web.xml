@@ -913,7 +913,7 @@
 
     <servlet-mapping>
         <servlet-name>Spring MVC Servlet</servlet-name>
-        <url-pattern>/handle2/22212345678911</url-pattern>
+        <url-pattern>/item-download/*</url-pattern>
     </servlet-mapping>
 
   <!-- Icon MIME type -->
