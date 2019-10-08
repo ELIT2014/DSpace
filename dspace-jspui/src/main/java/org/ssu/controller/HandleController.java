@@ -1,6 +1,7 @@
 package org.ssu.controller;
 
 import org.dspace.app.webui.util.UIUtil;
+import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.factory.AuthorizeServiceFactory;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.browse.ItemCountException;
@@ -9,8 +10,12 @@ import org.dspace.content.*;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.core.factory.CoreServiceFactory;
+import org.dspace.core.service.PluginService;
 import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.handle.service.HandleService;
+import org.dspace.plugin.CommunityHomeProcessor;
+import org.dspace.plugin.PluginException;
 import org.dspace.statistics.util.LocationUtils;
 import org.jvnet.jaxb2_commons.xml.bind.model.MList;
 import org.springframework.stereotype.Controller;
@@ -26,6 +31,7 @@ import org.ssu.service.statistics.EssuirStatistics;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.*;
@@ -45,7 +51,7 @@ public class HandleController {
     private EssuirStatistics essuirStatistics;
 
     @RequestMapping(value = "/123456789/{itemId}")
-    public ModelAndView entrypoint(HttpServletRequest request, @PathVariable("itemId") String itemId, ModelAndView model) throws SQLException, ItemCountException {
+    public ModelAndView entrypoint(HttpServletRequest request, HttpServletResponse response,  @PathVariable("itemId") String itemId, ModelAndView model) throws SQLException, ItemCountException, PluginException, AuthorizeException {
         Context dspaceContext = UIUtil.obtainContext(request);
         DSpaceObject dSpaceObject = handleService.resolveToObject(dspaceContext, "123456789/" + itemId);
         Locale locale = dspaceContext.getCurrentLocale();
@@ -54,14 +60,14 @@ public class HandleController {
                 return displayItem(request, model, (Item) dSpaceObject, locale);
             }
             if (dSpaceObject.getType() == Constants.COMMUNITY) {
-                return displayCommunity(request, model, (Community) dSpaceObject, locale);
+                return displayCommunity(request, response, model, (Community) dSpaceObject, locale);
             }
             System.out.println(dSpaceObject.getType());
         }
         return null;
     }
 
-    private ModelAndView displayCommunity(HttpServletRequest request, ModelAndView model, Community community, Locale locale) throws SQLException, ItemCountException {
+    private ModelAndView displayCommunity(HttpServletRequest request, HttpServletResponse response, ModelAndView model, Community community, Locale locale) throws SQLException, ItemCountException, PluginException, AuthorizeException {
         Context dspaceContext = UIUtil.obtainContext(request);
         ItemCounter ic = new ItemCounter(dspaceContext);
 
@@ -98,7 +104,15 @@ public class HandleController {
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+        PluginService pluginService = CoreServiceFactory.getInstance().getPluginService();
+        CommunityHomeProcessor[] chp = (CommunityHomeProcessor[]) pluginService.getPluginSequence(CommunityHomeProcessor.class);
+        for (int i = 0; i < chp.length; i++)
+        {
+            chp[i].process(dspaceContext, request, response, community);
+        }
+
         model.setViewName("community-display");
+        request.setAttribute("community", community);
         model.addObject("title", community.getName());
         model.addObject("subCommunities", subCommunities);
         model.addObject("collections", collections);
