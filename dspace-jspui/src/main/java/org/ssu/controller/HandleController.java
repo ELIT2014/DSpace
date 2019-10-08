@@ -65,6 +65,7 @@ public class HandleController {
         Function<Bitstream, String> getLinkForBitstream = (bitstream) -> {
             try {
                 Item item = dspaceItemService.find(dspaceContext, itemId);
+                essuirStatistics.updateItemDownloads(request, item.getLegacyId());
                 return String.format("%s/bitstream/%s/%s/%s", request.getContextPath(), item.getHandle(), bitstream.getSequenceID(), UIUtil.encodeBitstreamName(bitstream.getName(), Constants.DEFAULT_ENCODING));
             } catch (UnsupportedEncodingException | SQLException e) {
                 e.printStackTrace();

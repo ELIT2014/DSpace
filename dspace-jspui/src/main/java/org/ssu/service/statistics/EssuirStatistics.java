@@ -172,6 +172,19 @@ public class EssuirStatistics {
                 .execute();
     }
 
+    public void updateItemDownloads(HttpServletRequest request, Integer itemId) {
+        String countryCode = geoIpService.getCountryCode(request);
+
+        dsl.insertInto(STATISTICS)
+                .set(STATISTICS.itemId, itemId)
+                .set(STATISTICS.sequenceId, 1)
+                .set(STATISTICS.countryCode, countryCode)
+                .set(STATISTICS.viewCount, 1)
+                .onDuplicateKeyUpdate()
+                .set(STATISTICS.viewCount, STATISTICS.viewCount.plus(1))
+                .execute();
+    }
+
     public Map<String, Integer> getItemViewsByCountry(Integer itemId) {
         return dsl.select(STATISTICS.countryCode, DSL.sum(STATISTICS.viewCount))
                 .from(STATISTICS)
