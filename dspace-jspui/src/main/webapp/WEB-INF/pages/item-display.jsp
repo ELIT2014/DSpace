@@ -1,8 +1,40 @@
+<%@ page import="org.dspace.app.webui.servlet.MyDSpaceServlet" %>
 <%@ taglib prefix="dspace" uri="http://www.dspace.org/dspace-tags.tld" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
 
 <dspace:layout title="${title}">
+<c:if test="${canEdit}">
+    <dspace:sidebar>
+        <div class="panel panel-warning">
+            <div class="panel-heading"><fmt:message key="jsp.admintools"/></div>
+            <div class="panel-body">
+                <form method="get" action="<%= request.getContextPath() %>/tools/edit-item">
+                    <input type="hidden" name="item_id" value="${itemId}" />
+                    <input class="btn btn-default col-md-12" type="submit" name="submit" value="<fmt:message key="jsp.general.edit.button"/>" />
+                </form>
+                <form method="post" action="<%= request.getContextPath() %>/mydspace">
+                    <input type="hidden" name="item_id" value="${itemId}" />
+                    <input type="hidden" name="step" value="<%= MyDSpaceServlet.REQUEST_EXPORT_ARCHIVE %>" />
+                    <input class="btn btn-default col-md-12" type="submit" name="submit" value="<fmt:message key="jsp.mydspace.request.export.item"/>" />
+                </form>
+                <form method="post" action="<%= request.getContextPath() %>/mydspace">
+                    <input type="hidden" name="item_id" value="${itemId}" />
+                    <input type="hidden" name="step" value="<%= MyDSpaceServlet.REQUEST_MIGRATE_ARCHIVE %>" />
+                    <input class="btn btn-default col-md-12" type="submit" name="submit" value="<fmt:message key="jsp.mydspace.request.export.migrateitem"/>" />
+                </form>
+                <form method="post" action="<%= request.getContextPath() %>/dspace-admin/metadataexport">
+                    <input type="hidden" name="handle" value="${handle}" />
+                    <input class="btn btn-default col-md-12" type="submit" name="submit" value="<fmt:message key="jsp.general.metadataexport.button"/>" />
+                </form>
+
+            </div>
+        </div>
+    </dspace:sidebar>
+</c:if>
+
+
+
     <div id="fb-root"></div>
     <script async defer crossorigin="anonymous"
             src="https://connect.facebook.net/ru_RU/sdk.js#xfbml=1&version=v4.0"></script>

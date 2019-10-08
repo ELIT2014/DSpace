@@ -147,6 +147,8 @@ public class HandleController {
         model.addObject("downloads", itemDownloadsByCountry);
         model.addObject("bundles", bitstreams);
         model.addObject("handle", item.getHandle());
+        model.addObject("itemId", item.getID());
+        model.addObject("canEdit", dspaceItemService.canEdit(dspaceContext, item));
 
         model.setViewName("item-display");
         return model;
