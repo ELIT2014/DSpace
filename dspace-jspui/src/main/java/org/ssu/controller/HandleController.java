@@ -50,6 +50,20 @@ public class HandleController {
     @Resource
     private EssuirStatistics essuirStatistics;
 
+    @RequestMapping(value = "/123456789/{itemId}/browse")
+    public ModelAndView browseInCommunity(ModelAndView model, HttpServletRequest request) {
+        System.out.println("in browse page");
+
+        return model;
+    }
+
+    @RequestMapping(value = "/123456789/{itemId}/simple-search")
+    public ModelAndView simpleSearchInCommunity(ModelAndView model, HttpServletRequest request) {
+        System.out.println("in search query");
+
+        return model;
+    }
+
     @RequestMapping(value = "/123456789/{itemId}")
     public ModelAndView entrypoint(HttpServletRequest request, HttpServletResponse response,  @PathVariable("itemId") String itemId, ModelAndView model) throws SQLException, ItemCountException, PluginException, AuthorizeException {
         Context dspaceContext = UIUtil.obtainContext(request);
@@ -66,6 +80,8 @@ public class HandleController {
         }
         return null;
     }
+
+
 
     private ModelAndView displayCommunity(HttpServletRequest request, HttpServletResponse response, ModelAndView model, Community community, Locale locale) throws SQLException, ItemCountException, PluginException, AuthorizeException {
         Context dspaceContext = UIUtil.obtainContext(request);
@@ -114,6 +130,7 @@ public class HandleController {
         model.setViewName("community-display");
         request.setAttribute("community", community);
         model.addObject("title", community.getName());
+        model.addObject("handle", community.getHandle());
         model.addObject("subCommunities", subCommunities);
         model.addObject("collections", collections);
         model.addObject("itemCount", ic.getCount(community));

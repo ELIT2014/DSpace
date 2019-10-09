@@ -26,30 +26,57 @@
 <%
     int discovery_panel_cols = 12;
     int discovery_facet_cols = 4;
+    BrowseIndex[] bis = BrowseIndex.getBrowseIndices();
 %>
 <dspace:layout title="${title}">
     <div class="panel panel-default">
         <div class="panel-body">
-                ${title} : ${itemCount}
+            <h2>${title} [${itemCount}] </h2>
         </div>
     </div>
+    <div class="panel panel-primary">
+        <div class="panel-heading"><fmt:message key="jsp.general.browse"/></div>
+        <div class="panel-body">
+                <%-- Insert the dynamic list of browse options --%>
+            <%
+                for (int i = 0; i < bis.length; i++)
+                {
+                    String key = "browse.menu." + bis[i].getName();
+            %>
+            <form method="get" action="<%= request.getContextPath() %>/handle/${handle}/browse">
+                <input type="hidden" name="type" value="<%= bis[i].getName() %>"/>
+                    <%-- <input type="hidden" name="community" value="<%= community.getHandle() %>" /> --%>
+                <input class="btn btn-default col-md-3" type="submit" name="submit_browse" value="<fmt:message key="<%= key %>"/>"/>
+            </form>
+            <%
+                }
+            %>
+
+        </div>
+    </div>
+
     <div class="row">
         <%@ include file="/discovery/static-sidebar-facet.jsp" %>
     </div>
 
     <div class="row">
-        <ul class="list-group col-md-6">
-            <c:forEach items="${subCommunities}" var="community">
-                <li class="list-group-item"><a href = "${community.handle}">${community.title} </a><span class="badge">${community.itemCount}</span></li>
-            </c:forEach>
-        </ul>
+        <div class=" col-md-6">
+            <h3><fmt:message key="jsp.community-home.heading3"/></h3>
+            <ul class="list-group">
+                <c:forEach items="${subCommunities}" var="community">
+                    <li class="list-group-item"><a href = "${community.handle}">${community.title} </a><span class="badge">${community.itemCount}</span></li>
+                </c:forEach>
+            </ul>
+        </div>
 
+        <div class=" col-md-6">
+            <h3><fmt:message key="jsp.community-home.heading2"/></h3>
+            <ul class="list-group">
+                <c:forEach items="${collections}" var="collection">
 
-        <ul class="list-group col-md-6">
-            <c:forEach items="${collections}" var="collection">
-
-                <li class="list-group-item"><a href = "${collection.handle}">${collection.title} </a><span class="badge">${collection.itemCount}</span></li>
-            </c:forEach>
-        </ul>
+                    <li class="list-group-item"><a href = "${collection.handle}">${collection.title} </a><span class="badge">${collection.itemCount}</span></li>
+                </c:forEach>
+            </ul>
+        </div>
     </div>
 </dspace:layout>
