@@ -21,6 +21,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class CommunityService {
@@ -75,6 +76,12 @@ public class CommunityService {
     }
 
 
+    public List<String> getShortList(Context context, BrowseInfo browserInfo) {
+        Locale locale = context.getCurrentLocale();
+        return Arrays.stream(browserInfo.getStringResults())
+                .map(item -> String.join(",", item))
+                .collect(Collectors.toList());
+    }
     public List<ItemResponse> getItems(Context context, BrowseInfo browserInfo) throws BrowseException {
         Locale locale = context.getCurrentLocale();
 

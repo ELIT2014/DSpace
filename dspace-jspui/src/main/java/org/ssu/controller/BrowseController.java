@@ -62,15 +62,15 @@ public class BrowseController {
                 .orElse(DSpaceServicesFactory.getInstance().getConfigurationService().getIntProperty("webui.collectionhome.perpage", 20));
     }
 
-    private BrowserScope obtainBrowserScopeFromContext(Context dspaceContext) throws BrowseException {
+    private BrowserScope obtainBrowserScopeFromContext(Context dspaceContext, String type) throws BrowseException {
         BrowserScope browserScope = new BrowserScope(dspaceContext);
-        BrowseIndex browseIndex = BrowseIndex.getItemBrowseIndex();
+        BrowseIndex browseIndex = BrowseIndex.getBrowseIndex(type);
         browserScope.setBrowseIndex(browseIndex);
         return browserScope;
     }
 
-    private BrowseInfo createBrowseInfoWithParameters(Context dspaceContext, BrowseRequestParameters requestParameters) throws BrowseException {
-        BrowserScope browserScope = obtainBrowserScopeFromContext(dspaceContext);
+    private BrowseInfo createBrowseInfoWithParameters(Context dspaceContext, BrowseRequestParameters requestParameters, String type) throws BrowseException {
+        BrowserScope browserScope = obtainBrowserScopeFromContext(dspaceContext, type);
         BrowseEngine browseEngine = new BrowseEngine(dspaceContext);
         requestParameters.getStartsWith().ifPresent(browserScope::setStartsWith);
         browserScope.setSortBy(requestParameters.getSortBy());
@@ -123,7 +123,7 @@ public class BrowseController {
                 .build();
 
         Context dspaceContext = UIUtil.obtainContext(request);
-        BrowseInfo browseInfo = createBrowseInfoWithParameters(dspaceContext, requestParameters);
+        BrowseInfo browseInfo = createBrowseInfoWithParameters(dspaceContext, requestParameters, "dateissued");
         List<ItemResponse> items = communityService.getItems(dspaceContext, browseInfo);
 
         fillModelWithData(model, items, browseInfo, request, requestParameters);
@@ -149,11 +149,61 @@ public class BrowseController {
                 .withItemsPerPage(getResultsPerPage(perPage))
                 .build();
 
-        BrowseInfo browseInfo = createBrowseInfoWithParameters(dspaceContext, requestParameters);
+        BrowseInfo browseInfo = createBrowseInfoWithParameters(dspaceContext, requestParameters, "title");
         List<ItemResponse> items = communityService.getItems(dspaceContext, browseInfo);
         fillModelWithData(model, items, browseInfo, request, requestParameters);
         model.setViewName("title-browse");
         return model;
 
     }
+
+    @RequestMapping("/author")
+    public ModelAndView getItemsByAuthor(ModelAndView model, HttpServletRequest request,
+                                        @RequestParam(value = "sort_by", defaultValue = "1", required = false) Integer sortBy,
+                                        @RequestParam(value="order", defaultValue = "ASC", required = false) String sortOrder,
+                                        @RequestParam(value="starts_with", required = false) String startsWith,
+                                        @RequestParam(value="page", required = false, defaultValue = "1") Integer page,
+                                        @RequestParam(value = "rpp", required = false) Integer perPage) throws SQLException, BrowseException, SortException {
+
+        Context dspaceContext = UIUtil.obtainContext(request);
+        BrowseRequestParameters requestParameters = new BrowseRequestParameters.Builder()
+                .withSortBy(sortBy)
+                .withSortOrder(sortOrder)
+                .withStartsWith(Optional.ofNullable(startsWith))
+                .withPage(page)
+                .withItemsPerPage(getResultsPerPage(perPage))
+                .build();
+
+
+        BrowseInfo browseInfo = createBrowseInfoWithParameters(dspaceContext, requestParameters, "author");
+        String currentPageURL = (request.getRequestURL().toString() + "?" + request.getQueryString())
+                .replaceAll("&page=\\d+", "")
+                .replaceAll("&year=\\d+", "");
+        int currentPage = browseInfo.getOffset() / requestParameters.getItemsPerPage() + 1;
+        int totalPages = (int) Math.ceil(Double.valueOf(browseInfo.getTotal()) / requestParameters.getItemsPerPage());
+
+        model.addObject("startIndex", browseInfo.getStart());
+        model.addObject("finishIndex", browseInfo.getFinish());
+        model.addObject("totalItems", browseInfo.getTotal());
+        model.addObject("prevPageUrl", String.format("%s&page=%d", currentPageURL, currentPage - 1));
+        model.addObject("prevPageDisabled", browseInfo.hasPrevPage()? "" : "disabled");
+        model.addObject("nextPageUrl", String.format("%s&page=%d", currentPageURL, currentPage + 1));
+        model.addObject("nextPageDisabled", browseInfo.hasNextPage() ? "" : "disabled");
+        model.addObject("links", createPaginationLinksList(currentPage, totalPages, currentPageURL));
+
+        if(startsWith == null || startsWith.isEmpty()) {
+            List<String> shortList = communityService.getShortList(dspaceContext, browseInfo);
+            model.addObject("itemList", shortList);
+            model.setViewName("author-browse");
+        } else {
+            List<ItemResponse> items = communityService.getItems(dspaceContext, browseInfo);
+            fillModelWithData(model, items, browseInfo, request, requestParameters);
+            model.setViewName("title-browse");
+        }
+
+
+        return model;
+
+    }
+
 }
