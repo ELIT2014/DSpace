@@ -176,23 +176,11 @@ public class BrowseController {
 
 
         BrowseInfo browseInfo = createBrowseInfoWithParameters(dspaceContext, requestParameters, "author");
-        String currentPageURL = (request.getRequestURL().toString() + "?" + request.getQueryString())
-                .replaceAll("&page=\\d+", "")
-                .replaceAll("&year=\\d+", "");
-        int currentPage = browseInfo.getOffset() / requestParameters.getItemsPerPage() + 1;
-        int totalPages = (int) Math.ceil(Double.valueOf(browseInfo.getTotal()) / requestParameters.getItemsPerPage());
 
-        model.addObject("startIndex", browseInfo.getStart());
-        model.addObject("finishIndex", browseInfo.getFinish());
-        model.addObject("totalItems", browseInfo.getTotal());
-        model.addObject("prevPageUrl", String.format("%s&page=%d", currentPageURL, currentPage - 1));
-        model.addObject("prevPageDisabled", browseInfo.hasPrevPage()? "" : "disabled");
-        model.addObject("nextPageUrl", String.format("%s&page=%d", currentPageURL, currentPage + 1));
-        model.addObject("nextPageDisabled", browseInfo.hasNextPage() ? "" : "disabled");
-        model.addObject("links", createPaginationLinksList(currentPage, totalPages, currentPageURL));
 
         if(startsWith == null || startsWith.isEmpty()) {
-            List<String> shortList = communityService.getShortList(dspaceContext, browseInfo);
+            List<ItemResponse> shortList = communityService.getShortList(dspaceContext, browseInfo);
+            fillModelWithData(model, shortList, browseInfo, request, requestParameters);
             model.addObject("itemList", shortList);
             model.setViewName("author-browse");
         } else {

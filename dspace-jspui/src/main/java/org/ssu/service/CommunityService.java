@@ -76,10 +76,13 @@ public class CommunityService {
     }
 
 
-    public List<String> getShortList(Context context, BrowseInfo browserInfo) {
+    public List<ItemResponse> getShortList(Context context, BrowseInfo browserInfo) {
         Locale locale = context.getCurrentLocale();
         return Arrays.stream(browserInfo.getStringResults())
-                .map(item -> String.join(",", item))
+                .map(item -> new ItemResponse.Builder()
+                .withTitle(item[0])
+                .withViews(Integer.valueOf(item[2]))
+                .build())
                 .collect(Collectors.toList());
     }
     public List<ItemResponse> getItems(Context context, BrowseInfo browserInfo) throws BrowseException {
