@@ -67,27 +67,6 @@ public class BrowseController {
                 .orElse(DSpaceServicesFactory.getInstance().getConfigurationService().getIntProperty("webui.collectionhome.perpage", 20));
     }
 
-//    private BrowserScope obtainBrowserScopeFromContext(Context dspaceContext, String type) throws BrowseException {
-//        BrowserScope browserScope = new BrowserScope(dspaceContext);
-//        BrowseIndex browseIndex = BrowseIndex.getBrowseIndex(type);
-//        browserScope.setBrowseIndex(browseIndex);
-//        return browserScope;
-//    }
-
-//    private BrowseInfo createBrowseInfoWithParameters(Context dspaceContext, BrowseRequestParameters requestParameters, String type, String value) throws BrowseException {
-//        BrowserScope browserScope = obtainBrowserScopeFromContext(dspaceContext, type);
-//        browserScope.setFilterValue(value);
-//        BrowseEngine browseEngine = new BrowseEngine(dspaceContext);
-//        requestParameters.getStartsWith().ifPresent(browserScope::setStartsWith);
-//        browserScope.setSortBy(requestParameters.getSortBy());
-//        browserScope.setOrder(requestParameters.getSortOrder());
-//        browserScope.setResultsPerPage(requestParameters.getItemsPerPage());
-//
-//        browserScope.setOffset(requestParameters.getItemsPerPage() * (requestParameters.getPage() - 1));
-////        return browserScope.getBrowseIndex();
-//        return browseEngine.browse(browserScope);
-//    }
-
     private ModelAndView fillModelWithData(ModelAndView model, List<ItemResponse> items, BrowseInfo browseInfo, HttpServletRequest request, BrowseRequestParameters requestParameters) throws SortException {
         String currentPageURL = (request.getRequestURL().toString() + "?" + request.getQueryString())
                 .replaceAll("[?&]offset=\\d+", "")
@@ -114,70 +93,6 @@ public class BrowseController {
         return model;
     }
 
-//    @RequestMapping("/dateissued")
-//    public ModelAndView getItemsByDate(ModelAndView model, HttpServletRequest request, HttpServletResponse response,
-//                                       @RequestParam(value = "sort_by", defaultValue = "2", required = false) Integer sortBy,
-//                                       @RequestParam(value="order", defaultValue = "ASC", required = false) String sortOrder,
-//                                       @RequestParam(value="year", required = false) String yearParameter,
-//                                       @RequestParam(value="page", required = false, defaultValue = "1") Integer page,
-//                                       @RequestParam(value = "rpp", required = false) Integer perPage) throws SQLException, BrowseException, SortException, ServletException, IOException, AuthorizeException {
-//
-//        request.setAttribute("type", "dateissued");
-//        request.setAttribute("sort_by", sortBy);
-//        request.setAttribute("order", sortOrder);
-//        request.setAttribute("year", yearParameter);
-//        request.setAttribute("page", page);
-//        request.setAttribute("rpp", perPage);
-//        Optional<String> year = Optional.ofNullable(yearParameter);
-//        BrowseRequestParameters requestParameters = new BrowseRequestParameters.Builder()
-//                .withSortBy(sortBy)
-//                .withSortOrder(sortOrder)
-//                .withStartsWith(year)
-//                .withPage(page)
-//                .withItemsPerPage(getResultsPerPage(perPage))
-//                .build();
-//
-//        Context dspaceContext = UIUtil.obtainContext(request);
-//        BrowseInfo browseInfo = new BrowseContext().getBrowseInfo(dspaceContext, request, response);
-////        BrowseInfo browseInfo = createBrowseInfoWithParameters(dspaceContext, requestParameters, "dateissued", "");
-//        List<ItemResponse> items = communityService.getItems(dspaceContext, browseInfo);
-//
-//        fillModelWithData(model, items, browseInfo, request, requestParameters);
-//        model.setViewName("dateissued-browse");
-//        return model;
-//
-//    }
-//
-//    @RequestMapping("/title")
-//    public ModelAndView getItemsByTitle(ModelAndView model, HttpServletRequest request, HttpServletResponse response,
-//                                       @RequestParam(value = "sort_by", defaultValue = "1", required = false) Integer sortBy,
-//                                       @RequestParam(value="order", defaultValue = "ASC", required = false) String sortOrder,
-//                                       @RequestParam(value="starts_with", required = false) String startsWith,
-//                                       @RequestParam(value="page", required = false, defaultValue = "1") Integer page,
-//                                       @RequestParam(value = "rpp", required = false) Integer perPage) throws SQLException, BrowseException, SortException, ServletException, IOException, AuthorizeException {
-//        request.setAttribute("type", "title");
-//        request.setAttribute("sort_by", sortBy);
-//        request.setAttribute("order", sortOrder);
-//        request.setAttribute("page", page);
-//        request.setAttribute("rpp", perPage);
-//        request.setAttribute("starts_with", startsWith);
-//        Context dspaceContext = UIUtil.obtainContext(request);
-//        BrowseRequestParameters requestParameters = new BrowseRequestParameters.Builder()
-//                .withSortBy(sortBy)
-//                .withSortOrder(sortOrder)
-//                .withStartsWith(Optional.ofNullable(startsWith))
-//                .withPage(page)
-//                .withItemsPerPage(getResultsPerPage(perPage))
-//                .build();
-//        BrowseInfo browseInfo = new BrowseContext().getBrowseInfo(dspaceContext, request, response);
-////        BrowseInfo browseInfo = createBrowseInfoWithParameters(dspaceContext, requestParameters, "title", "");
-//        List<ItemResponse> items = communityService.getItems(dspaceContext, browseInfo);
-//        fillModelWithData(model, items, browseInfo, request, requestParameters);
-//        model.setViewName("title-browse");
-//        return model;
-//
-//    }
-
     @RequestMapping("")
     public ModelAndView getItemsByAuthor(ModelAndView model, HttpServletRequest request, HttpServletResponse response,
                                          @RequestParam(value="type", required = false, defaultValue = "") String type,
@@ -188,7 +103,6 @@ public class BrowseController {
                                         @RequestParam(value="page", required = false, defaultValue = "1") Integer page,
                                         @RequestParam(value="value", required = false, defaultValue = "") String value,
                                         @RequestParam(value = "rpp", required = false) Integer perPage) throws SQLException, BrowseException, SortException, ServletException, IOException, AuthorizeException {
-
 
         Context dspaceContext = UIUtil.obtainContext(request);
         BrowseRequestParameters requestParameters = new BrowseRequestParameters.Builder()
@@ -201,22 +115,20 @@ public class BrowseController {
 
         BrowseInfo browseInfo = new BrowseContext().getBrowseInfo(dspaceContext, request, response);
         List<ItemResponse> items;
-        if("author".equals(type) && (value == null || value.isEmpty())) {
+        if(("author".equals(type) || "subject".equals(type)) && (value == null || value.isEmpty())) {
              items = communityService.getShortList(dspaceContext, browseInfo);
-            model.setViewName(type + "-browse");
+            model.setViewName("author-browse");
         } else {
             items = communityService.getItems(dspaceContext, browseInfo);
             fillModelWithData(model, items, browseInfo, request, requestParameters);
-            model.setViewName(type + "-browse");
+            model.setViewName("title-browse");
         }
         fillModelWithData(model, items, browseInfo, request, requestParameters);
 
-        if("author".equals(type) && value != null && !value.isEmpty()) {
+        if(("author".equals(type) || "subject".equals(type)) && value != null && !value.isEmpty()) {
             model.setViewName("title-browse");
         }
-
         return model;
-
     }
 
 }
