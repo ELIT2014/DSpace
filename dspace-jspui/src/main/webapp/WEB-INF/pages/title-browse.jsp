@@ -27,6 +27,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <form action="" method="get" autocomplete="off">
+                    <input type="hidden" name="type" value="${type}"/>
                     <div class="modal-header">
 
                         <h4 class="modal-title" id="searchModalLabel"><fmt:message key="jsp.search.filter.applied"/>

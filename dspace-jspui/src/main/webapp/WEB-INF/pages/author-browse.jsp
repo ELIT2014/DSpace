@@ -7,7 +7,7 @@
 <dspace:layout locbar="commLink" titlekey="browse.page-author">
 
 
-
+<div class="col-md-offset-2 col-md-8">
     <div class="panel panel-primary">
         <div class="panel-heading text-center">
             <fmt:message key="browse.full.range">
@@ -17,22 +17,25 @@
             </fmt:message>
             <a href="#" class="pull-right glyphicon glyphicon-filter" aria-hidden="true"  data-toggle="modal" data-target="#searchModal"></a>
         </div>
+        <ul class="list-group">
+        <c:forEach items="${items}" var="author">
 
-        <c:forEach items="${itemList}" var="author">
-            ${author.title} ---------- <span class="badge">${author.views}</span><br/>
+            <li class="list-group-item"><a href="/browse?type=author&value=${author.title}">${author.title}</a>
+                <span class="badge pull-right">${author.views}</span></li>
         </c:forEach>
-
+        </ul>
         <div class="panel-footer text-center">
             <essuir:pagination links="${links}" prevPageUrl="${prevPageUrl}" prevPageDisabled="${prevPageDisabled}" nextPageUrl="${nextPageUrl}" nextPageDisabled="${nextPageDisabled}"/>
         </div>
     </div>
-
+</div>
 
     <div class="modal fade" id="searchModal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel"
          aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <form action="" method="get" autocomplete="off">
+                    <input type="hidden" name="type" value="${type}"/>
                     <div class="modal-header">
 
                         <h4 class="modal-title" id="searchModalLabel"><fmt:message key="jsp.search.filter.applied"/>
