@@ -90,7 +90,7 @@ public class BrowseController {
         model.addObject("nextPageUrl", String.format("%s&offset=%d", currentPageURL, currentPage * requestParameters.getItemsPerPage()));
         model.addObject("nextPageDisabled", browseInfo.hasNextPage() ? "" : "disabled");
         model.addObject("links", createPaginationLinksList(currentPage, requestParameters.getItemsPerPage(), totalPages, currentPageURL));
-        model.addObject("isExtended", "dateissued".equals(request.getParameter("type")) || "title".equals(request.getParameter("type")));
+        model.addObject("isExtended", requestParameters.getExtendedTable());
         model.setViewName("browse");
         return model;
     }
@@ -107,23 +107,24 @@ public class BrowseController {
                                         @RequestParam(value = "rpp", required = false) Integer perPage) throws SQLException, BrowseException, SortException, ServletException, IOException, AuthorizeException {
 
         Context dspaceContext = UIUtil.obtainContext(request);
-        BrowseRequestParameters requestParameters = new BrowseRequestParameters.Builder()
+        BrowseRequestParameters.Builder requestParameters = new BrowseRequestParameters.Builder()
                 .withSortBy(sortBy)
                 .withSortOrder(sortOrder)
                 .withStartsWith(Optional.ofNullable(startsWith))
                 .withPage(page)
-                .withItemsPerPage(getResultsPerPage(perPage))
-                .build();
+                .withItemsPerPage(getResultsPerPage(perPage));
 
         BrowseInfo browseInfo = new BrowseContext().getBrowseInfo(dspaceContext, request, response);
         List<ItemResponse> items;
         if(("author".equals(type) || "subject".equals(type)) && (value == null || value.isEmpty())) {
              items = communityService.getShortList(dspaceContext, browseInfo);
+            requestParameters.withIsExtendedTable(false);
         } else {
             items = communityService.getItems(dspaceContext, browseInfo);
-            fillModelWithData(model, items, browseInfo, request, requestParameters);
+            requestParameters.withIsExtendedTable(true);
         }
-        fillModelWithData(model, items, browseInfo, request, requestParameters);
+
+        fillModelWithData(model, items, browseInfo, request, requestParameters.build());
 
         return model;
     }

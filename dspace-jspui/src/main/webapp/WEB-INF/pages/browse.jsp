@@ -26,7 +26,7 @@
                     <essuir:browseExtendedTable items="${items}" />
                 </c:when>
                 <c:otherwise>
-                    <essuir:browseSimpleTable items="${items}" />
+                    <essuir:browseSimpleTable items="${items}" type="${type}"/>
                 </c:otherwise>
             </c:choose>
 
