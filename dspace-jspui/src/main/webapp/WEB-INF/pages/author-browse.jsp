@@ -17,13 +17,9 @@
             </fmt:message>
             <a href="#" class="pull-right glyphicon glyphicon-filter" aria-hidden="true"  data-toggle="modal" data-target="#searchModal"></a>
         </div>
-        <ul class="list-group">
-        <c:forEach items="${items}" var="author">
 
-            <li class="list-group-item"><a href="/browse?type=author&value=${author.title}">${author.title}</a>
-                <span class="badge pull-right">${author.views}</span></li>
-        </c:forEach>
-        </ul>
+        <essuir:browseSimpleTable items="${items}" />
+
         <div class="panel-footer text-center">
             <essuir:pagination links="${links}" prevPageUrl="${prevPageUrl}" prevPageDisabled="${prevPageDisabled}" nextPageUrl="${nextPageUrl}" nextPageDisabled="${nextPageDisabled}"/>
         </div>

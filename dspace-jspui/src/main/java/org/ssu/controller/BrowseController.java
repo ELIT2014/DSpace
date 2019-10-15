@@ -70,7 +70,7 @@ public class BrowseController {
     private ModelAndView fillModelWithData(ModelAndView model, List<ItemResponse> items, BrowseInfo browseInfo, HttpServletRequest request, BrowseRequestParameters requestParameters) throws SortException {
         String currentPageURL = (request.getRequestURL().toString() + "?" + request.getQueryString())
                 .replaceAll("[?&]offset=\\d+", "")
-                .replaceAll("[?&]starts_with=[^&]*", "")
+//                .replaceAll("[?&]starts_with=[^&]*", "")
                 .replaceAll("[?&]year=\\d+", "");
         int currentPage = browseInfo.getOffset() / requestParameters.getItemsPerPage() + 1;
         int totalPages = (int) Math.ceil(Double.valueOf(browseInfo.getTotal()) / requestParameters.getItemsPerPage());
@@ -90,6 +90,8 @@ public class BrowseController {
         model.addObject("nextPageUrl", String.format("%s&offset=%d", currentPageURL, currentPage * requestParameters.getItemsPerPage()));
         model.addObject("nextPageDisabled", browseInfo.hasNextPage() ? "" : "disabled");
         model.addObject("links", createPaginationLinksList(currentPage, requestParameters.getItemsPerPage(), totalPages, currentPageURL));
+        model.addObject("isExtended", "dateissued".equals(request.getParameter("type")) || "title".equals(request.getParameter("type")));
+        model.setViewName("browse");
         return model;
     }
 
@@ -117,17 +119,12 @@ public class BrowseController {
         List<ItemResponse> items;
         if(("author".equals(type) || "subject".equals(type)) && (value == null || value.isEmpty())) {
              items = communityService.getShortList(dspaceContext, browseInfo);
-            model.setViewName("author-browse");
         } else {
             items = communityService.getItems(dspaceContext, browseInfo);
             fillModelWithData(model, items, browseInfo, request, requestParameters);
-            model.setViewName("title-browse");
         }
         fillModelWithData(model, items, browseInfo, request, requestParameters);
 
-        if(("author".equals(type) || "subject".equals(type)) && value != null && !value.isEmpty()) {
-            model.setViewName("title-browse");
-        }
         return model;
     }
 
