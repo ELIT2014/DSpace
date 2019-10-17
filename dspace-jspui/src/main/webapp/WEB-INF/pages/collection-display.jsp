@@ -10,11 +10,12 @@
 
 
 <%@ page import="org.dspace.app.webui.util.UIUtil" %>
+<%@ page import="org.dspace.browse.BrowseIndex" %>
 
 <%
     int discovery_panel_cols = 12;
     int discovery_facet_cols = 12;
-
+    BrowseIndex[] bis = BrowseIndex.getBrowseIndices();
 %>
 <dspace:layout locbar="commLink" title="">
     <div class="panel panel-default">
@@ -22,6 +23,28 @@
             <h2>${title} [${itemCount}] </h2>
         </div>
     </div>
+
+    <div class="panel panel-primary">
+        <div class="panel-heading"><fmt:message key="jsp.general.browse"/></div>
+        <div class="panel-body">
+                <%-- Insert the dynamic list of browse options --%>
+            <%
+                for (int i = 0; i < bis.length; i++)
+                {
+                    String key = "browse.menu." + bis[i].getName();
+            %>
+            <form method="get" action="<%= request.getContextPath() %>/handle/${handle}/browse">
+                <input type="hidden" name="type" value="<%= bis[i].getName() %>"/>
+                    <%-- <input type="hidden" name="community" value="<%= community.getHandle() %>" /> --%>
+                <input class="btn btn-default col-md-3" type="submit" name="submit_browse" value="<fmt:message key="<%= key %>"/>"/>
+            </form>
+            <%
+                }
+            %>
+
+        </div>
+    </div>
+
     <div>
         <div class="panel panel-primary">
             <div class="panel-heading text-center">
