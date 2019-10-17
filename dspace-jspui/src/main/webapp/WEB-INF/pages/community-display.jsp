@@ -64,7 +64,7 @@
             <h3><fmt:message key="jsp.community-home.heading3"/></h3>
             <ul class="list-group">
                 <c:forEach items="${subCommunities}" var="community">
-                    <li class="list-group-item"><a href = "${community.handle}">${community.title} </a><span class="badge">${community.itemCount}</span></li>
+                    <li class="list-group-item"><a href = "/handle/${community.handle}">${community.title} </a><span class="badge">${community.itemCount}</span></li>
                 </c:forEach>
             </ul>
         </div>
@@ -74,7 +74,7 @@
             <ul class="list-group">
                 <c:forEach items="${collections}" var="collection">
 
-                    <li class="list-group-item"><a href = "${collection.handle}">${collection.title} </a><span class="badge">${collection.itemCount}</span></li>
+                    <li class="list-group-item"><a href = "/handle/${collection.handle}">${collection.title} </a><span class="badge">${collection.itemCount}</span></li>
                 </c:forEach>
             </ul>
         </div>

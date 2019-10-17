@@ -76,6 +76,11 @@ public class HandleController {
             if (dSpaceObject.getType() == Constants.COMMUNITY) {
                 return displayCommunity(request, response, model, (Community) dSpaceObject, locale);
             }
+
+            if (dSpaceObject.getType() == Constants.COLLECTION) {
+                System.out.println("display collection");
+                return null;
+            }
             System.out.println(dSpaceObject.getType());
         }
         return null;
