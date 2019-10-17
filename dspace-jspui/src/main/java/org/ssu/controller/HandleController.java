@@ -50,13 +50,6 @@ public class HandleController {
     @Resource
     private EssuirStatistics essuirStatistics;
 
-    @RequestMapping(value = "/123456789/{itemId}/browse")
-    public ModelAndView browseInCommunity(ModelAndView model, HttpServletRequest request) {
-        System.out.println("in browse page");
-
-        return model;
-    }
-
     @RequestMapping(value = "/123456789/{itemId}/simple-search")
     public ModelAndView simpleSearchInCommunity(ModelAndView model, HttpServletRequest request) {
         System.out.println("in search query");
