@@ -4,9 +4,12 @@ import org.dspace.app.webui.util.UIUtil;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.factory.AuthorizeServiceFactory;
 import org.dspace.authorize.service.AuthorizeService;
+import org.dspace.browse.BrowseException;
+import org.dspace.browse.BrowseInfo;
 import org.dspace.browse.ItemCountException;
 import org.dspace.browse.ItemCounter;
 import org.dspace.content.*;
+import org.dspace.content.Collection;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -16,22 +19,27 @@ import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.handle.service.HandleService;
 import org.dspace.plugin.CommunityHomeProcessor;
 import org.dspace.plugin.PluginException;
+import org.dspace.sort.SortException;
 import org.dspace.statistics.util.LocationUtils;
-import org.jvnet.jaxb2_commons.xml.bind.model.MList;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.ssu.entity.response.BitstreamResponse;
 import org.ssu.entity.response.CountedCommunityResponse;
 import org.ssu.entity.response.CountryStatisticsResponse;
+import org.ssu.entity.response.ItemResponse;
+import org.ssu.service.BrowseContext;
+import org.ssu.service.CommunityService;
 import org.ssu.service.ItemService;
+import org.ssu.service.BrowseRequestProcessor;
 import org.ssu.service.statistics.EssuirStatistics;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.*;
@@ -50,6 +58,14 @@ public class HandleController {
     @Resource
     private EssuirStatistics essuirStatistics;
 
+    @Resource
+    private CommunityService communityService;
+
+    @Resource
+    private BrowseRequestProcessor browseRequestProcessor;
+
+
+
     @RequestMapping(value = "/123456789/{itemId}/simple-search")
     public ModelAndView simpleSearchInCommunity(ModelAndView model, HttpServletRequest request) {
         System.out.println("in search query");
@@ -58,7 +74,7 @@ public class HandleController {
     }
 
     @RequestMapping(value = "/123456789/{itemId}")
-    public ModelAndView entrypoint(HttpServletRequest request, HttpServletResponse response,  @PathVariable("itemId") String itemId, ModelAndView model) throws SQLException, ItemCountException, PluginException, AuthorizeException {
+    public ModelAndView entrypoint(HttpServletRequest request, HttpServletResponse response,  @PathVariable("itemId") String itemId, ModelAndView model) throws SQLException, ItemCountException, PluginException, AuthorizeException, ServletException, BrowseException, IOException, SortException {
         Context dspaceContext = UIUtil.obtainContext(request);
         DSpaceObject dSpaceObject = handleService.resolveToObject(dspaceContext, "123456789/" + itemId);
         Locale locale = dspaceContext.getCurrentLocale();
@@ -69,10 +85,8 @@ public class HandleController {
             if (dSpaceObject.getType() == Constants.COMMUNITY) {
                 return displayCommunity(request, response, model, (Community) dSpaceObject, locale);
             }
-
             if (dSpaceObject.getType() == Constants.COLLECTION) {
-                System.out.println("display collection");
-                return null;
+                return displayCollection(request, response, model, (Collection)dSpaceObject,locale);
             }
             System.out.println(dSpaceObject.getType());
         }
@@ -80,7 +94,15 @@ public class HandleController {
     }
 
 
-
+    private ModelAndView displayCollection(HttpServletRequest request, HttpServletResponse response, ModelAndView model, Collection collection, Locale locale) throws SQLException, ServletException, IOException, AuthorizeException, BrowseException, SortException {
+        request.setAttribute("dspace.collection", collection);
+        Context dspaceContext = UIUtil.obtainContext(request);
+        BrowseInfo browseInfo = new BrowseContext().getBrowseInfo(dspaceContext, request, response);
+        List<ItemResponse> items = communityService.getItems(dspaceContext, browseInfo);
+        browseRequestProcessor.fillModelWithData(model, items, browseInfo, request, true);
+        model.setViewName("collection-display");
+        return model;
+    }
     private ModelAndView displayCommunity(HttpServletRequest request, HttpServletResponse response, ModelAndView model, Community community, Locale locale) throws SQLException, ItemCountException, PluginException, AuthorizeException {
         Context dspaceContext = UIUtil.obtainContext(request);
         ItemCounter ic = new ItemCounter(dspaceContext);
