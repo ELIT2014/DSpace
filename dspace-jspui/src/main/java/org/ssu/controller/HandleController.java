@@ -114,6 +114,7 @@ public class HandleController {
         request.setAttribute("collection", collection);
         request.setAttribute("community", collection.getCommunities().get(0));
         model.addObject("title", collection.getName());
+        model.addObject("handle", collection.getHandle());
         model.addObject("itemCount", ic.getCount(collection));
         model.setViewName("collection-display");
         return model;
