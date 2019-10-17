@@ -94,12 +94,16 @@ public class HandleController {
     }
 
 
-    private ModelAndView displayCollection(HttpServletRequest request, HttpServletResponse response, ModelAndView model, Collection collection, Locale locale) throws SQLException, ServletException, IOException, AuthorizeException, BrowseException, SortException {
+    private ModelAndView displayCollection(HttpServletRequest request, HttpServletResponse response, ModelAndView model, Collection collection, Locale locale) throws SQLException, ServletException, IOException, AuthorizeException, BrowseException, SortException, ItemCountException {
+
         request.setAttribute("dspace.collection", collection);
         Context dspaceContext = UIUtil.obtainContext(request);
+        ItemCounter ic = new ItemCounter(dspaceContext);
         BrowseInfo browseInfo = new BrowseContext().getBrowseInfo(dspaceContext, request, response);
         List<ItemResponse> items = communityService.getItems(dspaceContext, browseInfo);
         browseRequestProcessor.fillModelWithData(model, items, browseInfo, request, true);
+        model.addObject("title", collection.getName());
+        model.addObject("itemCount", ic.getCount(collection));
         model.setViewName("collection-display");
         return model;
     }

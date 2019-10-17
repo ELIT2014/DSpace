@@ -15,6 +15,11 @@
 
 %>
 <dspace:layout locbar="commLink" title="">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <h2>${title} [${itemCount}] </h2>
+        </div>
+    </div>
     <div>
         <div class="panel panel-primary">
             <div class="panel-heading text-center">
