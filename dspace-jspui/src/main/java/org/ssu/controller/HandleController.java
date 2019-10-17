@@ -4,10 +4,7 @@ import org.dspace.app.webui.util.UIUtil;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.factory.AuthorizeServiceFactory;
 import org.dspace.authorize.service.AuthorizeService;
-import org.dspace.browse.BrowseException;
-import org.dspace.browse.BrowseInfo;
-import org.dspace.browse.ItemCountException;
-import org.dspace.browse.ItemCounter;
+import org.dspace.browse.*;
 import org.dspace.content.*;
 import org.dspace.content.Collection;
 import org.dspace.content.factory.ContentServiceFactory;
@@ -116,10 +113,12 @@ public class HandleController {
         model.addObject("title", collection.getName());
         model.addObject("handle", collection.getHandle());
         model.addObject("itemCount", ic.getCount(collection));
+        model.addObject("browseIndices", Arrays.asList(BrowseIndex.getBrowseIndices()));
+
         model.setViewName("collection-display");
         return model;
     }
-    private ModelAndView displayCommunity(HttpServletRequest request, HttpServletResponse response, ModelAndView model, Community community, Locale locale) throws SQLException, ItemCountException, PluginException, AuthorizeException {
+    private ModelAndView displayCommunity(HttpServletRequest request, HttpServletResponse response, ModelAndView model, Community community, Locale locale) throws SQLException, ItemCountException, PluginException, AuthorizeException, BrowseException {
         Context dspaceContext = UIUtil.obtainContext(request);
         ItemCounter ic = new ItemCounter(dspaceContext);
 
@@ -170,6 +169,7 @@ public class HandleController {
         model.addObject("subCommunities", subCommunities);
         model.addObject("collections", collections);
         model.addObject("itemCount", ic.getCount(community));
+        model.addObject("browseIndices", Arrays.asList(BrowseIndex.getBrowseIndices()));
         return model;
     }
 
