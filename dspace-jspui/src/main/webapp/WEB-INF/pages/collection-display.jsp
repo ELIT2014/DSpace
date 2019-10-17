@@ -9,9 +9,11 @@
 <%@taglib prefix="essuir" tagdir="/WEB-INF/tags/essuir"%>
 
 
+<%@ page import="org.dspace.app.webui.util.UIUtil" %>
+
 <%
     int discovery_panel_cols = 12;
-    int discovery_facet_cols = 4;
+    int discovery_facet_cols = 12;
 
 %>
 <dspace:layout locbar="commLink" title="">
@@ -38,4 +40,7 @@
             </div>
         </div>
     </div>
+    <dspace:sidebar>
+        <%@ include file="/discovery/static-sidebar-facet.jsp" %>
+    </dspace:sidebar>
 </dspace:layout>

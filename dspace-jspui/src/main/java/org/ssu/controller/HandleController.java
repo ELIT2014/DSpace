@@ -17,6 +17,7 @@ import org.dspace.core.factory.CoreServiceFactory;
 import org.dspace.core.service.PluginService;
 import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.handle.service.HandleService;
+import org.dspace.plugin.CollectionHomeProcessor;
 import org.dspace.plugin.CommunityHomeProcessor;
 import org.dspace.plugin.PluginException;
 import org.dspace.sort.SortException;
@@ -94,7 +95,7 @@ public class HandleController {
     }
 
 
-    private ModelAndView displayCollection(HttpServletRequest request, HttpServletResponse response, ModelAndView model, Collection collection, Locale locale) throws SQLException, ServletException, IOException, AuthorizeException, BrowseException, SortException, ItemCountException {
+    private ModelAndView displayCollection(HttpServletRequest request, HttpServletResponse response, ModelAndView model, Collection collection, Locale locale) throws SQLException, ServletException, IOException, AuthorizeException, BrowseException, SortException, ItemCountException, PluginException {
 
         request.setAttribute("dspace.collection", collection);
         Context dspaceContext = UIUtil.obtainContext(request);
@@ -102,6 +103,16 @@ public class HandleController {
         BrowseInfo browseInfo = new BrowseContext().getBrowseInfo(dspaceContext, request, response);
         List<ItemResponse> items = communityService.getItems(dspaceContext, browseInfo);
         browseRequestProcessor.fillModelWithData(model, items, browseInfo, request, true);
+
+        PluginService pluginService = CoreServiceFactory.getInstance().getPluginService();
+        CollectionHomeProcessor[] chp = (CollectionHomeProcessor[]) pluginService.getPluginSequence(CollectionHomeProcessor.class);
+        for (int i = 0; i < chp.length; i++)
+        {
+            chp[i].process(dspaceContext, request, response, collection);
+        }
+
+        request.setAttribute("collection", collection);
+        request.setAttribute("community", collection.getCommunities().get(0));
         model.addObject("title", collection.getName());
         model.addObject("itemCount", ic.getCount(collection));
         model.setViewName("collection-display");
