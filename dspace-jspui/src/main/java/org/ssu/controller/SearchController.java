@@ -20,6 +20,8 @@ import org.dspace.discovery.DiscoverQuery;
 import org.dspace.discovery.DiscoverResult;
 import org.dspace.discovery.SearchServiceException;
 import org.dspace.discovery.SearchUtils;
+import org.dspace.discovery.configuration.DiscoveryConfiguration;
+import org.dspace.discovery.configuration.DiscoverySearchFilterFacet;
 import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.handle.service.HandleService;
 import org.springframework.stereotype.Controller;
@@ -81,8 +83,9 @@ public class SearchController {
             throw new SearchProcessorException(e.getMessage(), e);
         }
 
-
+        DiscoveryConfiguration discoveryConfiguration = SearchUtils.getDiscoveryConfiguration();
         DiscoverQuery queryArgs = DiscoverUtility.getDiscoverQuery(dspaceContext, request, scope, true);
+        queryArgs.setSpellCheck(discoveryConfiguration.isSpellCheckEnabled());
         DiscoverResult qResults = SearchUtils.getSearchService().search(dspaceContext, scope, queryArgs);
 
         List<Community> resultsListComm = new ArrayList<Community>();
@@ -121,10 +124,26 @@ public class SearchController {
 
         // pageFirst = max(1,pageCurrent-3)
         long pageFirst = ((pageCurrent - 3) > 1) ? (pageCurrent - 3) : 1;
-
+        List<String> appliedFilterQueries = new ArrayList<String>();
+        List<String[]> appliedFilters = DiscoverUtility.getFilters(request);
+        for (String[] filter : appliedFilters)
+        {
+            appliedFilterQueries.add(filter[0] + "::" + filter[1] + "::"
+                    + filter[2]);
+        }
+        List<DiscoverySearchFilterFacet> availableFacet = discoveryConfiguration.getSidebarFacets();
+        request.setAttribute("facetsConfig",
+                availableFacet != null ? availableFacet
+                        : new ArrayList<DiscoverySearchFilterFacet>());
+        request.setAttribute("queryresults", qResults);
+        request.setAttribute("appliedFilters", appliedFilters);
+        request.setAttribute("queryArgs", queryArgs);
+        request.setAttribute("appliedFilterQueries", appliedFilterQueries);
+        request.setAttribute("scope", scope);
         model.addObject("scope", scope);
         model.addObject("searchScope", scope!=null ? scope.getHandle() : "");
         model.addObject("scopes", getScopes(scope, dspaceContext));
+
         model.setViewName("search");
         return model;
     }
