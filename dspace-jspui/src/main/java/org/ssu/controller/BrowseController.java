@@ -12,7 +12,16 @@ import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.core.Constants;
+import org.dspace.authorize.factory.AuthorizeServiceFactory;
+import org.dspace.authorize.service.AuthorizeService;
+import org.dspace.browse.BrowseException;
+import org.dspace.browse.BrowseInfo;
+import org.dspace.content.DSpaceObject;
+import org.dspace.content.factory.ContentServiceFactory;
+import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.handle.factory.HandleServiceFactory;
+import org.dspace.handle.service.HandleService;
 import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.handle.service.HandleService;
 import org.dspace.services.factory.DSpaceServicesFactory;
@@ -25,6 +34,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.ssu.entity.response.ItemResponse;
 import org.ssu.service.BrowseContext;
 import org.ssu.service.CommunityService;
+import org.ssu.service.BrowseRequestProcessor;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletException;
@@ -47,6 +57,8 @@ public class BrowseController {
     @Resource
     private CommunityService communityService;
 
+    @Resource
+    private BrowseRequestProcessor browseRequestProcessor;
     private HandleService handleService = HandleServiceFactory.getInstance().getHandleService();
     private AuthorizeService authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
     private org.dspace.content.service.ItemService dspaceItemService = ContentServiceFactory.getInstance().getItemService();
@@ -73,6 +85,9 @@ public class BrowseController {
         if (needToDisplayLinkToLastPage.test(currentPage, totalPages)) links.add(createLink.apply(totalPages, ""));
         return links;
     }
+    private HandleService handleService = HandleServiceFactory.getInstance().getHandleService();
+    private AuthorizeService authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
+    private org.dspace.content.service.ItemService dspaceItemService = ContentServiceFactory.getInstance().getItemService();
 
     private Integer getResultsPerPage(String resultsPerPageValueFromRequest) {
         return Optional.ofNullable(resultsPerPageValueFromRequest)
@@ -131,6 +146,26 @@ public class BrowseController {
         String type = request.getParameter("type");
         String value = request.getParameter("value");
 
+    @RequestMapping(value = "/123456789/{itemId}/browse")
+    public ModelAndView browseInCommunity(ModelAndView model, HttpServletRequest request, HttpServletResponse response, @PathVariable("itemId") String itemId) throws ServletException, AuthorizeException, IOException, SQLException, BrowseException, SortException {
+        Context dspaceContext = UIUtil.obtainContext(request);
+        DSpaceObject dSpaceObject = handleService.resolveToObject(dspaceContext, "123456789/" + itemId);
+        if(authorizeService.authorizeActionBoolean(dspaceContext, dSpaceObject, Constants.READ)) {
+            if (dSpaceObject.getType() == Constants.COLLECTION) {
+                    request.setAttribute("dspace.collection", dSpaceObject);
+            }
+            if (dSpaceObject.getType() == Constants.COMMUNITY) {
+                request.setAttribute("dspace.community", dSpaceObject);
+            }
+        }
+        return getBrowseItems(model, request, response);
+    }
+
+    @RequestMapping("/browse")
+    public ModelAndView getBrowseItems(ModelAndView model, HttpServletRequest request, HttpServletResponse response) throws SQLException, BrowseException, SortException, ServletException, IOException, AuthorizeException {
+        String type = request.getParameter("type");
+        String value = request.getParameter("value");
+
         Context dspaceContext = UIUtil.obtainContext(request);
 
         BrowseInfo browseInfo = new BrowseContext().getBrowseInfo(dspaceContext, request, response);
@@ -144,6 +179,7 @@ public class BrowseController {
             isExtendedTable = true;
         }
 
+        browseRequestProcessor.fillModelWithData(model, items, browseInfo, request, isExtendedTable);
         fillModelWithData(model, items, browseInfo, request, isExtendedTable);
 
         return model;
