@@ -36,32 +36,32 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/")
 public class SearchController {
+    private static final Logger log = Logger.getLogger(SearchController.class);
     private transient SearchRequestProcessor internalLogic;
     private HandleService handleService = HandleServiceFactory.getInstance().getHandleService();
     private CommunityService communityService = ContentServiceFactory.getInstance().getCommunityService();
-    private static final Logger log = Logger.getLogger(SearchController.class);
 
     @PostConstruct
     private void init() {
-        try
-        {
+        try {
             internalLogic = (SearchRequestProcessor) CoreServiceFactory.getInstance().getPluginService()
                     .getSinglePlugin(SearchRequestProcessor.class);
-        }
-        catch (PluginConfigurationError e)
-        {
+        } catch (PluginConfigurationError e) {
             log.warn(
                     "SimpleSearchServlet not properly configurated, please configure the SearchRequestProcessor plugin",
                     e);
         }
-        if (internalLogic == null)
-        {   // Discovery is the default search provider since DSpace 4.0
+        if (internalLogic == null) {   // Discovery is the default search provider since DSpace 4.0
             internalLogic = new DiscoverySearchRequestProcessor();
         }
     }
@@ -71,16 +71,11 @@ public class SearchController {
         System.out.println("in search query");
         Context dspaceContext = UIUtil.obtainContext(request);
         DSpaceObject scope;
-        try
-        {
+        try {
             scope = DiscoverUtility.getSearchScope(dspaceContext, request);
-        }
-        catch (IllegalStateException e)
-        {
+        } catch (IllegalStateException e) {
             throw new SearchProcessorException(e.getMessage(), e);
-        }
-        catch (SQLException e)
-        {
+        } catch (SQLException e) {
             throw new SearchProcessorException(e.getMessage(), e);
         }
 
@@ -93,19 +88,13 @@ public class SearchController {
         List<Collection> resultsListColl = new ArrayList<Collection>();
         List<Item> resultsListItem = new ArrayList<Item>();
 
-        for (DSpaceObject dso : qResults.getDspaceObjects())
-        {
-            if (dso instanceof Item)
-            {
+        for (DSpaceObject dso : qResults.getDspaceObjects()) {
+            if (dso instanceof Item) {
                 resultsListItem.add((Item) dso);
-            }
-            else if (dso instanceof Collection)
-            {
+            } else if (dso instanceof Collection) {
                 resultsListColl.add((Collection) dso);
 
-            }
-            else if (dso instanceof Community)
-            {
+            } else if (dso instanceof Community) {
                 resultsListComm.add((Community) dso);
             }
         }
@@ -127,8 +116,7 @@ public class SearchController {
         long pageFirst = ((pageCurrent - 3) > 1) ? (pageCurrent - 3) : 1;
         List<String> appliedFilterQueries = new ArrayList<String>();
         List<String[]> appliedFilters = DiscoverUtility.getFilters(request);
-        for (String[] filter : appliedFilters)
-        {
+        for (String[] filter : appliedFilters) {
             appliedFilterQueries.add(filter[0] + "::" + filter[1] + "::"
                     + filter[2]);
         }
@@ -137,27 +125,24 @@ public class SearchController {
 //                availableFacet != null ? availableFacet
 //                        : new ArrayList<DiscoverySearchFilterFacet>());
 //        DiscoverQuery qArgs = queryArgs;
-        String httpFilters ="";
-        if (appliedFilters != null && appliedFilters.size() >0 )
-        {
+        String httpFilters = "";
+        if (appliedFilters != null && appliedFilters.size() > 0) {
             int idx = 1;
-            for (String[] filter : appliedFilters)
-            {
+            for (String[] filter : appliedFilters) {
                 if (filter == null
                         || filter[0] == null || filter[0].trim().equals("")
-                        || filter[2] == null || filter[2].trim().equals(""))
-                {
+                        || filter[2] == null || filter[2].trim().equals("")) {
                     idx++;
                     continue;
                 }
-                httpFilters += "&amp;filter_field_"+idx+"="+URLEncoder.encode(filter[0],"UTF-8");
-                httpFilters += "&amp;filter_type_"+idx+"="+URLEncoder.encode(filter[1],"UTF-8");
-                httpFilters += "&amp;filter_value_"+idx+"="+URLEncoder.encode(filter[2],"UTF-8");
+                httpFilters += "&amp;filter_field_" + idx + "=" + URLEncoder.encode(filter[0], "UTF-8");
+                httpFilters += "&amp;filter_type_" + idx + "=" + URLEncoder.encode(filter[1], "UTF-8");
+                httpFilters += "&amp;filter_value_" + idx + "=" + URLEncoder.encode(filter[2], "UTF-8");
                 idx++;
             }
         }
 
-        String searchScope = scope!=null ? scope.getHandle() : "";
+        String searchScope = scope != null ? scope.getHandle() : "";
         String query = request.getParameter("query");
         request.setAttribute("queryresults", qResults);
         request.setAttribute("appliedFilters", appliedFilters);
@@ -166,7 +151,7 @@ public class SearchController {
         request.setAttribute("scope", scope);
 
 //        model.addObject("facetsConfig", availableFacet != null ? availableFacet : new ArrayList<DiscoverySearchFilterFacet>());
-        List<DiscoverySearchFilterFacet> facets = facetConfigurator(discoveryConfiguration, appliedFilterQueries, qResults);
+        List<DiscoverySearchFilterFacet> facets = Optional.ofNullable(qResults).map(results -> fetchEnabledFacets(discoveryConfiguration, appliedFilterQueries, qResults)).orElse(new ArrayList<>());
         Map<String, String> pages = facets
                 .stream()
                 .collect(Collectors.toMap(facet -> facet.getIndexFieldName(), facet -> Optional.ofNullable(request.getParameter(facet.getIndexFieldName() + "_page")).orElse("0")));
@@ -185,8 +170,8 @@ public class SearchController {
         model.addObject("scope", scope);
         model.addObject("handle", "/handle/123456789/" + itemId);
         model.addObject("sortedBy", queryArgs.getSortField());
-        model.addObject("queryEncoded", URLEncoder.encode(Optional.ofNullable(query).orElse(""),"UTF-8"));
-        model.addObject("searchScope", scope!=null ? scope.getHandle() : "");
+        model.addObject("queryEncoded", URLEncoder.encode(Optional.ofNullable(query).orElse(""), "UTF-8"));
+        model.addObject("searchScope", scope != null ? scope.getHandle() : "");
         model.addObject("scopes", getScopes(scope, dspaceContext));
 
         model.setViewName("search");
@@ -194,98 +179,51 @@ public class SearchController {
     }
 
 
-    private List<DiscoverySearchFilterFacet> facetConfigurator(DiscoveryConfiguration discoveryConfiguration, List<String> appliedFilterQueries, DiscoverResult qResults) {
-        List<DiscoverySearchFilterFacet> availableFacet = discoveryConfiguration.getSidebarFacets();
-        List<DiscoverySearchFilterFacet> facetsConf = availableFacet != null ? availableFacet : new ArrayList<DiscoverySearchFilterFacet>();
-        Map<String, Boolean> showFacets = new HashMap<String, Boolean>();
-        for (DiscoverySearchFilterFacet facetConf : facetsConf)
-        {
-            if(qResults!=null) {
-                String f = facetConf.getIndexFieldName();
-                List<DiscoverResult.FacetResult> facet = qResults.getFacetResult(f);
-                if (facet.size() == 0)
-                {
-                    facet = qResults.getFacetResult(f+".year");
-                    if (facet.size() == 0)
-                    {
-                        showFacets.put(f, false);
-                        continue;
-                    }
-                }
-                boolean showFacet = false;
-                for (DiscoverResult.FacetResult fvalue : facet)
-                {
-                    if(!appliedFilterQueries.contains(f+"::"+fvalue.getFilterType()+"::"+fvalue.getAsFilterQuery()))
-                    {
-                        showFacet = true;
-                        break;
-                    }
-                }
-                showFacets.put(f, showFacet);
-            }
-        }
-//        for (DiscoverySearchFilterFacet facetConf : facetsConf) {
-//            String f = facetConf.getIndexFieldName();
-//            if (!showFacets.get(f))
-//                continue;
-//            List<DiscoverResult.FacetResult> facet = qResults.getFacetResult(f);
-//            if (facet.size() == 0) {
-//                facet = qResults.getFacetResult(f + ".year");
-//            }
-//            int limit = facetConf.getFacetLimit() + 1;
-//
-//            String fkey = "jsp.search.facet.refine." + f;
-//        }
-        return facetsConf;
+    private List<DiscoverySearchFilterFacet> fetchEnabledFacets(DiscoveryConfiguration discoveryConfiguration, List<String> appliedFilterQueries, DiscoverResult qResults) {
+        List<DiscoverySearchFilterFacet> facetsConfiguration = Optional.ofNullable(discoveryConfiguration.getSidebarFacets()).orElse(new ArrayList<>());
+        Predicate<String> isFacetMustBeShown = (facetName) -> qResults.getFacetResults().getOrDefault(facetName, qResults.getFacetResult(facetName + ".year")).stream()
+                .map(currentFacet -> facetName + "::" + currentFacet.getFilterType() + "::" + currentFacet.getAsFilterQuery())
+                .anyMatch(facetDescription -> !appliedFilterQueries.contains(facetDescription));
+
+        return facetsConfiguration.stream()
+                .filter(facet -> isFacetMustBeShown.test(facet.getIndexFieldName()))
+                .collect(Collectors.toList());
     }
+
     private List<DSpaceObject> getScopes(DSpaceObject scope, Context context) throws SearchProcessorException {
         List<DSpaceObject> scopes = new ArrayList<DSpaceObject>();
-        if (scope == null)
-        {
+        if (scope == null) {
             List<Community> topCommunities;
-            try
-            {
+            try {
                 topCommunities = communityService.findAllTop(context);
-            }
-            catch (SQLException e)
-            {
+            } catch (SQLException e) {
                 throw new SearchProcessorException(e.getMessage(), e);
             }
-            for (Community com : topCommunities)
-            {
+            for (Community com : topCommunities) {
                 scopes.add(com);
             }
-        }
-        else
-        {
-            try
-            {
+        } else {
+            try {
                 DSpaceObject pDso = ContentServiceFactory.getInstance().getDSpaceObjectService(scope)
                         .getParentObject(context, scope);
-                while (pDso != null)
-                {
+                while (pDso != null) {
                     // add to the available scopes in reverse order
                     scopes.add(0, pDso);
                     pDso = ContentServiceFactory.getInstance().getDSpaceObjectService(pDso)
                             .getParentObject(context, pDso);
                 }
                 scopes.add(scope);
-                if (scope instanceof Community)
-                {
+                if (scope instanceof Community) {
                     List<Community> comms = ((Community) scope).getSubcommunities();
-                    for (Community com : comms)
-                    {
+                    for (Community com : comms) {
                         scopes.add(com);
                     }
                     List<Collection> colls = ((Community) scope).getCollections();
-                    for (Collection col : colls)
-                    {
+                    for (Collection col : colls) {
                         scopes.add(col);
                     }
                 }
-            }
-            catch (SQLException e)
-            {
+            } catch (SQLException e) {
                 throw new SearchProcessorException(e.getMessage(), e);
             }
         }
