@@ -175,12 +175,15 @@
                             <c:set var="facetResult" value="${queryresults.getFacetResult(facet.indexFieldName)}"/>
                         </c:otherwise>
                     </c:choose>
+                    <c:set value="${facetLimits.get(facet.indexFieldName)}" var="currentFacetLimit"/>
 
-                    <c:forEach items="${facetResult}" var="fvalue" varStatus="idx">
+                    <c:set var="index" value="1"/>
+                    <c:forEach items="${facetResult}" var="fvalue" varStatus="idx" begin="1" step="1" end="${currentFacetLimit - 1}">
                         <li class="list-group-item"><span class="badge">${fvalue.count}</span>
                             <c:set var="filterName" value="${URLEncoder.encode(facet.indexFieldName,\"UTF-8\")}"/>
                             <c:set var="filterQuery" value="${URLEncoder.encode(fvalue.asFilterQuery,\"UTF-8\")}"/>
                             <c:set var="filterType" value="${URLEncoder.encode(fvalue.getFilterType(),\"UTF-8\")}"/>
+                            <c:set var="index" value="${index + 1}" scope="page"/>
 
                             <a href="${handle}/simple-search?query=${queryEncoded}&amp;sort_by=${sortedBy}&amp;order=${order}&amp;rpp=${rpp}${httpFilters}&amp;filtername=${filterName}&amp;filterquery=${filterQuery}&amp;filtertype=${filterType}"
                                title="<fmt:message key="jsp.search.facet.narrow"><fmt:param>${altTitle}</fmt:param></fmt:message>">
@@ -188,6 +191,24 @@
                             </a>
                         </li>
                     </c:forEach>
+                    <c:if test="${currentFacetPage > 0 || index == currentFacetLimit}">
+                        <li class="list-group-item"><span style="visibility: hidden;">.</span>
+                            <c:set value="${facetCurrentPage.get(facet.indexFieldName)}" var="currentFacetPage"/>
+
+                            <c:if test="${currentFacetPage > 0}">
+                                <a class="pull-left" href="${handle}/simple-search?query=${queryEncoded}&amp;sort_by=${sortedBy}&amp;order=${order}&amp;rpp=${rpp}${httpFilters}&amp;${facet.indexFieldName}_page=${currentFacetPage-1}">
+                                        <fmt:message key="jsp.search.facet.refine.previous" />
+                                </a>
+                            </c:if>
+
+
+                            <c:if test="${index == currentFacetLimit}">
+                                <a class="pull-right" href="${handle}/simple-search?query=${queryEncoded}&amp;sort_by=${sortedBy}&amp;order=${order}&amp;rpp=${rpp}${httpFilters}&amp;${facet.indexFieldName}_page=${currentFacetPage+1}">
+                                    <fmt:message key="jsp.search.facet.refine.next" />
+                                </a>
+                            </c:if>
+                        </li>
+                    </c:if>
                 </ul>
                 </div>
             </c:forEach>

@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/")
@@ -165,10 +166,21 @@ public class SearchController {
         request.setAttribute("scope", scope);
 
 //        model.addObject("facetsConfig", availableFacet != null ? availableFacet : new ArrayList<DiscoverySearchFilterFacet>());
+        List<DiscoverySearchFilterFacet> facets = facetConfigurator(discoveryConfiguration, appliedFilterQueries, qResults);
+        Map<String, String> pages = facets
+                .stream()
+                .collect(Collectors.toMap(facet -> facet.getIndexFieldName(), facet -> Optional.ofNullable(request.getParameter(facet.getIndexFieldName() + "_page")).orElse("0")));
+
+        Map<String, Integer> limits = facets
+                .stream()
+                .collect(Collectors.toMap(facet -> facet.getIndexFieldName(), facet -> facet.getFacetLimit()));
+
+        model.addObject("facetLimits", limits);
+        model.addObject("facetCurrentPage", pages);
         model.addObject("rpp", queryArgs.getMaxResults());
         model.addObject("httpFilters", httpFilters);
         model.addObject("order", queryArgs.getSortOrder().toString());
-        model.addObject("facets", facetConfigurator(discoveryConfiguration, appliedFilterQueries, qResults));
+        model.addObject("facets", facets);
         model.addObject("queryresults", qResults);
         model.addObject("scope", scope);
         model.addObject("handle", "/handle/123456789/" + itemId);
