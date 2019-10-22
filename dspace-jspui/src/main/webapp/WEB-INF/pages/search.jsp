@@ -28,7 +28,7 @@
                 .autocomplete({
                     source: function( request, response ) {
                         jQ.ajax({
-                            url: "<%= request.getContextPath() %>/json/discovery/autocomplete?query=<%= URLEncoder.encode(query,"UTF-8")%><%= httpFilters.replaceAll("&amp;","&") %>",
+                            <%--url: "<%= request.getContextPath() %>/json/discovery/autocomplete?query=<%= URLEncoder.encode(query,"UTF-8")%><%= httpFilters.replaceAll("&amp;","&") %>",--%>
                             dataType: "json",
                             cache: false,
                             data: {
@@ -160,167 +160,40 @@
     </div>
 
 
-
     <dspace:sidebar>
-        <%
-            List<String> appliedFilterQueries = (List<String>) request.getAttribute("appliedFilterQueries");
-            DiscoverResult qResults = (DiscoverResult)request.getAttribute("queryresults");
-            DSpaceObject scope = (DSpaceObject) request.getAttribute("scope" );
-            String searchScope = scope!=null ? scope.getHandle() : "";
-            System.out.println(scope);
-            String query = (String) request.getAttribute("query");
-            DiscoverQuery qArgs = (DiscoverQuery) request.getAttribute("queryArgs");
-            String sortedBy = qArgs.getSortField();
-            String order = qArgs.getSortOrder().toString();
-            int rpp          = qArgs.getMaxResults();
-            String httpFilters ="";
-            List<String[]> appliedFilters = (List<String[]>) request.getAttribute("appliedFilters");
-            if (appliedFilters != null && appliedFilters.size() >0 )
-            {
-                int idx = 1;
-                for (String[] filter : appliedFilters)
-                {
-                    if (filter == null
-                            || filter[0] == null || filter[0].trim().equals("")
-                            || filter[2] == null || filter[2].trim().equals(""))
-                    {
-                        idx++;
-                        continue;
-                    }
-                    httpFilters += "&amp;filter_field_"+idx+"="+URLEncoder.encode(filter[0],"UTF-8");
-                    httpFilters += "&amp;filter_type_"+idx+"="+URLEncoder.encode(filter[1],"UTF-8");
-                    httpFilters += "&amp;filter_value_"+idx+"="+URLEncoder.encode(filter[2],"UTF-8");
-                    idx++;
-                }
-            }
-
-            if (query == null)
-            {
-                query = "";
-            }
-            boolean brefine = false;
-
-            List<DiscoverySearchFilterFacet> facetsConf = (List<DiscoverySearchFilterFacet>) request.getAttribute("facetsConfig");
-            Map<String, Boolean> showFacets = new HashMap<String, Boolean>();
-
-            for (DiscoverySearchFilterFacet facetConf : facetsConf)
-            {
-                if(qResults!=null) {
-                    String f = facetConf.getIndexFieldName();
-                    List<DiscoverResult.FacetResult> facet = qResults.getFacetResult(f);
-                    if (facet.size() == 0)
-                    {
-                        facet = qResults.getFacetResult(f+".year");
-                        if (facet.size() == 0)
-                        {
-                            showFacets.put(f, false);
-                            continue;
-                        }
-                    }
-                    boolean showFacet = false;
-                    for (DiscoverResult.FacetResult fvalue : facet)
-                    {
-                        if(!appliedFilterQueries.contains(f+"::"+fvalue.getFilterType()+"::"+fvalue.getAsFilterQuery()))
-                        {
-                            showFacet = true;
-                            break;
-                        }
-                    }
-                    showFacets.put(f, showFacet);
-                    brefine = brefine || showFacet;
-                }
-            }
-            if (brefine) {
-        %>
-
         <h3 class="facets"><fmt:message key="jsp.search.facet.refine" /></h3>
         <div id="facets" class="facetsBox">
+            <c:forEach items="${facets}" var="facet">
+                <div id="facet_${facet.indexFieldName}" class="panel panel-success">
+                <div class="panel-heading"><fmt:message key="jsp.search.facet.refine.${facet.indexFieldName}" /></div>
+                <ul class="list-group">
+                    <c:choose>
+                        <c:when test="${empty queryresults.getFacetResult(facet.indexFieldName)}">
+                            <c:set var="facetResult" value="${queryresults.getFacetResult(String.format(\"%s.year\", facet.indexFieldName))}"/>
+                        </c:when>
+                        <c:otherwise>
+                            <c:set var="facetResult" value="${queryresults.getFacetResult(facet.indexFieldName)}"/>
+                        </c:otherwise>
+                    </c:choose>
 
-            <%
-                for (DiscoverySearchFilterFacet facetConf : facetsConf)
-                {
-                    String f = facetConf.getIndexFieldName();
-                    if (!showFacets.get(f))
-                        continue;
-                    List<DiscoverResult.FacetResult> facet = qResults.getFacetResult(f);
-                    if (facet.size() == 0)
-                    {
-                        facet = qResults.getFacetResult(f+".year");
-                    }
-                    int limit = facetConf.getFacetLimit()+1;
+                    <c:forEach items="${facetResult}" var="fvalue" varStatus="idx">
+                        <li class="list-group-item"><span class="badge">${fvalue.count}</span>
+                            <c:set var="filterName" value="${URLEncoder.encode(facet.indexFieldName,\"UTF-8\")}"/>
+                            <c:set var="filterQuery" value="${URLEncoder.encode(fvalue.asFilterQuery,\"UTF-8\")}"/>
+                            <c:set var="filterType" value="${URLEncoder.encode(fvalue.getFilterType(),\"UTF-8\")}"/>
 
-                    String fkey = "jsp.search.facet.refine."+f;
-            %><div id="facet_<%= f %>" class="panel panel-success">
-            <div class="panel-heading"><fmt:message key="<%= fkey %>" /></div>
-            <ul class="list-group"><%
-                int idx = 1;
-                int currFp = UIUtil.getIntParameter(request, f+"_page");
-                if (currFp < 0)
-                {
-                    currFp = 0;
-                }
-                for (DiscoverResult.FacetResult fvalue : facet)
-                {
-                    if (idx != limit && !appliedFilterQueries.contains(f+"::"+fvalue.getFilterType()+"::"+fvalue.getAsFilterQuery()))
-                    {
-            %><li class="list-group-item"><span class="badge"><%= fvalue.getCount() %></span> <a href="<%= request.getContextPath()
-                + (!searchScope.equals("")?"/handle/"+searchScope:"")
-                + "/simple-search?query="
-                + URLEncoder.encode(query,"UTF-8")
-                + "&amp;sort_by=" + sortedBy
-                + "&amp;order=" + order
-                + "&amp;rpp=" + rpp
-                + httpFilters
-
-                + "&amp;filtername="+URLEncoder.encode(f,"UTF-8")
-                + "&amp;filterquery="+URLEncoder.encode(fvalue.getAsFilterQuery(),"UTF-8")
-                + "&amp;filtertype="+URLEncoder.encode(fvalue.getFilterType(),"UTF-8") %>"
-                                                                                                 title="<fmt:message key="jsp.search.facet.narrow"><fmt:param><%=fvalue.getDisplayedValue() %></fmt:param></fmt:message>">
-                <%= StringUtils.abbreviate(fvalue.getDisplayedValue(),36) %></a></li><%
-                        idx++;
-                    }
-                    if (idx > limit)
-                    {
-                        break;
-                    }
-                }
-                if (currFp > 0 || idx == limit)
-                {
-            %><li class="list-group-item"><span style="visibility: hidden;">.</span>
-                <% if (currFp > 0) { %>
-                <a class="pull-left" href="<%= request.getContextPath()
-	            + (!searchScope.equals("")?"/handle/"+searchScope:"")
-                + "/simple-search?query="
-                + URLEncoder.encode(query,"UTF-8")
-                + "&amp;sort_by=" + sortedBy
-                + "&amp;order=" + order
-                + "&amp;rpp=" + rpp
-                + httpFilters
-
-                + "&amp;"+f+"_page="+(currFp-1) %>"><fmt:message key="jsp.search.facet.refine.previous" /></a>
-                <% } %>
-                <% if (idx == limit) { %>
-                <a href="<%= request.getContextPath()
-	            + (!searchScope.equals("")?"/handle/"+searchScope:"")
-                + "/simple-search?query="
-                + URLEncoder.encode(query,"UTF-8")
-                + "&amp;sort_by=" + sortedBy
-                + "&amp;order=" + order
-                + "&amp;rpp=" + rpp
-                + httpFilters
-
-                + "&amp;"+f+"_page="+(currFp+1) %>"><span class="pull-right"><fmt:message key="jsp.search.facet.refine.next" /></span></a>
-                <%
-                    }
-                %></li><%
-                }
-            %></ul></div><%
-            }
-
-        %>
+                            <a href="${handle}/simple-search?query=${queryEncoded}&amp;sort_by=${sortedBy}&amp;order=${order}&amp;rpp=${rpp}${httpFilters}&amp;filtername=${filterName}&amp;filterquery=${filterQuery}&amp;filtertype=${filterType}"
+                               title="<fmt:message key="jsp.search.facet.narrow"><fmt:param>${altTitle}</fmt:param></fmt:message>">
+                                    ${StringUtils.abbreviate(fvalue.displayedValue, 36)}
+                            </a>
+                        </li>
+                    </c:forEach>
+                </ul>
+                </div>
+            </c:forEach>
 
         </div>
-        <% } %>
+
     </dspace:sidebar>
 
 </dspace:layout>

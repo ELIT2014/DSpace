@@ -34,9 +34,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Controller
 @RequestMapping("/")
@@ -131,16 +131,49 @@ public class SearchController {
             appliedFilterQueries.add(filter[0] + "::" + filter[1] + "::"
                     + filter[2]);
         }
-        List<DiscoverySearchFilterFacet> availableFacet = discoveryConfiguration.getSidebarFacets();
-        request.setAttribute("facetsConfig",
-                availableFacet != null ? availableFacet
-                        : new ArrayList<DiscoverySearchFilterFacet>());
+
+//        request.setAttribute("facetsConfig",
+//                availableFacet != null ? availableFacet
+//                        : new ArrayList<DiscoverySearchFilterFacet>());
+//        DiscoverQuery qArgs = queryArgs;
+        String httpFilters ="";
+        if (appliedFilters != null && appliedFilters.size() >0 )
+        {
+            int idx = 1;
+            for (String[] filter : appliedFilters)
+            {
+                if (filter == null
+                        || filter[0] == null || filter[0].trim().equals("")
+                        || filter[2] == null || filter[2].trim().equals(""))
+                {
+                    idx++;
+                    continue;
+                }
+                httpFilters += "&amp;filter_field_"+idx+"="+URLEncoder.encode(filter[0],"UTF-8");
+                httpFilters += "&amp;filter_type_"+idx+"="+URLEncoder.encode(filter[1],"UTF-8");
+                httpFilters += "&amp;filter_value_"+idx+"="+URLEncoder.encode(filter[2],"UTF-8");
+                idx++;
+            }
+        }
+
+        String searchScope = scope!=null ? scope.getHandle() : "";
+        String query = request.getParameter("query");
         request.setAttribute("queryresults", qResults);
         request.setAttribute("appliedFilters", appliedFilters);
         request.setAttribute("queryArgs", queryArgs);
         request.setAttribute("appliedFilterQueries", appliedFilterQueries);
         request.setAttribute("scope", scope);
+
+//        model.addObject("facetsConfig", availableFacet != null ? availableFacet : new ArrayList<DiscoverySearchFilterFacet>());
+        model.addObject("rpp", queryArgs.getMaxResults());
+        model.addObject("httpFilters", httpFilters);
+        model.addObject("order", queryArgs.getSortOrder().toString());
+        model.addObject("facets", facetConfigurator(discoveryConfiguration, appliedFilterQueries, qResults));
+        model.addObject("queryresults", qResults);
         model.addObject("scope", scope);
+        model.addObject("handle", "/handle/123456789/" + itemId);
+        model.addObject("sortedBy", queryArgs.getSortField());
+        model.addObject("queryEncoded", URLEncoder.encode(Optional.ofNullable(query).orElse(""),"UTF-8"));
         model.addObject("searchScope", scope!=null ? scope.getHandle() : "");
         model.addObject("scopes", getScopes(scope, dspaceContext));
 
@@ -148,6 +181,51 @@ public class SearchController {
         return model;
     }
 
+
+    private List<DiscoverySearchFilterFacet> facetConfigurator(DiscoveryConfiguration discoveryConfiguration, List<String> appliedFilterQueries, DiscoverResult qResults) {
+        List<DiscoverySearchFilterFacet> availableFacet = discoveryConfiguration.getSidebarFacets();
+        List<DiscoverySearchFilterFacet> facetsConf = availableFacet != null ? availableFacet : new ArrayList<DiscoverySearchFilterFacet>();
+        Map<String, Boolean> showFacets = new HashMap<String, Boolean>();
+        for (DiscoverySearchFilterFacet facetConf : facetsConf)
+        {
+            if(qResults!=null) {
+                String f = facetConf.getIndexFieldName();
+                List<DiscoverResult.FacetResult> facet = qResults.getFacetResult(f);
+                if (facet.size() == 0)
+                {
+                    facet = qResults.getFacetResult(f+".year");
+                    if (facet.size() == 0)
+                    {
+                        showFacets.put(f, false);
+                        continue;
+                    }
+                }
+                boolean showFacet = false;
+                for (DiscoverResult.FacetResult fvalue : facet)
+                {
+                    if(!appliedFilterQueries.contains(f+"::"+fvalue.getFilterType()+"::"+fvalue.getAsFilterQuery()))
+                    {
+                        showFacet = true;
+                        break;
+                    }
+                }
+                showFacets.put(f, showFacet);
+            }
+        }
+//        for (DiscoverySearchFilterFacet facetConf : facetsConf) {
+//            String f = facetConf.getIndexFieldName();
+//            if (!showFacets.get(f))
+//                continue;
+//            List<DiscoverResult.FacetResult> facet = qResults.getFacetResult(f);
+//            if (facet.size() == 0) {
+//                facet = qResults.getFacetResult(f + ".year");
+//            }
+//            int limit = facetConf.getFacetLimit() + 1;
+//
+//            String fkey = "jsp.search.facet.refine." + f;
+//        }
+        return facetsConf;
+    }
     private List<DSpaceObject> getScopes(DSpaceObject scope, Context context) throws SearchProcessorException {
         List<DSpaceObject> scopes = new ArrayList<DSpaceObject>();
         if (scope == null)
