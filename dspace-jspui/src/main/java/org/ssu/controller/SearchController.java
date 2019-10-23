@@ -21,31 +21,41 @@ import org.dspace.discovery.DiscoverResult;
 import org.dspace.discovery.SearchServiceException;
 import org.dspace.discovery.SearchUtils;
 import org.dspace.discovery.configuration.DiscoveryConfiguration;
+import org.dspace.discovery.configuration.DiscoverySearchFilter;
 import org.dspace.discovery.configuration.DiscoverySearchFilterFacet;
 import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.handle.service.HandleService;
+import org.dspace.sort.SortException;
+import org.dspace.sort.SortOption;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.ssu.entity.response.ItemResponse;
+import org.ssu.service.ItemService;
+import org.ssu.service.PaginationProcessor;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/")
 public class SearchController {
+    @Resource
+    private ItemService itemService;
+
+    @Resource
+    private PaginationProcessor paginationProcessor;
+
     private static final Logger log = Logger.getLogger(SearchController.class);
     private transient SearchRequestProcessor internalLogic;
     private HandleService handleService = HandleServiceFactory.getInstance().getHandleService();
@@ -67,7 +77,7 @@ public class SearchController {
     }
 
     @RequestMapping(value = "/123456789/{itemId}/simple-search")
-    public ModelAndView simpleSearchInCommunity(ModelAndView model, HttpServletRequest request, HttpServletResponse response, @PathVariable("itemId") String itemId) throws ServletException, IOException, SQLException, AuthorizeException, SearchProcessorException, SearchServiceException {
+    public ModelAndView simpleSearchInCommunity(ModelAndView model, HttpServletRequest request, HttpServletResponse response, @PathVariable("itemId") String itemId) throws ServletException, IOException, SQLException, AuthorizeException, SearchProcessorException, SearchServiceException, SortException {
         System.out.println("in search query");
         Context dspaceContext = UIUtil.obtainContext(request);
         DSpaceObject scope;
@@ -99,21 +109,11 @@ public class SearchController {
             }
         }
 
-        // Pass in some page qualities
-        // total number of pages
-        long pageTotal = 1 + ((qResults.getTotalSearchResults() - 1) / qResults
-                .getMaxResults());
+        Locale locale = dspaceContext.getCurrentLocale();
+        List<ItemResponse> items = resultsListItem.stream()
+                .map(item -> itemService.fetchItemresponseDataForItem(item, locale))
+                .collect(Collectors.toList());
 
-        // current page being displayed
-        long pageCurrent = 1 + (qResults.getStart() / qResults
-                .getMaxResults());
-
-        // pageLast = min(pageCurrent+3,pageTotal)
-        long pageLast = ((pageCurrent + 3) > pageTotal) ? pageTotal
-                : (pageCurrent + 3);
-
-        // pageFirst = max(1,pageCurrent-3)
-        long pageFirst = ((pageCurrent - 3) > 1) ? (pageCurrent - 3) : 1;
         List<String> appliedFilterQueries = new ArrayList<String>();
         List<String[]> appliedFilters = DiscoverUtility.getFilters(request);
         for (String[] filter : appliedFilters) {
@@ -121,10 +121,6 @@ public class SearchController {
                     + filter[2]);
         }
 
-//        request.setAttribute("facetsConfig",
-//                availableFacet != null ? availableFacet
-//                        : new ArrayList<DiscoverySearchFilterFacet>());
-//        DiscoverQuery qArgs = queryArgs;
         String httpFilters = "";
         if (appliedFilters != null && appliedFilters.size() > 0) {
             int idx = 1;
@@ -142,7 +138,7 @@ public class SearchController {
             }
         }
 
-        String searchScope = scope != null ? scope.getHandle() : "";
+
         String query = request.getParameter("query");
         request.setAttribute("queryresults", qResults);
         request.setAttribute("appliedFilters", appliedFilters);
@@ -150,26 +146,28 @@ public class SearchController {
         request.setAttribute("appliedFilterQueries", appliedFilterQueries);
         request.setAttribute("scope", scope);
 
-//        model.addObject("facetsConfig", availableFacet != null ? availableFacet : new ArrayList<DiscoverySearchFilterFacet>());
+
         List<DiscoverySearchFilterFacet> facets = Optional.ofNullable(qResults).map(results -> fetchEnabledFacets(discoveryConfiguration, appliedFilterQueries, qResults)).orElse(new ArrayList<>());
-        Map<String, String> pages = facets
-                .stream()
-                .collect(Collectors.toMap(facet -> facet.getIndexFieldName(), facet -> Optional.ofNullable(request.getParameter(facet.getIndexFieldName() + "_page")).orElse("0")));
+        Map<String, String> facetsCurrentPage = facets.stream().collect(Collectors.toMap(DiscoverySearchFilter::getIndexFieldName, facet -> Optional.ofNullable(request.getParameter(facet.getIndexFieldName() + "_page")).orElse("0")));
+        Map<String, Integer> facetsLimit = facets.stream().collect(Collectors.toMap(DiscoverySearchFilter::getIndexFieldName, DiscoverySearchFilterFacet::getFacetLimit));
+        model.addObject("facets", facets);
+        model.addObject("facetsLimit", facetsLimit);
+        model.addObject("facetCurrentPage", facetsCurrentPage);
 
-        Map<String, Integer> limits = facets
-                .stream()
-                .collect(Collectors.toMap(facet -> facet.getIndexFieldName(), facet -> facet.getFacetLimit()));
+        model = paginationProcessor.fillModelWithPaginationData(model, request,qResults);
 
-        model.addObject("facetLimits", limits);
-        model.addObject("facetCurrentPage", pages);
+        model.addObject("items", items);
+        model.addObject("totalItems", qResults.getTotalSearchResults());
+        model.addObject("startIndex", qResults.getStart());
+        model.addObject("finishIndex", qResults.getStart()+qResults.getMaxResults());
         model.addObject("rpp", queryArgs.getMaxResults());
         model.addObject("httpFilters", httpFilters);
         model.addObject("order", queryArgs.getSortOrder().toString());
-        model.addObject("facets", facets);
+        model.addObject("sortOptions", SortOption.getSortOptions().stream().filter(SortOption::isVisible).collect(Collectors.toSet()));
         model.addObject("queryresults", qResults);
         model.addObject("scope", scope);
         model.addObject("handle", "/handle/123456789/" + itemId);
-        model.addObject("sortedBy", queryArgs.getSortField());
+        model.addObject("sortedBy", SortOption.getSortOptions().stream().filter(option -> option.equals(queryArgs.getSortField())).findFirst().orElse(SortOption.getDefaultSortOption()));
         model.addObject("queryEncoded", URLEncoder.encode(Optional.ofNullable(query).orElse(""), "UTF-8"));
         model.addObject("searchScope", scope != null ? scope.getHandle() : "");
         model.addObject("scopes", getScopes(scope, dspaceContext));
@@ -178,10 +176,9 @@ public class SearchController {
         return model;
     }
 
-
-    private List<DiscoverySearchFilterFacet> fetchEnabledFacets(DiscoveryConfiguration discoveryConfiguration, List<String> appliedFilterQueries, DiscoverResult qResults) {
+    private List<DiscoverySearchFilterFacet> fetchEnabledFacets(DiscoveryConfiguration discoveryConfiguration, List<String> appliedFilterQueries, DiscoverResult discoverResult) {
         List<DiscoverySearchFilterFacet> facetsConfiguration = Optional.ofNullable(discoveryConfiguration.getSidebarFacets()).orElse(new ArrayList<>());
-        Predicate<String> isFacetMustBeShown = (facetName) -> qResults.getFacetResults().getOrDefault(facetName, qResults.getFacetResult(facetName + ".year")).stream()
+        Predicate<String> isFacetMustBeShown = (facetName) -> discoverResult.getFacetResults().getOrDefault(facetName, discoverResult.getFacetResult(facetName + ".year")).stream()
                 .map(currentFacet -> facetName + "::" + currentFacet.getFilterType() + "::" + currentFacet.getAsFilterQuery())
                 .anyMatch(facetDescription -> !appliedFilterQueries.contains(facetDescription));
 
