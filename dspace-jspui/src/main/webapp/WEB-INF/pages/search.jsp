@@ -109,7 +109,7 @@
                 <%--<p class="lead"><fmt:message key="jsp.search.didyoumean"><fmt:param><a id="spellCheckQuery" data-spell="<%= Utils.addEntities(spellCheckQuery) %>" href="#"><%= spellCheckQuery %></a></fmt:param></fmt:message></p>--%>
                 <%--<% } %>--%>
                 <input type="hidden" value="${rpp}" name="rpp" />
-                <input type="hidden" value="${Utils.addEntities(sortedBy.name)}" name="sort_by" />
+                <input type="hidden" value="${Utils.addEntities(sortedBy)}" name="sort_by" />
                 <input type="hidden" value="${Utils.addEntities(order)}" name="order" />
 
                 <%--<% if (appliedFilters.size() > 0 ) { %>--%>
@@ -195,7 +195,27 @@
                         </h4>
                     </div>
                     <div class="modal-body">
-                        <essuir:sortOptionField sortOptions="${sortOptions}" sortedBy="${sortedBy}"/>
+
+                        <div class="form-group row">
+                            <label for="sort_by" class="col-sm-6 col-form-label"><fmt:message key="search.results.sort-by"/></label>
+                            <div class="col-sm-6">
+                                <select name="sort_by" id="sort_by"  class="form-control">
+                                    <option value="score"><fmt:message key="search.sort-by.relevance"/></option>
+
+                                    <c:forEach items="${sortOptions}" var="sortOption">
+                                        <c:choose>
+                                            <c:when test="${sortOption.equals(sortedBy)}">
+                                                <option value="${Utils.addEntities(sortOption)}" selected><fmt:message key="search.sort-by.${sortOption}"/></option>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <option value="${Utils.addEntities(sortOption)}"><fmt:message key="search.sort-by.${sortOption}"/></option>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </c:forEach>
+                                </select>
+                            </div>
+                        </div>
+
                         <essuir:sortOrderField sortOrder="${order}" />
                         <essuir:resultsPerPageField rpp="${rpp}" />
                     </div>
@@ -234,7 +254,7 @@
                             <c:set var="filterType" value="${URLEncoder.encode(fvalue.getFilterType(),\"UTF-8\")}"/>
                             <c:set var="index" value="${index + 1}" scope="page"/>
 
-                            <a href="${handle}/simple-search?query=${queryEncoded}&amp;sort_by=${sortedBy.name}&amp;order=${order}&amp;rpp=${rpp}${httpFilters}&amp;filtername=${filterName}&amp;filterquery=${filterQuery}&amp;filtertype=${filterType}"
+                            <a href="${handle}/simple-search?query=${queryEncoded}&amp;sort_by=${sortedBy}&amp;order=${order}&amp;rpp=${rpp}${httpFilters}&amp;filtername=${filterName}&amp;filterquery=${filterQuery}&amp;filtertype=${filterType}"
                                title="<fmt:message key="jsp.search.facet.narrow"><fmt:param>${altTitle}</fmt:param></fmt:message>">
                                     ${StringUtils.abbreviate(fvalue.displayedValue, 36)}
                             </a>
@@ -245,14 +265,14 @@
                             <c:set value="${facetCurrentPage.get(facet.indexFieldName)}" var="currentFacetPage"/>
 
                             <c:if test="${currentFacetPage > 0}">
-                                <a class="pull-left" href="${handle}/simple-search?query=${queryEncoded}&amp;sort_by=${sortedBy.name}&amp;order=${order}&amp;rpp=${rpp}${httpFilters}&amp;${facet.indexFieldName}_page=${currentFacetPage-1}">
+                                <a class="pull-left" href="${handle}/simple-search?query=${queryEncoded}&amp;sort_by=${sortedBy}&amp;order=${order}&amp;rpp=${rpp}${httpFilters}&amp;${facet.indexFieldName}_page=${currentFacetPage-1}">
                                         <fmt:message key="jsp.search.facet.refine.previous" />
                                 </a>
                             </c:if>
 
 
                             <c:if test="${index == currentFacetLimit}">
-                                <a class="pull-right" href="${handle}/simple-search?query=${queryEncoded}&amp;sort_by=${sortedBy.name}&amp;order=${order}&amp;rpp=${rpp}${httpFilters}&amp;${facet.indexFieldName}_page=${currentFacetPage+1}">
+                                <a class="pull-right" href="${handle}/simple-search?query=${queryEncoded}&amp;sort_by=${sortedBy}&amp;order=${order}&amp;rpp=${rpp}${httpFilters}&amp;${facet.indexFieldName}_page=${currentFacetPage+1}">
                                     <fmt:message key="jsp.search.facet.refine.next" />
                                 </a>
                             </c:if>

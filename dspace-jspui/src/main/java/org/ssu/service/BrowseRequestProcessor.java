@@ -39,7 +39,7 @@ public class BrowseRequestProcessor {
         model.addObject("finishIndex", browseInfo.getFinish());
         model.addObject("totalItems", browseInfo.getTotal());
         model.addObject("sortedBy", browseInfo.getSortOption());
-        model.addObject("sortOrder", request.getParameter("sortOrder"));
+        model.addObject("sortOrder", request.getParameter("order"));
         model.addObject("rpp", perPage);
         model.addObject("selectedYear", Optional.ofNullable(request.getParameter("starts_with")).map(String::valueOf).orElse(""));
         model.addObject("sortOptions", SortOption.getSortOptions().stream().filter(SortOption::isVisible).collect(Collectors.toSet()));

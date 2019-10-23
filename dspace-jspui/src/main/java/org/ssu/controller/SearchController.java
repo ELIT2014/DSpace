@@ -23,6 +23,7 @@ import org.dspace.discovery.SearchUtils;
 import org.dspace.discovery.configuration.DiscoveryConfiguration;
 import org.dspace.discovery.configuration.DiscoverySearchFilter;
 import org.dspace.discovery.configuration.DiscoverySearchFilterFacet;
+import org.dspace.discovery.configuration.DiscoverySortFieldConfiguration;
 import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.handle.service.HandleService;
 import org.dspace.sort.SortException;
@@ -37,6 +38,7 @@ import org.ssu.service.PaginationProcessor;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.management.AttributeList;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -109,6 +111,7 @@ public class SearchController {
             }
         }
 
+
         Locale locale = dspaceContext.getCurrentLocale();
         List<ItemResponse> items = resultsListItem.stream()
                 .map(item -> itemService.fetchItemresponseDataForItem(item, locale))
@@ -147,6 +150,17 @@ public class SearchController {
         request.setAttribute("scope", scope);
 
 
+        List<DiscoverySortFieldConfiguration> sortFields = discoveryConfiguration.getSearchSortConfiguration().getSortFields();
+        List<String> sortOptions = new ArrayList<>();
+        for (DiscoverySortFieldConfiguration sortFieldConfiguration : sortFields)
+        {
+            String sortField = SearchUtils.getSearchService().toSortFieldIndex(
+                    sortFieldConfiguration.getMetadataField(),
+                    sortFieldConfiguration.getType());
+            sortOptions.add(sortField);
+        }
+
+
         List<DiscoverySearchFilterFacet> facets = Optional.ofNullable(qResults).map(results -> fetchEnabledFacets(discoveryConfiguration, appliedFilterQueries, qResults)).orElse(new ArrayList<>());
         Map<String, String> facetsCurrentPage = facets.stream().collect(Collectors.toMap(DiscoverySearchFilter::getIndexFieldName, facet -> Optional.ofNullable(request.getParameter(facet.getIndexFieldName() + "_page")).orElse("0")));
         Map<String, Integer> facetsLimit = facets.stream().collect(Collectors.toMap(DiscoverySearchFilter::getIndexFieldName, DiscoverySearchFilterFacet::getFacetLimit));
@@ -163,11 +177,11 @@ public class SearchController {
         model.addObject("rpp", queryArgs.getMaxResults());
         model.addObject("httpFilters", httpFilters);
         model.addObject("order", queryArgs.getSortOrder().toString());
-        model.addObject("sortOptions", SortOption.getSortOptions().stream().filter(SortOption::isVisible).collect(Collectors.toSet()));
+        model.addObject("sortOptions", sortOptions);
         model.addObject("queryresults", qResults);
         model.addObject("scope", scope);
         model.addObject("handle", "/handle/123456789/" + itemId);
-        model.addObject("sortedBy", SortOption.getSortOptions().stream().filter(option -> option.equals(queryArgs.getSortField())).findFirst().orElse(SortOption.getDefaultSortOption()));
+        model.addObject("sortedBy", Optional.ofNullable(request.getParameter("sort_by")).orElse(SortOption.getDefaultSortOption().getName()));
         model.addObject("queryEncoded", URLEncoder.encode(Optional.ofNullable(query).orElse(""), "UTF-8"));
         model.addObject("searchScope", scope != null ? scope.getHandle() : "");
         model.addObject("scopes", getScopes(scope, dspaceContext));
