@@ -150,16 +150,10 @@ public class SearchController {
         request.setAttribute("scope", scope);
 
 
-        List<DiscoverySortFieldConfiguration> sortFields = discoveryConfiguration.getSearchSortConfiguration().getSortFields();
-        List<String> sortOptions = new ArrayList<>();
-        for (DiscoverySortFieldConfiguration sortFieldConfiguration : sortFields)
-        {
-            String sortField = SearchUtils.getSearchService().toSortFieldIndex(
-                    sortFieldConfiguration.getMetadataField(),
-                    sortFieldConfiguration.getType());
-            sortOptions.add(sortField);
-        }
 
+        List<String> sortOptions = discoveryConfiguration.getSearchSortConfiguration().getSortFields().stream()
+                .map(fieldConfiguration -> SearchUtils.getSearchService().toSortFieldIndex(fieldConfiguration.getMetadataField(),fieldConfiguration.getType()))
+                .collect(Collectors.toList());
 
         List<DiscoverySearchFilterFacet> facets = Optional.ofNullable(qResults).map(results -> fetchEnabledFacets(discoveryConfiguration, appliedFilterQueries, qResults)).orElse(new ArrayList<>());
         Map<String, String> facetsCurrentPage = facets.stream().collect(Collectors.toMap(DiscoverySearchFilter::getIndexFieldName, facet -> Optional.ofNullable(request.getParameter(facet.getIndexFieldName() + "_page")).orElse("0")));
