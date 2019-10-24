@@ -88,7 +88,7 @@
             <%--var s = d.getElementsByTagName(t)[0]; s.parentNode.insertBefore(j, s);--%>
         <%--})(document, "script", document.location.protocol);--%>
     <%--</script><!--/Openstat-->--%>
-        <%--<%--%>
+        <%
             }
         %>
         <div id="footer_feedback" class="pull-right" style="font-size:10pt">

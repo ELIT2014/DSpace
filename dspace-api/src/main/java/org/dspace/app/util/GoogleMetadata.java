@@ -797,6 +797,10 @@ public class GoogleMetadata
         return metadataMappings.get(TITLE);
     }
 
+    public void setAuthors(List<String> authors) {
+        metadataMappings.removeAll(AUTHORS);
+        metadataMappings.putAll(AUTHORS, authors);
+    }
     /**
      * @return the citation_journal_title
      */
