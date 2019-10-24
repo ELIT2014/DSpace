@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URLEncoder;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.RequestDispatcher;
@@ -50,6 +51,7 @@ import org.dspace.utils.DSpace;
 import org.jdom.Element;
 import org.jdom.Text;
 import org.jdom.output.XMLOutputter;
+import ua.edu.sumdu.essuir.cache.AuthorCache;
 
 /**
  * Servlet for handling requests within a community or collection. The Handle is
@@ -405,6 +407,9 @@ public class HandleServlet extends DSpaceServlet
             {
                 // Add Google metadata field names & values
                 GoogleMetadata gmd = new GoogleMetadata(context, item);
+
+                String language = gmd.getLanguage().stream().findFirst().orElse("en");
+                gmd.setAuthors(AuthorCache.getLocalizedAuthors(gmd.getAuthors(), language));
                 xmlo.output(new Text("\n"), sw);
 
                 for (Element e: gmd.disseminateList())
