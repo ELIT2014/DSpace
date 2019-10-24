@@ -9,6 +9,7 @@
 <%@ page import="org.dspace.discovery.DiscoverQuery" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@page import="org.dspace.core.Utils"%>
+<%@ page import="com.coverity.security.Escape" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://www.dspace.org/dspace-tags.tld" prefix="dspace" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
@@ -222,6 +223,31 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal"><fmt:message key="jsp.tools.group-select-list.close.button"/></button>
                         <button type="submit" class="btn btn-primary"><fmt:message key="browse.nav.go"/></button>
+                    </div>
+
+                    <div class="panel-body">
+
+
+                        <select id="filtername" name="filtername">
+                            <c:forEach items="${availableFilters}" var="filter">
+                                <option value="${Utils.addEntities(filter.indexFieldName)}"><fmt:message key="jsp.search.filter.${Escape.uriParam(filter.indexFieldName)}"/></option>
+                            </c:forEach>
+                        </select>
+                        <select id="filtertype" name="filtertype">
+
+                            <%
+                                for (String opt : options)
+                                {
+                                    String fkey = "jsp.search.filter.op." + Escape.uriParam(opt);
+                            %><option value="<%= Utils.addEntities(opt) %>"><fmt:message key="<%= fkey %>"/></option><%
+                            }
+                        %>
+                        </select>
+                        <input type="text" id="filterquery" name="filterquery" size="45" required="required" />
+                        <input type="hidden" value="<%= rpp %>" name="rpp" />
+                        <input type="hidden" value="<%= Utils.addEntities(sortedBy) %>" name="sort_by" />
+                        <input type="hidden" value="<%= Utils.addEntities(order) %>" name="order" />
+                        <input class="btn btn-default" type="submit" value="<fmt:message key="jsp.search.filter.add"/>" onclick="return validateFilters()" />
                     </div>
                 </form>
             </div>

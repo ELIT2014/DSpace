@@ -165,6 +165,7 @@ public class SearchController {
         model = paginationProcessor.fillModelWithPaginationData(model, request,qResults);
 
         model.addObject("items", items);
+        model.addObject("availableFilters", discoveryConfiguration.getSearchFilters());
         model.addObject("totalItems", qResults.getTotalSearchResults());
         model.addObject("startIndex", qResults.getStart());
         model.addObject("finishIndex", qResults.getStart()+qResults.getMaxResults());
