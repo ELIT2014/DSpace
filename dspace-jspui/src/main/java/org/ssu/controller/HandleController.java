@@ -1,5 +1,6 @@
 package org.ssu.controller;
 
+import org.dspace.app.util.GoogleMetadata;
 import org.dspace.app.webui.util.UIUtil;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.factory.AuthorizeServiceFactory;
@@ -7,7 +8,10 @@ import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.browse.*;
 import org.dspace.content.*;
 import org.dspace.content.Collection;
+import org.dspace.content.crosswalk.CrosswalkException;
+import org.dspace.content.crosswalk.DisseminationCrosswalk;
 import org.dspace.content.factory.ContentServiceFactory;
+import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.factory.CoreServiceFactory;
@@ -19,6 +23,9 @@ import org.dspace.plugin.CommunityHomeProcessor;
 import org.dspace.plugin.PluginException;
 import org.dspace.sort.SortException;
 import org.dspace.statistics.util.LocationUtils;
+import org.jdom.Element;
+import org.jdom.Text;
+import org.jdom.output.XMLOutputter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,6 +45,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.*;
@@ -50,6 +58,8 @@ public class HandleController {
     private HandleService handleService = HandleServiceFactory.getInstance().getHandleService();
     private AuthorizeService authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
     private org.dspace.content.service.ItemService dspaceItemService = ContentServiceFactory.getInstance().getItemService();
+    private final transient PluginService pluginService = CoreServiceFactory.getInstance().getPluginService();
+    private final transient DisseminationCrosswalk xHTMLHeadCrosswalk = (DisseminationCrosswalk) pluginService.getNamedPlugin(DisseminationCrosswalk.class, "XHTML_HEAD_ITEM");
     @Resource
     private ItemService itemService;
 
@@ -72,7 +82,7 @@ public class HandleController {
     }
 
     @RequestMapping(value = "/123456789/{itemId}")
-    public ModelAndView entrypoint(HttpServletRequest request, HttpServletResponse response,  @PathVariable("itemId") String itemId, ModelAndView model) throws SQLException, ItemCountException, PluginException, AuthorizeException, ServletException, BrowseException, IOException, SortException {
+    public ModelAndView entrypoint(HttpServletRequest request, HttpServletResponse response,  @PathVariable("itemId") String itemId, ModelAndView model) throws SQLException, ItemCountException, PluginException, AuthorizeException, ServletException, BrowseException, IOException, SortException, CrosswalkException {
         Context dspaceContext = UIUtil.obtainContext(request);
         DSpaceObject dSpaceObject = handleService.resolveToObject(dspaceContext, "123456789/" + itemId);
         Locale locale = dspaceContext.getCurrentLocale();
@@ -191,8 +201,37 @@ public class HandleController {
         return new ModelAndView("redirect:" + getLinkForBitstream.apply(bitstream));
     }
 
-    private ModelAndView displayItem(HttpServletRequest request, ModelAndView model, Item item, Locale locale) throws SQLException {
+    private ModelAndView displayItem(HttpServletRequest request, ModelAndView model, Item item, Locale locale) throws SQLException, IOException, CrosswalkException, AuthorizeException {
         Context dspaceContext = UIUtil.obtainContext(request);
+
+        List<Element> l = xHTMLHeadCrosswalk.disseminateList(dspaceContext, item);
+        StringWriter sw = new StringWriter();
+
+        XMLOutputter xmlo = new XMLOutputter();
+        xmlo.output(new Text("\n"), sw);
+        for (Element e : l)
+        {
+            e.setNamespace(null);
+            xmlo.output(e, sw);
+            xmlo.output(new Text("\n"), sw);
+        }
+        boolean googleEnabled = ConfigurationManager.getBooleanProperty("google-metadata.enable", false);
+        if (googleEnabled)
+        {
+            // Add Google metadata field names & values
+            GoogleMetadata gmd = new GoogleMetadata(dspaceContext, item);
+
+            xmlo.output(new Text("\n"), sw);
+
+            for (Element e: gmd.disseminateList())
+            {
+                xmlo.output(e, sw);
+                xmlo.output(new Text("\n"), sw);
+            }
+        }
+        String headMetadata = sw.toString();
+        request.setAttribute("dspace.layout.head", headMetadata);
+
 
         essuirStatistics.updateItemViews(request, item.getLegacyId());
         List<CountryStatisticsResponse> itemViewsByCountry = essuirStatistics.getItemViewsByCountry(item.getLegacyId())
