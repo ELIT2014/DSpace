@@ -67,12 +67,12 @@
     <h2><fmt:message key="jsp.search.title"/></h2>
 
 
-    <div class="discovery-search-form panel-default">
+    <div class="discovery-search-form panel panel-default">
         <div class="discovery-query panel-heading">
             <form action="simple-search" method="get">
 
                 <div class="form-inline">
-                    <div class="form-group col-md-10">
+                    <div class="form-group">
                         <select name="location" id="tlocation" class="form-control">
                             <c:choose>
                                 <c:when test="scope is null">
@@ -99,68 +99,70 @@
                             </c:forEach>
                         </select>
                     </div>
-                    <input type="submit" id="main-query-submit" class="btn btn-default col-md-2" value="<fmt:message key="jsp.general.go"/>" />
+                    <input type="submit" id="main-query-submit" class="btn btn-default" value="<fmt:message key="jsp.general.go"/>" />
                 </div>
+                <div class="discovery-search-appliedFilters" style="margin-top:20px;">
+                    <c:forEach items="${appliedFilters}" var="appliedFilter" varStatus="filterIndex">
+                        <div class="form-inline">
+                            <div class="form-group">
+                                <input type="text" value="<fmt:message key="jsp.search.filter.${appliedFilter[0]}"/>" name="filter_field_${filterIndex.count}_select" id="filter_field_${filterIndex.count}" class="form-control" readonly="">
+                            </div>
 
 
-                <%--<label for="query"><fmt:message key="jsp.search.results.searchfor"/></label>--%>
-                <%--<input type="text" size="50" id="query" name="query" value="<%= (query==null ? "" : Utils.addEntities(query)) %>"/>--%>
-                <%--<input type="submit" id="main-query-submit" class="btn btn-primary" value="<fmt:message key="jsp.general.go"/>" />--%>
-                <%--<% if (StringUtils.isNotBlank(spellCheckQuery)) {%>--%>
-                <%--<p class="lead"><fmt:message key="jsp.search.didyoumean"><fmt:param><a id="spellCheckQuery" data-spell="<%= Utils.addEntities(spellCheckQuery) %>" href="#"><%= spellCheckQuery %></a></fmt:param></fmt:message></p>--%>
-                <%--<% } %>--%>
+                            <div class="form-group">
+                                <input type="text" value="<fmt:message key="jsp.search.filter.op.${appliedFilter[1]}"/>" name="filter_type_${filterIndex.count}" class="form-control" readonly="">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" id="filter_value_${filterIndex.count}_display" name="filter_value_${filterIndex.count}_display" value="${appliedFilter[2]}" size="45" readonly="" class="form-control">
+                            </div>
+
+                            <input type="hidden" value="${appliedFilter[0]}" name="filter_field_${filterIndex.count}">
+                            <input type="hidden" value="${appliedFilter[1]}" name="filter_type_${filterIndex.count}">
+                            <input type="hidden" value="${appliedFilter[2]}" name="filter_value_${filterIndex.count}">
+
+                            <input class="btn btn-default" type="submit" id="submit_filter_remove_${filterIndex.count}" name="submit_filter_remove_${filterIndex.count}" value="X">
+                        </div>
+                        <br/>
+                    </c:forEach>
+                </div>
+                <a class="btn btn-default" href="${handle}/simple-search"><fmt:message key="jsp.search.general.new-search" /></a>
+            </form>
+        </div>
+        <div class="panel-body">
+            <form action="simple-search" method="get" class="form-inline">
+                <div class = "form-group">
+                    <select id="filtername" name="filtername" class="form-control">
+                        <c:forEach items="${availableFilters}" var="filter">
+                            <option value="${Utils.addEntities(filter.indexFieldName)}"><fmt:message key="jsp.search.filter.${filter.indexFieldName}"/></option>
+                        </c:forEach>
+                    </select>
+                </div>
+                <div class = "form-group">
+                    <select id="filtertype" name="filtertype" class="form-control">
+
+                        <%
+                            String[] options = new String[]{"equals","contains","authority","notequals","notcontains","notauthority"};
+                            for (String opt : options)
+                            {
+                                String fkey = "jsp.search.filter.op." + Escape.uriParam(opt);
+                        %><option value="<%= Utils.addEntities(opt) %>"><fmt:message key="<%= fkey %>"/></option><%
+                        }
+                    %>
+                    </select>
+                </div>
+                <div class = "form-group">
+                    <span id="filterqueryfield">
+                        <span role="status" aria-live="polite" class="ui-helper-hidden-accessible"></span>
+                        <input type="text" id="filterquery" name="filterquery" size="45" required="required" class="form-control ui-autocomplete-input" autocomplete="off">
+                    </span>
+                </div>
                 <input type="hidden" value="${rpp}" name="rpp" />
+                <input type="hidden" value="${queryEncoded}" name="query" />
                 <input type="hidden" value="${Utils.addEntities(sortedBy)}" name="sort_by" />
-                <input type="hidden" value="${Utils.addEntities(order)}" name="order" />
-
-                <%--<% if (appliedFilters.size() > 0 ) { %>--%>
-                <%--<div class="discovery-search-appliedFilters">--%>
-                    <%--<span><fmt:message key="jsp.search.filter.applied" /></span>--%>
-                    <%--<%--%>
-                        <%--int idx = 1;--%>
-                        <%--for (String[] filter : appliedFilters)--%>
-                        <%--{--%>
-                            <%--boolean found = false;--%>
-                    <%--%>--%>
-                    <%--<select id="filter_field_<%=idx %>" name="filter_field_<%=idx %>">--%>
-                        <%--<%--%>
-                            <%--for (DiscoverySearchFilter searchFilter : availableFilters)--%>
-                            <%--{--%>
-                                <%--String fkey = "jsp.search.filter." + Escape.uriParam(searchFilter.getIndexFieldName());--%>
-                        <%--%><option value="<%= Utils.addEntities(searchFilter.getIndexFieldName()) %>"<%--%>
-                        <%--if (searchFilter.getIndexFieldName().equals(filter[0]))--%>
-                        <%--{--%>
-                    <%--%> selected="selected"<%--%>
-                            <%--found = true;--%>
-                        <%--}--%>
-                    <%--%>><fmt:message key="<%= fkey %>"/></option><%--%>
-                        <%--}--%>
-                        <%--if (!found)--%>
-                        <%--{--%>
-                            <%--String fkey = "jsp.search.filter." + Escape.uriParam(filter[0]);--%>
-                    <%--%><option value="<%= Utils.addEntities(filter[0]) %>" selected="selected"><fmt:message key="<%= fkey %>"/></option><%--%>
-                        <%--}--%>
-                    <%--%>--%>
-                    <%--</select>--%>
-                    <%--<select id="filter_type_<%=idx %>" name="filter_type_<%=idx %>">--%>
-                        <%--<%--%>
-                            <%--for (String opt : options)--%>
-                            <%--{--%>
-                                <%--String fkey = "jsp.search.filter.op." + Escape.uriParam(opt);--%>
-                        <%--%><option value="<%= Utils.addEntities(opt) %>"<%= opt.equals(filter[1])?" selected=\"selected\"":"" %>><fmt:message key="<%= fkey %>"/></option><%--%>
-                        <%--}--%>
-                    <%--%>--%>
-                    <%--</select>--%>
-                    <%--<input type="text" id="filter_value_<%=idx %>" name="filter_value_<%=idx %>" value="<%= Utils.addEntities(filter[2]) %>" size="45"/>--%>
-                    <%--<input class="btn btn-default" type="submit" id="submit_filter_remove_<%=idx %>" name="submit_filter_remove_<%=idx %>" value="X" />--%>
-                    <%--<br/>--%>
-                    <%--<%--%>
-                            <%--idx++;--%>
-                        <%--}--%>
-                    <%--%>--%>
-                <%--</div>--%>
-                <%--<% } %>--%>
-                <a class="btn btn-default" href="<%= request.getContextPath()+"/simple-search" %>"><fmt:message key="jsp.search.general.new-search" /></a>
+                <input type="hidden" value="${Utils.addEntities(order)}" jsp.search.filter.name="order" />
+                <div class = "form-group">
+                    <input class="btn btn-default" type="submit" value="<fmt:message key="jsp.search.filter.add"/>" onclick="return validateFilters()" />
+                </div>
             </form>
         </div>
     </div>
@@ -225,30 +227,7 @@
                         <button type="submit" class="btn btn-primary"><fmt:message key="browse.nav.go"/></button>
                     </div>
 
-                    <div class="panel-body">
 
-
-                        <select id="filtername" name="filtername">
-                            <c:forEach items="${availableFilters}" var="filter">
-                                <option value="${Utils.addEntities(filter.indexFieldName)}"><fmt:message key="jsp.search.filter.${Escape.uriParam(filter.indexFieldName)}"/></option>
-                            </c:forEach>
-                        </select>
-                        <select id="filtertype" name="filtertype">
-
-                            <%
-                                for (String opt : options)
-                                {
-                                    String fkey = "jsp.search.filter.op." + Escape.uriParam(opt);
-                            %><option value="<%= Utils.addEntities(opt) %>"><fmt:message key="<%= fkey %>"/></option><%
-                            }
-                        %>
-                        </select>
-                        <input type="text" id="filterquery" name="filterquery" size="45" required="required" />
-                        <input type="hidden" value="<%= rpp %>" name="rpp" />
-                        <input type="hidden" value="<%= Utils.addEntities(sortedBy) %>" name="sort_by" />
-                        <input type="hidden" value="<%= Utils.addEntities(order) %>" name="order" />
-                        <input class="btn btn-default" type="submit" value="<fmt:message key="jsp.search.filter.add"/>" onclick="return validateFilters()" />
-                    </div>
                 </form>
             </div>
         </div>

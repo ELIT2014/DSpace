@@ -163,8 +163,9 @@ public class SearchController {
         model.addObject("facetCurrentPage", facetsCurrentPage);
 
         model = paginationProcessor.fillModelWithPaginationData(model, request,qResults);
-
         model.addObject("items", items);
+        model.addObject("appliedFilters", appliedFilters);
+        model.addObject("appliedFilterQueries", appliedFilterQueries);
         model.addObject("availableFilters", discoveryConfiguration.getSearchFilters());
         model.addObject("totalItems", qResults.getTotalSearchResults());
         model.addObject("startIndex", qResults.getStart());

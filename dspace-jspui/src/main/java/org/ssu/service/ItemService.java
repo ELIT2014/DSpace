@@ -106,7 +106,7 @@ public class ItemService {
                 .findFirst()
                 .map(MetadataValue::getValue)
                 .map(type -> typeLocalization.getTypeLocalized(type, locale))
-                .get();
+                .orElse("");
     }
 
     public ItemResponse fetchItemresponseDataForItem(Item item, Locale locale) {
