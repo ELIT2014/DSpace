@@ -1,6 +1,5 @@
 package org.ssu.controller;
 
-import org.dspace.app.util.GoogleMetadata;
 import org.dspace.app.webui.util.UIUtil;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.factory.AuthorizeServiceFactory;
@@ -30,6 +29,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.ssu.entity.GoogleMetadataTagGenerator;
 import org.ssu.entity.response.BitstreamResponse;
 import org.ssu.entity.response.CountedCommunityResponse;
 import org.ssu.entity.response.CountryStatisticsResponse;
@@ -38,6 +38,7 @@ import org.ssu.service.BrowseContext;
 import org.ssu.service.CommunityService;
 import org.ssu.service.ItemService;
 import org.ssu.service.BrowseRequestProcessor;
+import org.ssu.service.localization.AuthorsCache;
 import org.ssu.service.statistics.EssuirStatistics;
 
 import javax.annotation.Resource;
@@ -72,7 +73,8 @@ public class HandleController {
     @Resource
     private BrowseRequestProcessor browseRequestProcessor;
 
-
+    @Resource
+    private AuthorsCache authorsCache;
 
     @RequestMapping(value = "/123456789/{itemId}/simple-search")
     public ModelAndView simpleSearchInCommunity(ModelAndView model, HttpServletRequest request) {
@@ -204,34 +206,32 @@ public class HandleController {
     private ModelAndView displayItem(HttpServletRequest request, ModelAndView model, Item item, Locale locale) throws SQLException, IOException, CrosswalkException, AuthorizeException {
         Context dspaceContext = UIUtil.obtainContext(request);
 
-        List<Element> l = xHTMLHeadCrosswalk.disseminateList(dspaceContext, item);
-        StringWriter sw = new StringWriter();
+        List<Element> metaTags = xHTMLHeadCrosswalk.disseminateList(dspaceContext, item);
 
-        XMLOutputter xmlo = new XMLOutputter();
-        xmlo.output(new Text("\n"), sw);
-        for (Element e : l)
-        {
-            e.setNamespace(null);
-            xmlo.output(e, sw);
-            xmlo.output(new Text("\n"), sw);
-        }
         boolean googleEnabled = ConfigurationManager.getBooleanProperty("google-metadata.enable", false);
         if (googleEnabled)
         {
-            // Add Google metadata field names & values
-            GoogleMetadata gmd = new GoogleMetadata(dspaceContext, item);
-
-            xmlo.output(new Text("\n"), sw);
-
-            for (Element e: gmd.disseminateList())
-            {
-                xmlo.output(e, sw);
-                xmlo.output(new Text("\n"), sw);
-            }
+            GoogleMetadataTagGenerator googleMetadata = new GoogleMetadataTagGenerator(dspaceContext, item);
+            String language = googleMetadata.getLanguage().stream().findFirst().orElse("en");
+            Locale authorLocalizationLocale = Locale.forLanguageTag(language);
+            googleMetadata.setAuthors(googleMetadata.getAuthors().stream()
+                    .map(author -> authorsCache.getAuthorLocalization(author))
+                    .distinct()
+                    .map(authorLocalized -> String.format("%s, %s", authorLocalized.getSurname(authorLocalizationLocale), authorLocalized.getInitials(authorLocalizationLocale)))
+                    .collect(Collectors.toList()));
+            metaTags.addAll(googleMetadata.disseminateList());
         }
-        String headMetadata = sw.toString();
-        request.setAttribute("dspace.layout.head", headMetadata);
 
+        StringWriter headMetadata  = new StringWriter();
+        XMLOutputter outputXmlWritter = new XMLOutputter();
+        outputXmlWritter.output(new Text("\n"), headMetadata );
+
+        List<Element> outputTags = metaTags.stream()
+                .peek(element -> element.setNamespace(null))
+                .map(element -> element.addContent(new Text("\n")))
+                .collect(Collectors.toList());
+        outputXmlWritter.output(outputTags, headMetadata );
+        request.setAttribute("dspace.layout.head", headMetadata.toString());
 
         essuirStatistics.updateItemViews(request, item.getLegacyId());
         List<CountryStatisticsResponse> itemViewsByCountry = essuirStatistics.getItemViewsByCountry(item.getLegacyId())
