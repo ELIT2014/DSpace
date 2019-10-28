@@ -155,9 +155,13 @@ public class SearchController {
                 .map(fieldConfiguration -> SearchUtils.getSearchService().toSortFieldIndex(fieldConfiguration.getMetadataField(),fieldConfiguration.getType()))
                 .collect(Collectors.toList());
 
+
+
+
         List<DiscoverySearchFilterFacet> facets = Optional.ofNullable(qResults).map(results -> fetchEnabledFacets(discoveryConfiguration, appliedFilterQueries, qResults)).orElse(new ArrayList<>());
         Map<String, String> facetsCurrentPage = facets.stream().collect(Collectors.toMap(DiscoverySearchFilter::getIndexFieldName, facet -> Optional.ofNullable(request.getParameter(facet.getIndexFieldName() + "_page")).orElse("0")));
         Map<String, Integer> facetsLimit = facets.stream().collect(Collectors.toMap(DiscoverySearchFilter::getIndexFieldName, DiscoverySearchFilterFacet::getFacetLimit));
+
         model.addObject("facets", facets);
         model.addObject("facetsLimit", facetsLimit);
         model.addObject("facetCurrentPage", facetsCurrentPage);
@@ -177,7 +181,7 @@ public class SearchController {
         model.addObject("queryresults", qResults);
         model.addObject("scope", scope);
         model.addObject("handle", "/handle/123456789/" + itemId);
-        model.addObject("sortedBy", Optional.ofNullable(request.getParameter("sort_by")).orElse(SortOption.getDefaultSortOption().getName()));
+        model.addObject("sortedBy", Optional.ofNullable(queryArgs.getSortField()).orElse(SortOption.getDefaultSortOption().getName()));
         model.addObject("queryEncoded", URLEncoder.encode(Optional.ofNullable(query).orElse(""), "UTF-8"));
         model.addObject("searchScope", scope != null ? scope.getHandle() : "");
         model.addObject("scopes", getScopes(scope, dspaceContext));

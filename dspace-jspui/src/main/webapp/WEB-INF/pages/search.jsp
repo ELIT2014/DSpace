@@ -110,7 +110,7 @@
 
 
                             <div class="form-group">
-                                <input type="text" value="<fmt:message key="jsp.search.filter.op.${appliedFilter[1]}"/>" name="filter_type_${filterIndex.count}" class="form-control" readonly="">
+                                <input type="text" value="${appliedFilter[1]}" name="filter_type_${filterIndex.count}" class="form-control" readonly="">
                             </div>
                             <div class="form-group">
                                 <input type="text" id="filter_value_${filterIndex.count}_display" name="filter_value_${filterIndex.count}_display" value="${appliedFilter[2]}" size="45" readonly="" class="form-control">
@@ -129,39 +129,48 @@
             </form>
         </div>
         <div class="panel-body">
-            <form action="simple-search" method="get" class="form-inline">
-                <div class = "form-group">
-                    <select id="filtername" name="filtername" class="form-control">
-                        <c:forEach items="${availableFilters}" var="filter">
-                            <option value="${Utils.addEntities(filter.indexFieldName)}"><fmt:message key="jsp.search.filter.${filter.indexFieldName}"/></option>
-                        </c:forEach>
-                    </select>
-                </div>
-                <div class = "form-group">
-                    <select id="filtertype" name="filtertype" class="form-control">
+            <form action="simple-search" method="get">
+                <div class = "form-inline">
+                        <div class = "form-group">
+                            <select id="filtername" name="filtername" class="form-control">
+                                <c:forEach items="${availableFilters}" var="filter">
+                                    <option value="${Utils.addEntities(filter.indexFieldName)}"><fmt:message key="jsp.search.filter.${filter.indexFieldName}"/></option>
+                                </c:forEach>
+                            </select>
+                        </div>
+                        <div class = "form-group">
+                            <select id="filtertype" name="filtertype" class="form-control">
 
-                        <%
-                            String[] options = new String[]{"equals","contains","authority","notequals","notcontains","notauthority"};
-                            for (String opt : options)
-                            {
-                                String fkey = "jsp.search.filter.op." + Escape.uriParam(opt);
-                        %><option value="<%= Utils.addEntities(opt) %>"><fmt:message key="<%= fkey %>"/></option><%
-                        }
-                    %>
-                    </select>
-                </div>
-                <div class = "form-group">
-                    <span id="filterqueryfield">
-                        <span role="status" aria-live="polite" class="ui-helper-hidden-accessible"></span>
-                        <input type="text" id="filterquery" name="filterquery" size="45" required="required" class="form-control ui-autocomplete-input" autocomplete="off">
-                    </span>
-                </div>
-                <input type="hidden" value="${rpp}" name="rpp" />
-                <input type="hidden" value="${queryEncoded}" name="query" />
-                <input type="hidden" value="${Utils.addEntities(sortedBy)}" name="sort_by" />
-                <input type="hidden" value="${Utils.addEntities(order)}" jsp.search.filter.name="order" />
-                <div class = "form-group">
-                    <input class="btn btn-default" type="submit" value="<fmt:message key="jsp.search.filter.add"/>" onclick="return validateFilters()" />
+                                <%
+                                    String[] options = new String[]{"equals","contains","authority","notequals","notcontains","notauthority"};
+                                    for (String opt : options)
+                                    {
+                                        String fkey = "jsp.search.filter.op." + Escape.uriParam(opt);
+                                %><option value="<%= Utils.addEntities(opt) %>"><fmt:message key="<%= fkey %>"/></option><%
+                                }
+                            %>
+                            </select>
+                        </div>
+                        <div class = "form-group">
+                            <span id="filterqueryfield">
+                                <span role="status" aria-live="polite" class="ui-helper-hidden-accessible"></span>
+                                <input type="text" id="filterquery" name="filterquery" required="required" class="form-control ui-autocomplete-input" autocomplete="off">
+                            </span>
+                        </div>
+
+                        <c:forEach items="${appliedFilters}" var="appliedFilterHiddenField" varStatus="appliedFilterIndex">
+                            <input type="hidden" value="${appliedFilterHiddenField[0]}" name="filter_field_${appliedFilterIndex.count}">
+                            <input type="hidden" value="${appliedFilterHiddenField[1]}" name="filter_type_${appliedFilterIndex.count}">
+                            <input type="hidden" value="${appliedFilterHiddenField[2]}" name="filter_value_${appliedFilterIndex.count}">
+                        </c:forEach>
+
+                        <input type="hidden" value="${rpp}" name="rpp" />
+                        <input type="hidden" value="${queryEncoded}" name="query" />
+                        <input type="hidden" value="${sortedBy}" name="sort_by" />
+                        <input type="hidden" value="${Utils.addEntities(order)}" name="order" />
+                        <%--<div class = "form-group">--%>
+                            <input class="btn btn-default" type="submit" value="<fmt:message key="jsp.search.filter.add"/>" onclick="return validateFilters()" />
+                        <%--</div>--%>
                 </div>
             </form>
         </div>
