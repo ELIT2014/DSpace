@@ -1,5 +1,7 @@
 package org.ssu.controller;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dspace.app.webui.discovery.DiscoverUtility;
 import org.dspace.app.webui.discovery.DiscoverySearchRequestProcessor;
@@ -23,11 +25,11 @@ import org.dspace.discovery.SearchUtils;
 import org.dspace.discovery.configuration.DiscoveryConfiguration;
 import org.dspace.discovery.configuration.DiscoverySearchFilter;
 import org.dspace.discovery.configuration.DiscoverySearchFilterFacet;
-import org.dspace.discovery.configuration.DiscoverySortFieldConfiguration;
 import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.handle.service.HandleService;
 import org.dspace.sort.SortException;
 import org.dspace.sort.SortOption;
+import org.jooq.lambda.Seq;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,16 +40,18 @@ import org.ssu.service.PaginationProcessor;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import javax.management.AttributeList;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Controller
 @RequestMapping("/")
@@ -78,6 +82,13 @@ public class SearchController {
         }
     }
 
+    private <T> List<T> getQueryResultsByType(List<DSpaceObject> dspaceObjects, Class<T> targetType) {
+        return dspaceObjects.stream()
+                .filter(targetType::isInstance)
+                .map(targetType::cast)
+                .collect(Collectors.toList());
+    }
+
     @RequestMapping(value = "/123456789/{itemId}/simple-search")
     public ModelAndView simpleSearchInCommunity(ModelAndView model, HttpServletRequest request, HttpServletResponse response, @PathVariable("itemId") String itemId) throws ServletException, IOException, SQLException, AuthorizeException, SearchProcessorException, SearchServiceException, SortException {
         System.out.println("in search query");
@@ -96,20 +107,9 @@ public class SearchController {
         queryArgs.setSpellCheck(discoveryConfiguration.isSpellCheckEnabled());
         DiscoverResult qResults = SearchUtils.getSearchService().search(dspaceContext, scope, queryArgs);
 
-        List<Community> resultsListComm = new ArrayList<Community>();
-        List<Collection> resultsListColl = new ArrayList<Collection>();
-        List<Item> resultsListItem = new ArrayList<Item>();
-
-        for (DSpaceObject dso : qResults.getDspaceObjects()) {
-            if (dso instanceof Item) {
-                resultsListItem.add((Item) dso);
-            } else if (dso instanceof Collection) {
-                resultsListColl.add((Collection) dso);
-
-            } else if (dso instanceof Community) {
-                resultsListComm.add((Community) dso);
-            }
-        }
+        List<Community> resultsListComm = getQueryResultsByType(qResults.getDspaceObjects(), Community.class);
+        List<Collection> resultsListColl = getQueryResultsByType(qResults.getDspaceObjects(), Collection.class);
+        List<Item> resultsListItem = getQueryResultsByType(qResults.getDspaceObjects(), Item.class);
 
 
         Locale locale = dspaceContext.getCurrentLocale();
@@ -117,46 +117,34 @@ public class SearchController {
                 .map(item -> itemService.fetchItemresponseDataForItem(item, locale))
                 .collect(Collectors.toList());
 
-        List<String> appliedFilterQueries = new ArrayList<String>();
         List<String[]> appliedFilters = DiscoverUtility.getFilters(request);
-        for (String[] filter : appliedFilters) {
-            appliedFilterQueries.add(filter[0] + "::" + filter[1] + "::"
-                    + filter[2]);
-        }
+        List<String> appliedFilterQueries = appliedFilters.stream()
+                .map(filter -> String.format("%s::%s::%s", filter[0], filter[1], filter[2]))
+                .collect(Collectors.toList());
 
-        String httpFilters = "";
-        if (appliedFilters != null && appliedFilters.size() > 0) {
-            int idx = 1;
-            for (String[] filter : appliedFilters) {
-                if (filter == null
-                        || filter[0] == null || filter[0].trim().equals("")
-                        || filter[2] == null || filter[2].trim().equals("")) {
-                    idx++;
-                    continue;
-                }
-                httpFilters += "&amp;filter_field_" + idx + "=" + URLEncoder.encode(filter[0], "UTF-8");
-                httpFilters += "&amp;filter_type_" + idx + "=" + URLEncoder.encode(filter[1], "UTF-8");
-                httpFilters += "&amp;filter_value_" + idx + "=" + URLEncoder.encode(filter[2], "UTF-8");
-                idx++;
+        BiFunction<String[], Integer, String> joinHttpFilterParameters = (filter, index) ->
+        {
+            try {
+                return String.format("&amp;filter_field_%d=%s&amp;filter_type_%d=%s&amp;filter_value_%d=%s", index, URLEncoder.encode(filter[0], "UTF-8"), index, URLEncoder.encode(filter[1], "UTF-8"), index, URLEncoder.encode(filter[2], "UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
             }
-        }
+            return "";
+        };
+
+        String httpFilters = Seq.zip(Seq.seq(appliedFilters), Seq.seq(IntStream.range(1, appliedFilters.size() + 1)))
+                .filter(filter -> ArrayUtils.isNotEmpty(filter.v1))
+                .filter(filter -> StringUtils.isNotEmpty(filter.v1[0]) && StringUtils.isNotEmpty(filter.v1[2]))
+                .map(item -> joinHttpFilterParameters.apply(item.v1, item.v2))
+                .collect(Collectors.joining(""));
 
 
         String query = request.getParameter("query");
-        request.setAttribute("queryresults", qResults);
-        request.setAttribute("appliedFilters", appliedFilters);
-        request.setAttribute("queryArgs", queryArgs);
-        request.setAttribute("appliedFilterQueries", appliedFilterQueries);
-        request.setAttribute("scope", scope);
-
 
 
         List<String> sortOptions = discoveryConfiguration.getSearchSortConfiguration().getSortFields().stream()
                 .map(fieldConfiguration -> SearchUtils.getSearchService().toSortFieldIndex(fieldConfiguration.getMetadataField(),fieldConfiguration.getType()))
                 .collect(Collectors.toList());
-
-
-
 
         List<DiscoverySearchFilterFacet> facets = Optional.ofNullable(qResults).map(results -> fetchEnabledFacets(discoveryConfiguration, appliedFilterQueries, qResults)).orElse(new ArrayList<>());
         Map<String, String> facetsCurrentPage = facets.stream().collect(Collectors.toMap(DiscoverySearchFilter::getIndexFieldName, facet -> Optional.ofNullable(request.getParameter(facet.getIndexFieldName() + "_page")).orElse("0")));
