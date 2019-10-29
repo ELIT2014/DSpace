@@ -89,9 +89,20 @@ public class SearchController {
                 .collect(Collectors.toList());
     }
 
+    @RequestMapping(value = "/simple-search")
+    public ModelAndView simpleSearch(ModelAndView model, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException, AuthorizeException, SearchProcessorException, SearchServiceException, SortException {
+        model = performSearchRequest(model, request, response);
+        return model;
+    }
+
     @RequestMapping(value = "/123456789/{itemId}/simple-search")
     public ModelAndView simpleSearchInCommunity(ModelAndView model, HttpServletRequest request, HttpServletResponse response, @PathVariable("itemId") String itemId) throws ServletException, IOException, SQLException, AuthorizeException, SearchProcessorException, SearchServiceException, SortException {
-        System.out.println("in search query");
+        model = performSearchRequest(model, request, response);
+        model.addObject("handle", "/handle/123456789/" + itemId);
+        return model;
+    }
+
+    private ModelAndView performSearchRequest(ModelAndView model, HttpServletRequest request, HttpServletResponse response) throws SQLException, SearchProcessorException, SearchServiceException, UnsupportedEncodingException, SortException {
         Context dspaceContext = UIUtil.obtainContext(request);
         DSpaceObject scope;
         try {
@@ -168,7 +179,7 @@ public class SearchController {
         model.addObject("sortOptions", sortOptions);
         model.addObject("queryresults", qResults);
         model.addObject("scope", scope);
-        model.addObject("handle", "/handle/123456789/" + itemId);
+
         model.addObject("sortedBy", Optional.ofNullable(queryArgs.getSortField()).orElse(SortOption.getDefaultSortOption().getName()));
         model.addObject("queryEncoded", URLEncoder.encode(Optional.ofNullable(query).orElse(""), "UTF-8"));
         model.addObject("searchScope", scope != null ? scope.getHandle() : "");
@@ -177,6 +188,7 @@ public class SearchController {
         model.setViewName("search");
         return model;
     }
+
 
     private List<DiscoverySearchFilterFacet> fetchEnabledFacets(DiscoveryConfiguration discoveryConfiguration, List<String> appliedFilterQueries, DiscoverResult discoverResult) {
         List<DiscoverySearchFilterFacet> facetsConfiguration = Optional.ofNullable(discoveryConfiguration.getSidebarFacets()).orElse(new ArrayList<>());
