@@ -83,30 +83,35 @@ public class HandleController {
         Context dspaceContext = UIUtil.obtainContext(request);
         DSpaceObject dSpaceObject = handleService.resolveToObject(dspaceContext, "123456789/" + itemId);
         Locale locale = dspaceContext.getCurrentLocale();
+        ModelAndView result = new ModelAndView();
         if(authorizeService.authorizeActionBoolean(dspaceContext, dSpaceObject, Constants.READ)) {
+            Community parentCommunity = null;
+            boolean includeCurrentCommunityInResult = false;
             if (dSpaceObject.getType() == Constants.ITEM) {
                 Item item = (Item) dSpaceObject;
                 request.setAttribute("dspace.collection", item.getOwningCollection());
-                List<Community> comms = item.getOwningCollection().getCommunities();
-                request.setAttribute("dspace.community", comms.get(0));
-                request.setAttribute("dspace.communities", getParents(dspaceContext, comms.get(0), true));
-                return displayItem(request, model, (Item) dSpaceObject, locale);
+                parentCommunity = item.getOwningCollection().getCommunities().get(0);
+                includeCurrentCommunityInResult = true;
+                result = displayItem(request, model, item, locale);
             }
             if (dSpaceObject.getType() == Constants.COMMUNITY) {
                 Community community = (Community) dSpaceObject;
-                request.setAttribute("dspace.community", community);
-                request.setAttribute("dspace.communities", getParents(dspaceContext, community, false));
-                return displayCommunity(request, response, model, (Community) dSpaceObject, locale);
+                parentCommunity = community;
+                includeCurrentCommunityInResult = false;
+                result = displayCommunity(request, response, model, community, locale);
             }
             if (dSpaceObject.getType() == Constants.COLLECTION) {
-                List<Community> parents = ((Collection)dSpaceObject).getCommunities();
-                request.setAttribute("dspace.community", parents.get(0));
-                request.setAttribute("dspace.communities", getParents(dspaceContext, parents.get(0),true));
-                return displayCollection(request, response, model, (Collection)dSpaceObject,locale);
+                parentCommunity = ((Collection)dSpaceObject).getCommunities().get(0);
+                includeCurrentCommunityInResult = true;
+                result = displayCollection(request, response, model, (Collection)dSpaceObject, locale);
             }
+            request.setAttribute("dspace.community", parentCommunity);
+            request.setAttribute("dspace.communities", getParents(dspaceContext, parentCommunity, includeCurrentCommunityInResult));
+        } else {
+            System.out.println("Unauthorized action");
         }
 
-        return null;
+        return result;
     }
 
 
