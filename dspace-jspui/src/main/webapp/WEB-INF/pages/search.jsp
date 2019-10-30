@@ -30,7 +30,7 @@
                 .autocomplete({
                     source: function( request, response ) {
                         jQ.ajax({
-                            <%--url: "<%= request.getContextPath() %>/json/discovery/autocomplete?query=<%= URLEncoder.encode(query,"UTF-8")%><%= httpFilters.replaceAll("&amp;","&") %>",--%>
+                            url: "${handle}/json/discovery/autocomplete?query=${queryEncoded}${httpFilters.replaceAll("&amp;", "&")}",
                             dataType: "json",
                             cache: false,
                             data: {
