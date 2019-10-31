@@ -78,10 +78,6 @@ public class HandleController {
 
     @Resource
     private AuthorsCache authorsCache;
-    @RequestMapping(value = "/123456789/{itemId}.jsp")
-    public ModelAndView redirectUrl(HttpServletRequest request, HttpServletResponse response,  @PathVariable("itemId") String itemId, ModelAndView model) {
-        return new ModelAndView("redirect:" + "/123456789/" + itemId);
-    }
 
     @RequestMapping(value = "/123456789/{itemId}")
     public ModelAndView entrypoint(HttpServletRequest request, HttpServletResponse response,  @PathVariable("itemId") String itemId, ModelAndView model) throws SQLException, ItemCountException, PluginException, AuthorizeException, ServletException, BrowseException, IOException, SortException, CrosswalkException {
