@@ -10,18 +10,29 @@ import org.dspace.eperson.service.EPersonService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.ssu.entity.EssuirEperson;
+import org.ssu.service.EpersonService;
+import org.ssu.service.FacultyService;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.sql.SQLException;
 
 @Controller
 public class ProfileController {
+    @Resource
+    private EpersonService ePersonService;
+
+    @Resource
+    private FacultyService facultyService;
+
     @RequestMapping("/profile")
     public ModelAndView profilePage(ModelAndView model , HttpServletRequest request, HttpServletResponse response) throws SQLException {
         Context dspaceContext = UIUtil.obtainContext(request);
 
         EPerson eperson = dspaceContext.getCurrentUser();
+        EssuirEperson currentUser = ePersonService.extendEpersonInformation(eperson);
 
         Boolean attr = (Boolean) request.getAttribute("missing.fields");
         boolean missingFields = (attr != null && attr.booleanValue());
@@ -30,15 +41,15 @@ public class ProfileController {
         boolean passwordProblem = (attr != null && attr.booleanValue());
 
         boolean ldap_enabled = ConfigurationManager.getBooleanProperty("authentication-ldap", "enable");
-        boolean ldap_eperson = (ldap_enabled && (eperson.getNetid() != null) && (eperson.getNetid().equals("") == false));
+        boolean ldap_eperson = (ldap_enabled && (currentUser.getNetid() != null) && (currentUser.getNetid().equals("") == false));
 
         EPersonService epersonService = EPersonServiceFactory.getInstance().getEPersonService();
 
         // Get non-null values
-        String lastName = eperson.getLastName();
+        String lastName = currentUser.getLastName();
         if (lastName == null) lastName = "";
 
-        String firstName = eperson.getFirstName();
+        String firstName = currentUser.getFirstName();
         if (firstName == null) firstName = "";
 
         String phone = epersonService.getMetadata(eperson, "phone");
@@ -52,6 +63,10 @@ public class ProfileController {
         model.addObject("firstName", firstName);
         model.addObject("phone", phone);
         model.addObject("language", language);
+        model.addObject("position", currentUser.getPosition());
+        model.addObject("chair", currentUser.getChairEntity());
+        model.addObject("facultyList", facultyService.getFacultyList());
+
         model.addObject("supportedLocales", I18nUtil.getSupportedLocales());
         model.addObject("sessionLocale", UIUtil.getSessionLocale(request));
         model.addObject("passwordProblem", passwordProblem);

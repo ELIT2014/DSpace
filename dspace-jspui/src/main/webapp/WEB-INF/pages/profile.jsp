@@ -51,9 +51,58 @@
                 </select>
             </div>
         </div>
+
+        <script type="text/javascript" src="../static/js/linkedselect.js"></script>
+
+        <div class="form-group">
+            <label class="col-md-offset-3 col-md-2 control-label" for="faculty"><fmt:message
+                    key="jsp.dspace-admin.eperson.general.faculty"/></label>
+            <div class="col-md-3">
+                <select class="form-control" name="faculty" id="faculty">
+                    <option value="0"></option>
+                    <c:forEach items="${facultyList}" var="facultySelectEntity">
+                        <c:set var="facultySelected" value=""/>
+                        <c:if test="${chair.facultyEntityId == facultySelectEntity.id}">
+                            <c:set var="facultySelected" value="selected = \"selected\""/>
+                        </c:if>
+                        <option value = '${facultySelectEntity.id}' ${facultySelected}>${facultySelectEntity.name}</option>
+                    </c:forEach>
+                </select>
+            </div>
+        </div>
+
+        <%--<div class="form-group">--%>
+                <%--&lt;%&ndash; <td>Chair*:</td> &ndash;%&gt;--%>
+            <%--<label class="col-md-offset-3 col-md-2 control-label" for="chair_id"><fmt:message--%>
+                    <%--key="jsp.dspace-admin.eperson.general.chair"/></label>--%>
+
+            <%--<div class="col-md-3">--%>
+                <%--<select class="form-control" name="chair_id" id="chair_id"></select>--%>
+
+                <%--<script type="text/javascript">--%>
+                    <%--var syncList1 = new syncList;--%>
+                    <%--syncList1.dataList = <%= new GsonBuilder().create().toJson(EssuirUtils.getChairListByFaculties()) %>;--%>
+                    <%--syncList1.sync("faculty", "chair_id");--%>
+                <%--</script>--%>
+            <%--</div>--%>
+        <%--</div>--%>
+
+        <div class="form-group">
+            <label class="col-md-offset-3 col-md-2 control-label" for="tposition">
+                <fmt:message key="jsp.dspace-admin.eperson.general.position"/>
+            </label>
+            <div class="col-md-3">
+                <input class="form-control" name="position" id="tposition" size="24" value="${position}"/>
+            </div>
+        </div>
+
+
         <div class="col-md-offset-5">
             <input class="btn btn-success col-md-4" type="submit" name="submit"
                    value="<fmt:message key="jsp.register.edit-profile.update.button"/>"/>
         </div>
+
+
+
     </form>
 </dspace:layout>
