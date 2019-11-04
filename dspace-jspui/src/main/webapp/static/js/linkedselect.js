@@ -21,7 +21,7 @@ syncList.prototype._sync = function (firstSelectId, secondSelectId)
     if (firstSelect.length>0)
     {
         var optionData = this.dataList[ firstSelect.options[firstSelect.selectedIndex==-1 ? 0 : firstSelect.selectedIndex].value ];
-        for (var key in optionData || null) secondSelect.options[secondSelect.length] = new Option(optionData[key], key);
+        for (var key in optionData || null) secondSelect.options[secondSelect.length] = new Option(optionData[key].name, optionData[key].id);
 
         if (firstSelect.selectedIndex == -1) setTimeout( function(){ firstSelect.options[startIndex].selected = true;}, 1 );
         if (secondSelect.length>0) setTimeout( function(){ secondSelect.value = startIndex;}, 1 );

@@ -71,21 +71,20 @@
             </div>
         </div>
 
-        <%--<div class="form-group">--%>
-                <%--&lt;%&ndash; <td>Chair*:</td> &ndash;%&gt;--%>
-            <%--<label class="col-md-offset-3 col-md-2 control-label" for="chair_id"><fmt:message--%>
-                    <%--key="jsp.dspace-admin.eperson.general.chair"/></label>--%>
+        <div class="form-group">
+            <label class="col-md-offset-3 col-md-2 control-label" for="chair_id"><fmt:message
+                    key="jsp.dspace-admin.eperson.general.chair"/></label>
 
-            <%--<div class="col-md-3">--%>
-                <%--<select class="form-control" name="chair_id" id="chair_id"></select>--%>
+            <div class="col-md-3">
+                <select class="form-control" name="chair_id" id="chair_id"></select>
 
-                <%--<script type="text/javascript">--%>
-                    <%--var syncList1 = new syncList;--%>
-                    <%--syncList1.dataList = <%= new GsonBuilder().create().toJson(EssuirUtils.getChairListByFaculties()) %>;--%>
-                    <%--syncList1.sync("faculty", "chair_id");--%>
-                <%--</script>--%>
-            <%--</div>--%>
-        <%--</div>--%>
+                <script type="text/javascript">
+                    var syncList1 = new syncList;
+                    syncList1.dataList = ${chairListJson};
+                    syncList1.sync("faculty", "chair_id");
+                </script>
+            </div>
+        </div>
 
         <div class="form-group">
             <label class="col-md-offset-3 col-md-2 control-label" for="tposition">

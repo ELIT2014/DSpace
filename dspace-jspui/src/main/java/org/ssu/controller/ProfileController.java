@@ -1,5 +1,7 @@
 package org.ssu.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.dspace.app.webui.util.UIUtil;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
@@ -10,7 +12,9 @@ import org.dspace.eperson.service.EPersonService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.ssu.entity.ChairEntity;
 import org.ssu.entity.EssuirEperson;
+import org.ssu.entity.FacultyEntity;
 import org.ssu.service.EpersonService;
 import org.ssu.service.FacultyService;
 
@@ -18,6 +22,9 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 public class ProfileController {
@@ -28,7 +35,7 @@ public class ProfileController {
     private FacultyService facultyService;
 
     @RequestMapping("/profile")
-    public ModelAndView profilePage(ModelAndView model , HttpServletRequest request, HttpServletResponse response) throws SQLException {
+    public ModelAndView profilePage(ModelAndView model , HttpServletRequest request, HttpServletResponse response) throws SQLException, JsonProcessingException {
         Context dspaceContext = UIUtil.obtainContext(request);
 
         EPerson eperson = dspaceContext.getCurrentUser();
@@ -58,7 +65,7 @@ public class ProfileController {
         String language = epersonService.getMetadata(eperson, "language");
         if (language == null) language = "";
 
-
+        Map<Integer, List<ChairEntity>> chairList = facultyService.getFacultyList().stream().collect(Collectors.toMap(FacultyEntity::getId, FacultyEntity::getChairs));
         model.addObject("lastName", lastName);
         model.addObject("firstName", firstName);
         model.addObject("phone", phone);
@@ -66,6 +73,7 @@ public class ProfileController {
         model.addObject("position", currentUser.getPosition());
         model.addObject("chair", currentUser.getChairEntity());
         model.addObject("facultyList", facultyService.getFacultyList());
+        model.addObject("chairListJson", new ObjectMapper().writeValueAsString(chairList));
 
         model.addObject("supportedLocales", I18nUtil.getSupportedLocales());
         model.addObject("sessionLocale", UIUtil.getSessionLocale(request));
