@@ -98,6 +98,20 @@
         </div>
 
 
+        <p class="alert"><fmt:message key="jsp.register.edit-profile.info5"/></p>
+        <div class="form-group">
+            <label class="col-md-offset-3 col-md-2 control-label" for="tpassword"><fmt:message key="jsp.register.edit-profile.pswd.field"/></label>
+            <div class="col-md-3">
+                <input class="form-control" type="password" name="password" id="tpassword" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-offset-3 col-md-2 control-label" for="tpassword_confirm"><fmt:message key="jsp.register.edit-profile.confirm.field"/></label>
+            <div class="col-md-3">
+                <input class="form-control" type="password" name="password_confirm" id="tpassword_confirm" />
+            </div>
+        </div>
+
         <div class="col-md-offset-5">
             <input class="btn btn-success col-md-4" type="submit" name="submit"
                    value="<fmt:message key="jsp.register.edit-profile.update.button"/>"/>
