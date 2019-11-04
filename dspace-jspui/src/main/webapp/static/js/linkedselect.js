@@ -1,4 +1,5 @@
-function syncList(){}
+function syncList() {
+}
 
 var startIndex = 0;
 var count = 0;
@@ -20,11 +21,21 @@ syncList.prototype._sync = function (firstSelectId, secondSelectId)
 
     if (firstSelect.length>0)
     {
+        var selectedIndex = 0;
         var optionData = this.dataList[ firstSelect.options[firstSelect.selectedIndex==-1 ? 0 : firstSelect.selectedIndex].value ];
-        for (var key in optionData || null) secondSelect.options[secondSelect.length] = new Option(optionData[key].name, optionData[key].id);
+        for (var key in optionData || null) {
+            secondSelect.options[secondSelect.length] = new Option(optionData[key].name, optionData[key].id);
+            if(optionData[key].id === this.selectedId) {
+                selectedIndex = key;
+            }
+        }
 
         if (firstSelect.selectedIndex == -1) setTimeout( function(){ firstSelect.options[startIndex].selected = true;}, 1 );
-        if (secondSelect.length>0) setTimeout( function(){ secondSelect.value = startIndex;}, 1 );
+        if (secondSelect.length>0) {
+            setTimeout( function(){ secondSelect.value = startIndex;}, 1 );
+            setTimeout( function(){ secondSelect.options[selectedIndex].selected  = true;}, 1 );
+
+        }
 
         if (count == 2)
             startIndex = 0;

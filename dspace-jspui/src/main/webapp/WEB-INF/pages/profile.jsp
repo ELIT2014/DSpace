@@ -71,6 +71,7 @@
             </div>
         </div>
 
+
         <div class="form-group">
             <label class="col-md-offset-3 col-md-2 control-label" for="chair_id"><fmt:message
                     key="jsp.dspace-admin.eperson.general.chair"/></label>
@@ -81,6 +82,7 @@
                 <script type="text/javascript">
                     var syncList1 = new syncList;
                     syncList1.dataList = ${chairListJson};
+                    syncList1.selectedId = ${chair.id};
                     syncList1.sync("faculty", "chair_id");
                 </script>
             </div>
