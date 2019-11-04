@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -47,33 +48,17 @@ public class ProfileController {
     @RequestMapping("/profile")
     public ModelAndView profilePage(ModelAndView model , HttpServletRequest request, HttpServletResponse response) throws SQLException, JsonProcessingException {
         Context dspaceContext = UIUtil.obtainContext(request);
-
         EPerson eperson = dspaceContext.getCurrentUser();
         EssuirEperson currentUser = ePersonService.extendEpersonInformation(eperson);
 
-        Boolean attr = (Boolean) request.getAttribute("missing.fields");
-        boolean missingFields = (attr != null && attr.booleanValue());
-
-        attr = (Boolean) request.getAttribute("password.problem");
-        boolean passwordProblem = (attr != null && attr.booleanValue());
-
-        boolean ldap_enabled = ConfigurationManager.getBooleanProperty("authentication-ldap", "enable");
-        boolean ldap_eperson = (ldap_enabled && (currentUser.getNetid() != null) && (currentUser.getNetid().equals("") == false));
+        boolean missingFields = Optional.ofNullable((Boolean) request.getAttribute("missing.fields")).orElse(Boolean.FALSE);
+        boolean passwordProblem = Optional.ofNullable((Boolean) request.getAttribute("password.problem")).orElse(Boolean.FALSE);
 
         EPersonService epersonService = EPersonServiceFactory.getInstance().getEPersonService();
-
-        // Get non-null values
-        String lastName = currentUser.getLastName();
-        if (lastName == null) lastName = "";
-
-        String firstName = currentUser.getFirstName();
-        if (firstName == null) firstName = "";
-
-        String phone = epersonService.getMetadata(eperson, "phone");
-        if (phone == null) phone = "";
-
-        String language = epersonService.getMetadata(eperson, "language");
-        if (language == null) language = "";
+        String lastName = Optional.ofNullable(currentUser.getLastName()).orElse("");
+        String firstName = Optional.ofNullable(currentUser.getFirstName()).orElse("");
+        String phone = Optional.ofNullable(epersonService.getMetadata(eperson, "phone")).orElse("");
+        String language = Optional.ofNullable(epersonService.getMetadata(eperson, "language")).orElse("");
 
         Map<Integer, List<ChairEntity>> chairList = facultyService.getFacultyList().stream().collect(Collectors.toMap(FacultyEntity::getId, FacultyEntity::getChairs));
         model.addObject("lastName", lastName);
@@ -97,121 +82,59 @@ public class ProfileController {
     public ModelAndView updateProfile(ModelAndView model, HttpServletRequest request, HttpServletResponse response) throws SQLException, ServletException, IOException, AuthorizeException {
         Context dspaceContext = UIUtil.obtainContext(request);
         EPerson eperson = dspaceContext.getCurrentUser();
-        boolean settingPassword = false;
+        boolean settingPassword = (!eperson.getRequireCertificate() && !StringUtils.isEmpty(request.getParameter("password")));
 
-        if (!eperson.getRequireCertificate() && !StringUtils.isEmpty(request.getParameter("password")))
-        {
-            settingPassword = true;
-        }
+        boolean checkUserData = updateUserProfile(dspaceContext, eperson, request);
 
-        // Set the user profile info
-        boolean ok = updateUserProfile(dspaceContext, eperson, request);
-
-        if (!ok)
-        {
+        if (!checkUserData) {
             request.setAttribute("missing.fields", Boolean.TRUE);
         }
 
-        if (ok && settingPassword)
-        {
-            // They want to set a new password.
-            ok = confirmAndSetPassword(eperson, request);
-
-            if (!ok)
-            {
+        if (checkUserData && settingPassword) {
+            checkUserData = confirmAndSetPassword(eperson, request);
+            if (!checkUserData) {
                 request.setAttribute("password.problem", Boolean.TRUE);
             }
         }
 
-        if (ok)
-        {
-
+        if (checkUserData) {
             personService.update(dspaceContext, eperson);
-
-            // Show confirmation
             request.setAttribute("password.updated", settingPassword);
-            JSPManager.showJSP(request, response,
-                    "/register/profile-updated.jsp");
+            JSPManager.showJSP(request, response,"/register/profile-updated.jsp");
 
             dspaceContext.complete();
         }
-        else
-        {
-
+        else {
             request.setAttribute("eperson", eperson);
-
             JSPManager.showJSP(request, response, "/register/edit-profile.jsp");
         }
 
         return model;
     }
 
-    /**
-     * Update a user's profile information with the information in the given
-     * request. This assumes that authentication has occurred. This method
-     * doesn't write the changes to the database (i.e. doesn't call update.)
-     *
-     * @param eperson
-     *            the e-person
-     * @param request
-     *            the request to get values from
-     *
-     * @return true if the user supplied all the required information, false if
-     *         they left something out.
-     */
-    public boolean updateUserProfile(Context context, EPerson eperson,
-                                     HttpServletRequest request) throws SQLException
-    {
-        // Get the parameters from the form
+    private boolean updateUserProfile(Context context, EPerson eperson, HttpServletRequest request) throws SQLException {
         String lastName = request.getParameter("last_name");
         String firstName = request.getParameter("first_name");
         String phone = request.getParameter("phone");
         String language = request.getParameter("language");
-
-        // Update the eperson
         eperson.setFirstName(context, firstName);
         eperson.setLastName(context, lastName);
         personService.setMetadataSingleValue(context, eperson, "eperson" , "phone", null, null, phone);
         eperson.setLanguage(context, language);
 
-        // Check all required fields are there
         return (!StringUtils.isEmpty(lastName) && !StringUtils.isEmpty(firstName));
     }
 
-    /**
-     * Set an eperson's password, if the passwords they typed match and are
-     * acceptible. If all goes well and the password is set, null is returned.
-     * Otherwise the problem is returned as a String.
-     *
-     * @param eperson
-     *            the eperson to set the new password for
-     * @param request
-     *            the request containing the new password
-     *
-     * @return true if everything went OK, or false
-     */
-    public  boolean confirmAndSetPassword(EPerson eperson,
-                                          HttpServletRequest request)
-    {
-        // Get the passwords
+    private boolean confirmAndSetPassword(EPerson eperson, HttpServletRequest request) {
         String password = request.getParameter("password");
         String passwordConfirm = request.getParameter("password_confirm");
 
-        // Check it's there and long enough
-        if ((password == null) || (password.length() < 6))
+        if ((password == null) || (password.length() < 6) || !password.equals(passwordConfirm))
         {
             return false;
+        } else {
+            personService.setPassword(eperson, password);
+            return true;
         }
-
-        // Check the two passwords entered match
-        if (!password.equals(passwordConfirm))
-        {
-            return false;
-        }
-
-        // Everything OK so far, change the password
-        personService.setPassword(eperson, password);
-
-        return true;
     }
 }
