@@ -937,18 +937,9 @@
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>Spring MVC Servlet</servlet-name>
+        <servlet-name>essuir-servlet</servlet-name>
         <url-pattern>/export/user</url-pattern>
     </servlet-mapping>
-    <!--<servlet-mapping>-->
-        <!--<servlet-name>Spring MVC Servlet</servlet-name>-->
-        <!--<url-pattern>/browse/dateissued</url-pattern>-->
-    <!--</servlet-mapping>-->
-    <!--<servlet-mapping>-->
-        <!--<servlet-name>Spring MVC Servlet</servlet-name>-->
-        <!--<url-pattern>/browse/title</url-pattern>-->
-    <!--</servlet-mapping>-->
-
 
     <servlet-mapping>
         <servlet-name>essuir-servlet</servlet-name>
