@@ -1,22 +1,18 @@
 package org.ssu.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.dspace.app.webui.util.UIUtil;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.browse.BrowseInfo;
+import org.dspace.content.Item;
 import org.dspace.core.Context;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.ssu.entity.Publication;
 import org.ssu.service.BrowseContext;
 import org.ssu.service.ExportDocumentProcessorService;
-import org.ssu.service.ExportTempService;
-
 
 import javax.annotation.Resource;
 import javax.servlet.ServletException;
@@ -31,9 +27,6 @@ import java.util.List;
 @RequestMapping(value = "/export")
 public class ExportController {
     @Resource
-    private ExportTempService exportTempService;
-
-    @Resource
     private ExportDocumentProcessorService documentProcessor;
 
     @ResponseBody
@@ -42,13 +35,9 @@ public class ExportController {
         Context dspaceContext = UIUtil.obtainContext(request);
 
         BrowseInfo browseInfo = new BrowseContext().getBrowseInfo(dspaceContext, request, response);
-        String publicationList = exportTempService.publicationList(browseInfo);
+        List<Item> items = browseInfo.getBrowseItemResults();
 
-        List<Publication> publications = new ObjectMapper()
-                .readValue(publicationList, new TypeReference<List<Publication>>() {
-                });
-
-        XWPFDocument document = documentProcessor.createDocument(author, publications);
+        XWPFDocument document = documentProcessor.createDocument(author, items);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         document.write(byteArrayOutputStream);
 

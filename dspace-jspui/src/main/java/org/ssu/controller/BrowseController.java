@@ -1,6 +1,5 @@
 package org.ssu.controller;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.dspace.app.webui.util.UIUtil;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.factory.AuthorizeServiceFactory;
@@ -14,7 +13,6 @@ import org.dspace.core.Context;
 import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.handle.service.HandleService;
 import org.dspace.sort.SortException;
-import org.dspace.sort.SortOption;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,7 +21,6 @@ import org.ssu.entity.response.ItemResponse;
 import org.ssu.service.BrowseContext;
 import org.ssu.service.BrowseRequestProcessor;
 import org.ssu.service.CommunityService;
-import org.ssu.service.ExportTempService;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletException;
@@ -38,9 +35,6 @@ import java.util.List;
 public class BrowseController {
     @Resource
     private CommunityService communityService;
-
-    @Resource
-    private ExportTempService exportTempService;
 
     @Resource
     private BrowseRequestProcessor browseRequestProcessor;
@@ -64,7 +58,7 @@ public class BrowseController {
     }
 
     @RequestMapping("/browse")
-    public ModelAndView getBrowseItems(ModelAndView model, HttpServletRequest request, HttpServletResponse response) throws SQLException, BrowseException, SortException, ServletException, IOException, AuthorizeException {
+    public ModelAndView getBrowseItems(ModelAndView model, HttpServletRequest request, HttpServletResponse response) throws SQLException, SortException, ServletException, IOException, AuthorizeException {
         String type = request.getParameter("type");
         String value = request.getParameter("value");
 

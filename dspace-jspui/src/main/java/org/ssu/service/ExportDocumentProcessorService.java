@@ -1,26 +1,29 @@
 package org.ssu.service;
 
 import org.apache.poi.xwpf.usermodel.*;
+import org.dspace.content.Item;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.ssu.entity.AuthorLocalization;
-import org.ssu.entity.Publication;
 import org.ssu.service.localization.AuthorsCache;
-
 
 import javax.annotation.Resource;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Service
 public class ExportDocumentProcessorService {
+    Locale ukrainianLocale = Locale.forLanguageTag("uk");
+
     @Resource
     private AuthorsCache authorsCache;
 
-    public XWPFDocument createDocument(String author, List<Publication> publications) {
+    @Resource
+    private ItemService itemService;
+
+    public XWPFDocument createDocument(String author, List<Item> publications) {
         XWPFDocument document = new XWPFDocument();
         CTSectPr sectPr = document.getDocument().getBody().addNewSectPr();
         CTPageMar pageMar = sectPr.addNewPgMar();
@@ -28,11 +31,8 @@ public class ExportDocumentProcessorService {
         pageMar.setTop(BigInteger.valueOf(455L));
         pageMar.setRight(BigInteger.valueOf(455L));
         pageMar.setBottom(BigInteger.valueOf(455L));
-        Locale ukrainianLocale = Locale.forLanguageTag("uk");
-        String surname = authorsCache.getAuthorLocalization(author).getSurname(ukrainianLocale);
-        String initials = authorsCache.getAuthorLocalization(author).getInitials(ukrainianLocale);
 
-        createTitle(String.format("%s %s", surname, initials), document);
+        createTitle(authorsCache.getAuthorLocalization(author).getFormattedAuthorData("%s %s", ukrainianLocale), document);
         createPublicationsTable(document, publications);
         document.createParagraph().setSpacingAfter(100);
         createBottomTable(document);
@@ -96,19 +96,24 @@ public class ExportDocumentProcessorService {
         }
     }
 
-    private void createPublicationsTable(XWPFDocument document, List<Publication> publications) {
+    private void createPublicationsTable(XWPFDocument document, List<Item> publications) {
         XWPFTable table = document.createTable(publications.size() + 1, 6);
         Integer[] width = {540, 2200, 1250, 3000, 1400, 2300};
         setTableProperties(table, width);
 
         processRow(table, 0, new String[]{"№ з/п", "Назва", "Характер роботи", "Вихідні дані", "Обсяг (у сторінках)/авторський доробок", "Співавтори"}, ParagraphAlignment.CENTER, 14);
         for (int index = 0; index < publications.size(); index++) {
+            String localizedAuthors = itemService.extractAuthorListForItem(publications.get(index))
+                    .stream()
+                    .map(author -> author.getFormattedAuthorData("%s %s", ukrainianLocale))
+                    .collect(Collectors.joining(";\r\n"));
+
             String[] rowData = {Integer.toString(index + 1),
-                    publications.get(index).getTitle(),
-                    publications.get(index).getType(),
-                    publications.get(index).getCitation(),
+                    publications.get(index).getName(),
+                    itemService.getItemTypeLocalized(publications.get(index), ukrainianLocale),
+                    itemService.getCitationForItem(publications.get(index)),
                     "",
-                    publications.get(index).getAuthors()};
+                    localizedAuthors};
             processRow(table, index + 1, rowData, ParagraphAlignment.CENTER, 14);
         }
     }
@@ -129,7 +134,6 @@ public class ExportDocumentProcessorService {
         borders.addNewInsideH().setVal(STBorder.NONE);
         borders.addNewInsideV().setVal(STBorder.NONE);
 
-
         table.getRow(0).setHeight(30);
         processRow(table, 0, new String[]{"Автор або здобувач вченого звання (наукового ступеня)", "\r\n\r\n     ________________\r\n\t\t\t(підпис)", "\r\n\r\n     __________________________\r\n                           (прізвище, ініціали)"}, ParagraphAlignment.LEFT, 12);
 
@@ -144,8 +148,5 @@ public class ExportDocumentProcessorService {
 
         table.getRow(4).setHeight(30);
         processRow(table, 4, new String[]{"Вчений секретар", "\r\n\r\n     ________________\r\n\t\t\t(підпис)", "\r\n\r\n     __________________________\r\n                           (прізвище, ініціали)"}, ParagraphAlignment.LEFT, 12);
-
-
     }
-
 }
