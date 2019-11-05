@@ -1,5 +1,6 @@
 package org.ssu.controller;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.dspace.app.webui.util.UIUtil;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.factory.AuthorizeServiceFactory;
@@ -22,6 +23,7 @@ import org.ssu.entity.response.ItemResponse;
 import org.ssu.service.BrowseContext;
 import org.ssu.service.BrowseRequestProcessor;
 import org.ssu.service.CommunityService;
+import org.ssu.service.ExportTempService;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletException;
@@ -36,6 +38,9 @@ import java.util.List;
 public class BrowseController {
     @Resource
     private CommunityService communityService;
+
+    @Resource
+    private ExportTempService exportTempService;
 
     @Resource
     private BrowseRequestProcessor browseRequestProcessor;
@@ -70,10 +75,10 @@ public class BrowseController {
         List<ItemResponse> items;
         if (("author".equals(type) || "subject".equals(type)) && (value == null || value.isEmpty())) {
             items = communityService.getShortList(dspaceContext, browseInfo);
-
         } else {
             items = communityService.getItems(dspaceContext, browseInfo);
             isExtendedTable = true;
+            model.addObject("searchQuery", value);
         }
 
         browseRequestProcessor.fillModelWithData(model, items, browseInfo, request, isExtendedTable);

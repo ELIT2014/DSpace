@@ -18,6 +18,17 @@
                     <fmt:param value="${finishIndex}"/>
                     <fmt:param value="${totalItems}"/>
                 </fmt:message>
+                <c:if test="${isExtended}">
+                    <form action="/export/user?${queryString}" method="post" enctype="application/json" accept-charset="utf-8">
+
+
+                        <%--<input type="hidden" name = "publications" id = "publications" value="${exportPublications}">--%>
+                        <input type="hidden" name = "author" id = "author" value="${searchQuery}">
+                        <button type="submit" class="btn btn-default btn-sm">
+                            <span class="glyphicon glyphicon-import"></span>
+                        </button>
+                    </form>
+                </c:if>
                 <a href="#" class="pull-right glyphicon glyphicon-filter" aria-hidden="true"  data-toggle="modal" data-target="#searchModal"></a>
             </div>
 
