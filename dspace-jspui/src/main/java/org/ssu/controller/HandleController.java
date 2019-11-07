@@ -67,6 +67,7 @@ public class HandleController {
     private final transient DisseminationCrosswalk xHTMLHeadCrosswalk = (DisseminationCrosswalk) pluginService.getNamedPlugin(DisseminationCrosswalk.class, "XHTML_HEAD_ITEM");
     private final transient org.dspace.content.service.CommunityService dspaceCommunityService = ContentServiceFactory.getInstance().getCommunityService();
     private final transient CollectionService collectionService = ContentServiceFactory.getInstance().getCollectionService();
+
     @Resource
     private ItemService itemService;
 
@@ -200,6 +201,9 @@ public class HandleController {
         model.setViewName("community-display");
         request.setAttribute("community", community);
         model.addObject("title", community.getName());
+        model.addObject("editorButton", dspaceCommunityService.canEditBoolean(dspaceContext, community));
+        model.addObject("addButton", authorizeService.authorizeActionBoolean(dspaceContext, community, Constants.ADD));
+        model.addObject("community", community);
         model.addObject("handle", community.getHandle());
         model.addObject("subCommunities", subCommunities);
         model.addObject("collections", collections);
