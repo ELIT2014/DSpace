@@ -75,22 +75,17 @@
     </div>
 
 
-    <%--<div class="well">--%>
-
-    <%--<br/>--%>
-
-    <%--</div>--%>
-
     <table class="table table-hover">
         <tr>
             <td><fmt:message key="org.dspace.app.webui.jsptag.ItemListTag.title"/></td>
             <td>${title}</td>
         </tr>
-
-        <tr>
-            <td><fmt:message key="metadata.dc.title.alternative"/></td>
-            <td>${titleAlternative}</td>
-        </tr>
+        <c:if test="${not empty titleAlternative}">
+            <tr>
+                <td><fmt:message key="metadata.dc.title.alternative"/></td>
+                <td>${titleAlternative}</td>
+            </tr>
+        </c:if>
         <tr>
             <td><fmt:message key="org.dspace.app.webui.jsptag.ItemListTag.authors"/></td>
             <td>
