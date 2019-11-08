@@ -63,8 +63,9 @@
         </div>
     </div>
 
+    <c:if test="${addButton or editorButton}">
     <dspace:sidebar>
-        <c:if test="${addButton or editorButton}">
+
         <div class="panel panel-warning">
             <div class="panel-heading">
                 <fmt:message key="jsp.admintools"/>
@@ -116,8 +117,8 @@
 
             </div>
         </div>
-        </c:if>
+
 
     </dspace:sidebar>
-
+</c:if>
 </dspace:layout>
