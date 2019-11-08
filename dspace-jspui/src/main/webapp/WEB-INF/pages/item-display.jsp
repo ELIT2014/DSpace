@@ -90,7 +90,7 @@
             <td><fmt:message key="org.dspace.app.webui.jsptag.ItemListTag.authors"/></td>
             <td>
                 <c:forEach items="${authors}" var="author">
-                    <a href="/browse/author/${author.key}">${author.key}</a>
+                    <a href="/browse?type=author&value=${author.key}">${author.key}</a>
                     <c:if test="${not empty author.value}">
                         &nbsp;<a href = "http://orcid.org/${author.value}"><img src = "/static/img/orcid.gif" width="16px"></a>
                     </c:if>
@@ -102,7 +102,7 @@
             <td><fmt:message key="metadata.dc.subject"/></td>
             <td>
                 <c:forEach items="${keywords}" var="keyword">
-                    <a href="/browse/keyword/${keyword}">${keyword}</a><br/>
+                    <a href="/browse?type=subject&value=${keyword}">${keyword}</a><br/>
                 </c:forEach>
             </td>
         </tr>
