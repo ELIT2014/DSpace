@@ -1,10 +1,12 @@
 package org.ssu.service;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.ssu.entity.AuthorLocalization;
 import org.ssu.service.localization.AuthorsCache;
 
 import javax.annotation.Resource;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -30,6 +32,9 @@ public class AuthorsService {
         return authorsCache.getAuthors()
                 .stream()
                 .filter(author -> !startsWith.isPresent() || isCurrentAuthorSurnameStartsWith.test(author))
+                .filter(author -> StringUtils.isNotEmpty(author.getSurname(Locale.ENGLISH)))
+                .sorted(Comparator.comparing(another -> another.getSurname(Locale.ENGLISH)))
+
                 .collect(Collectors.toList());
     }
 }
