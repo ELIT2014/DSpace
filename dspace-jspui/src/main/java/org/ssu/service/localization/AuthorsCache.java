@@ -64,4 +64,16 @@ public class AuthorsCache {
                 .findFirst()
                 .orElse(defaultAuthorLocalization);
     }
+
+    public void updateAuthorOrcid(AuthorLocalization author) {
+        dsl.update(AUTHORS)
+                .set(AUTHORS.orcid, author.getOrcid())
+                .where(AUTHORS.initialsEnglish.eq(author.getInitials(Locale.ENGLISH)).and(AUTHORS.surnameEnglish.eq(author.getSurname(Locale.ENGLISH))))
+                .execute();
+        updateCache();
+    }
+
+    public List<AuthorLocalization> getAuthors() {
+        return new ArrayList<>(englishMapping.values());
+    }
 }

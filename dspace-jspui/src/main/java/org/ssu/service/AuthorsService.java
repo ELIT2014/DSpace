@@ -1,23 +1,35 @@
 package org.ssu.service;
 
-import org.jooq.DSLContext;
 import org.springframework.stereotype.Service;
 import org.ssu.entity.AuthorLocalization;
+import org.ssu.service.localization.AuthorsCache;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Service
 public class AuthorsService {
-    private static final org.ssu.entity.jooq.Authors AUTHORS = org.ssu.entity.jooq.Authors.TABLE;
-
     @Resource
-    private DSLContext dsl;
+    private AuthorsCache authorsCache;
 
     public void updateAuthorOrcid(AuthorLocalization author) {
-        dsl.update(AUTHORS)
-                .set(AUTHORS.orcid, author.getOrcid())
-                .where(AUTHORS.initialsEnglish.eq(author.getInitials(Locale.ENGLISH)).and(AUTHORS.surnameEnglish.eq(author.getSurname(Locale.ENGLISH))))
-                .execute();
+        authorsCache.updateAuthorOrcid(author);
+    }
+
+    public List<AuthorLocalization> getAllAuthors(Optional<String> startsWith) {
+        Predicate<AuthorLocalization> isCurrentAuthorSurnameStartsWith = (author) ->
+                startsWith.isPresent() && (
+                author.getSurname(Locale.ENGLISH).startsWith(startsWith.get()) ||
+                author.getSurname(Locale.forLanguageTag("ru")).startsWith(startsWith.get()) ||
+                author.getSurname(Locale.forLanguageTag("uk")).startsWith(startsWith.get()));
+
+        return authorsCache.getAuthors()
+                .stream()
+                .filter(author -> !startsWith.isPresent() || isCurrentAuthorSurnameStartsWith.test(author))
+                .collect(Collectors.toList());
     }
 }
