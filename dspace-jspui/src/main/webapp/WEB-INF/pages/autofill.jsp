@@ -14,7 +14,7 @@
             <td>
                 <p align="center">
                     <%
-                        String link = "<a href=\"authors-autofill?startsWith=";
+                        String link = "<a href=\"authors/list?startsWith=";
                         for (char i = 'A'; i <= 'Z'; i++) {
                     %><%=(link + i) + "\">" + i + "</a> " %><%
                     }
@@ -22,26 +22,19 @@
                 </p>
             </td>
             <td align="right">
-                    <%--<a href="authors_edit.jsp"><fmt:message key = "jsp.dspace-admin.new-author-button" /></a>--%>
+                    <a href="authors-edit"><fmt:message key = "jsp.dspace-admin.new-author-button" /></a>
             </td>
         </tr>
     </table>
 
     <table class="table">
         <tr>
-                <%--<th><fmt:message key = "jsp.dspace-admin.authors.surname_en" /></th>--%>
-
-            <th>123</th>
-            <th>123</th>
-            <th>123</th>
-            <th>123</th>
-            <th>123</th>
-            <th>123</th>
-                <%--<th><fmt:message key = "jsp.dspace-admin.authors.initials_en" /></th>--%>
-                <%--<th><fmt:message key = "jsp.dspace-admin.authors.surname_ru" /></th>--%>
-                <%--<th><fmt:message key = "jsp.dspace-admin.authors.initials_ru" /></th>--%>
-                <%--<th><fmt:message key = "jsp.dspace-admin.authors.surname_ua" /></th>--%>
-                <%--<th><fmt:message key = "jsp.dspace-admin.authors.initials_ua" /></th>--%>
+                <th><fmt:message key = "jsp.dspace-admin.authors.surname_en" /></th>
+                <th><fmt:message key = "jsp.dspace-admin.authors.initials_en" /></th>
+                <th><fmt:message key = "jsp.dspace-admin.authors.surname_ru" /></th>
+                <th><fmt:message key = "jsp.dspace-admin.authors.initials_ru" /></th>
+                <th><fmt:message key = "jsp.dspace-admin.authors.surname_ua" /></th>
+                <th><fmt:message key = "jsp.dspace-admin.authors.initials_ua" /></th>
             <th>ORCID</th>
             <th><fmt:message key="jsp.tools.itemmap-browse.th.action"/></th>
         </tr>
@@ -57,11 +50,11 @@
                 <td>${author.getInitials(Locale.forLanguageTag("uk"))}</td>
                 <td>${author.getOrcid()}</td>
                 <td>
-                    <a href="/authors-edit?author=${author.getSurname(Locale.ENGLISH)},${author.getInitials(Locale.ENGLISH)}">
+                    <a href="/authors/edit?author=${author.getSurname(Locale.ENGLISH)},${author.getInitials(Locale.ENGLISH)}">
                         <span class="glyphicon glyphicon-pencil" aria-hidden="true"
                               style="color:black; font-size:14pt;"></span>
                     </a>
-                    <a href="/authors-remove?author=${author.getSurname(Locale.ENGLISH)},${author.getInitials(Locale.ENGLISH)}">
+                    <a href="/authors/remove?author=${author.getSurname(Locale.ENGLISH)},${author.getInitials(Locale.ENGLISH)}">
                         <span class="glyphicon glyphicon-remove" aria-hidden="true"
                               style="color:red; font-size:14pt;"></span>
                     </a>

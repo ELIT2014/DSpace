@@ -17,10 +17,9 @@ public class AdminController {
     @Resource
     private AuthorsService authorsService;
 
-    @RequestMapping("/authors-autofill")
+    @RequestMapping("/authors/list")
     public ModelAndView autofillPage(ModelAndView model, HttpServletRequest request, HttpServletResponse response) {
         Optional<String> startsWith = Optional.ofNullable(request.getParameter("startsWith"));
-
         model.addObject("authors", authorsService.getAllAuthors(startsWith));
         model.setViewName("autofill");
         return model;

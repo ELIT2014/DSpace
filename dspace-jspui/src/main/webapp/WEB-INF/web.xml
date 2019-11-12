@@ -895,7 +895,7 @@
 
     <servlet-mapping>
         <servlet-name>essuir-servlet</servlet-name>
-        <url-pattern>/authors-autofill</url-pattern>
+        <url-pattern>/authors/list</url-pattern>
     </servlet-mapping>
 
 
