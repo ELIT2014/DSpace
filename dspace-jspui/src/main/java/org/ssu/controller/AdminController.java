@@ -1,12 +1,12 @@
 package org.ssu.controller;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.ssu.entity.AuthorLocalization;
 import org.ssu.service.AuthorsService;
-import org.ssu.service.localization.AuthorsCache;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -41,20 +41,32 @@ public class AdminController {
         AuthorLocalization authorLocalization = new AuthorLocalization();
         String surnameEnglish = request.getParameter("surnameEn");
         String initialsEnglish = request.getParameter("initialsEn");
-
         String surnameRussian = request.getParameter("surnameRu");
         String initialsRussian = request.getParameter("initialsRu");
-
         String surnameUkrainian = request.getParameter("surnameUk");
         String initialsUkrainian = request.getParameter("initialsUk");
-
-        String orcid = request.getParameter("orcid");
+        String orcid = Optional.ofNullable(request.getParameter("orcid")).map(param -> param.replaceAll("https://", "").replaceAll("http://", "").replaceAll("orcid.org/", "")).orElse("");
 
         authorLocalization.addAuthorData(surnameEnglish, initialsEnglish, Locale.ENGLISH);
         authorLocalization.addAuthorData(surnameRussian, initialsRussian, Locale.forLanguageTag("ru"));
         authorLocalization.addAuthorData(surnameUkrainian, initialsUkrainian, Locale.forLanguageTag("uk"));
         authorLocalization.setOrcid(orcid);
-        authorsService.updateAuthorData(authorLocalization);
+
+        boolean allFieldsFilled = StringUtils.isNotEmpty(surnameEnglish) &&
+                StringUtils.isNotEmpty(surnameRussian) &&
+                StringUtils.isNotEmpty(surnameUkrainian) &&
+                StringUtils.isNotEmpty(initialsEnglish) &&
+                StringUtils.isNotEmpty(initialsRussian) &&
+                StringUtils.isNotEmpty(initialsUkrainian);
+
+        if(allFieldsFilled) {
+            authorsService.updateAuthorData(authorLocalization);
+            model.addObject("message", "Author data successfully updated.");
+            model.addObject("messageType", "success");
+        } else {
+            model.addObject("message", "Please fill all fields.");
+            model.addObject("messageType", "danger");
+        }
         model.addObject("author", authorLocalization);
         model.addObject("hasMessage", true);
         model.setViewName("author-edit");

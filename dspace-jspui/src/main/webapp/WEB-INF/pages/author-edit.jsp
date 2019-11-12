@@ -13,7 +13,7 @@
 
 
     <c:if test="${hasMessage}">
-        <div class="alert alert-success" role="alert">test alert message after saving</div>
+        <div class="alert alert-${messageType}" role="alert">${message}</div>
     </c:if>
     <div class="panel panel-default">
         <div class="panel-heading">
@@ -75,6 +75,7 @@
                 <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
                         <button type="submit" class="btn btn-success">Save</button>
+                        <button type="button" class="btn btn-default" onclick="location.href = '/authors/list';">Cancel</button>
                     </div>
                 </div>
             </form>
