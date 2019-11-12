@@ -24,4 +24,14 @@ public class AdminController {
         model.setViewName("autofill");
         return model;
     }
+
+    @RequestMapping("/authors/edit")
+    public ModelAndView authorEditPage(ModelAndView model, HttpServletRequest request, HttpServletResponse response) {
+
+
+        Optional<String> startsWith = Optional.ofNullable(request.getParameter("author"));
+        model.addObject("authors", authorsService.getAllAuthors(startsWith));
+        model.setViewName("autofill");
+        return model;
+    }
 }

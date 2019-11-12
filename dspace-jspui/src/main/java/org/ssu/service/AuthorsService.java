@@ -22,6 +22,10 @@ public class AuthorsService {
         authorsCache.updateAuthorOrcid(author);
     }
 
+    public AuthorLocalization getAuthorLocalization(String authorName) {
+        return authorsCache.getAuthorLocalization(authorName);
+    }
+
     public List<AuthorLocalization> getAllAuthors(Optional<String> startsWith) {
         Predicate<AuthorLocalization> isCurrentAuthorSurnameStartsWith = (author) ->
                 startsWith.isPresent() && (
@@ -36,5 +40,9 @@ public class AuthorsService {
                 .sorted(Comparator.comparing(another -> another.getSurname(Locale.ENGLISH)))
 
                 .collect(Collectors.toList());
+    }
+
+    public boolean isAuthorLocalizationPresent(String author) {
+        return authorsCache.isAuthorLocalizationPresent(author);
     }
 }
