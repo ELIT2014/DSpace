@@ -22,6 +22,10 @@ public class AuthorsService {
         authorsCache.updateAuthorOrcid(author);
     }
 
+    public AuthorLocalization getAuthorLocalization(Optional<String> authorName) {
+        return authorName.map(s -> authorsCache.getAuthorLocalization(s)).orElse(null);
+    }
+
     public AuthorLocalization getAuthorLocalization(String authorName) {
         return authorsCache.getAuthorLocalization(authorName);
     }
