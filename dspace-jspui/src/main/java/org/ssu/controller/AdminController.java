@@ -72,5 +72,11 @@ public class AdminController {
         model.setViewName("author-edit");
         return model;
     }
+    @RequestMapping(value = "/authors/delete", method = RequestMethod.POST)
+    public String deleteAuthorLocalization(ModelAndView model, HttpServletRequest request, HttpServletResponse response) {
+        String authorData = request.getParameter("author");
+        System.out.println(authorData);
+        return "redirect:/authors/list";
+    }
 
 }

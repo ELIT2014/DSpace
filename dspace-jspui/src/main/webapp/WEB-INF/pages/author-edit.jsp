@@ -76,11 +76,34 @@
                     <div class="col-sm-offset-2 col-sm-10">
                         <button type="submit" class="btn btn-success">Save</button>
                         <button type="button" class="btn btn-default" onclick="location.href = '/authors/list';">Cancel</button>
+                        <c:if test="${not empty author}">
+                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delteAuthorModal">Delete author</button>
+                        </c:if>
                     </div>
                 </div>
             </form>
         </div>
     </div>
 
+    <div class="modal fade" id="delteAuthorModal" tabindex="-1" role="dialog" aria-labelledby="delteAuthorModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Are you sure to delete this author?</h4>
+                </div>
+                <div class="modal-body">
+                        <h3>${author.getSurname(Locale.ENGLISH)}, ${author.getInitials(Locale.ENGLISH)}</h3>
+                </div>
+                <div class="modal-footer">
+                    <form action="/authors/delete" method="post">
+                        <input type="hidden" value="${author.getSurname(Locale.ENGLISH)}, ${author.getInitials(Locale.ENGLISH)}" name="author" id="author">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </dspace:layout>
