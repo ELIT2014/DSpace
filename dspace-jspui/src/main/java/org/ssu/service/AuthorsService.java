@@ -46,6 +46,9 @@ public class AuthorsService {
                 .collect(Collectors.toList());
     }
 
+    public void updateAuthorData(AuthorLocalization author) {
+        authorsCache.updateAuthorData(author);
+    }
     public boolean isAuthorLocalizationPresent(String author) {
         return authorsCache.isAuthorLocalizationPresent(author);
     }

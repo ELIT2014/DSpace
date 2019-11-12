@@ -4,12 +4,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
+import org.ssu.entity.AuthorLocalization;
 import org.ssu.service.AuthorsService;
 import org.ssu.service.localization.AuthorsCache;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Locale;
 import java.util.Optional;
 
 @Controller
@@ -33,4 +35,30 @@ public class AdminController {
         model.setViewName("author-edit");
         return model;
     }
+
+    @RequestMapping(value = "/authors/edit", method = RequestMethod.POST)
+    public ModelAndView saveAuthorData(ModelAndView model, HttpServletRequest request, HttpServletResponse response) {
+        AuthorLocalization authorLocalization = new AuthorLocalization();
+        String surnameEnglish = request.getParameter("surnameEn");
+        String initialsEnglish = request.getParameter("initialsEn");
+
+        String surnameRussian = request.getParameter("surnameRu");
+        String initialsRussian = request.getParameter("initialsRu");
+
+        String surnameUkrainian = request.getParameter("surnameUk");
+        String initialsUkrainian = request.getParameter("initialsUk");
+
+        String orcid = request.getParameter("orcid");
+
+        authorLocalization.addAuthorData(surnameEnglish, initialsEnglish, Locale.ENGLISH);
+        authorLocalization.addAuthorData(surnameRussian, initialsRussian, Locale.forLanguageTag("ru"));
+        authorLocalization.addAuthorData(surnameUkrainian, initialsUkrainian, Locale.forLanguageTag("uk"));
+        authorLocalization.setOrcid(orcid);
+        authorsService.updateAuthorData(authorLocalization);
+        model.addObject("author", authorLocalization);
+        model.addObject("hasMessage", true);
+        model.setViewName("author-edit");
+        return model;
+    }
+
 }

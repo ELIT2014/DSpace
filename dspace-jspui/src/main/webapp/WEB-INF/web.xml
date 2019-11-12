@@ -95,7 +95,7 @@
 
     <filter-mapping>
         <filter-name>admin-only</filter-name>
-        <url-pattern>/authors-autofill</url-pattern>
+        <url-pattern>/authors/*</url-pattern>
     </filter-mapping>
 
   <filter-mapping>

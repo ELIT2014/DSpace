@@ -73,6 +73,25 @@ public class AuthorsCache {
         updateCache();
     }
 
+
+    public void updateAuthorData(AuthorLocalization author) {
+        dsl.insertInto(AUTHORS)
+                .set(AUTHORS.surnameEnglish, author.getSurname(Locale.ENGLISH))
+                .set(AUTHORS.initialsEnglish, author.getInitials(Locale.ENGLISH))
+                .set(AUTHORS.surnameRussian, author.getSurname(Locale.forLanguageTag("ru")))
+                .set(AUTHORS.initialsRussian, author.getInitials(Locale.forLanguageTag("ru")))
+                .set(AUTHORS.surnameUkrainian, author.getSurname(Locale.forLanguageTag("uk")))
+                .set(AUTHORS.initialsUkrainian, author.getInitials(Locale.forLanguageTag("uk")))
+                .set(AUTHORS.orcid, author.getOrcid())
+                .onDuplicateKeyUpdate()
+                .set(AUTHORS.surnameRussian, author.getSurname(Locale.forLanguageTag("ru")))
+                .set(AUTHORS.initialsRussian, author.getInitials(Locale.forLanguageTag("ru")))
+                .set(AUTHORS.surnameUkrainian, author.getSurname(Locale.forLanguageTag("uk")))
+                .set(AUTHORS.initialsUkrainian, author.getInitials(Locale.forLanguageTag("uk")))
+                .set(AUTHORS.orcid, author.getOrcid())
+                .execute();
+        updateCache();
+    }
     public List<AuthorLocalization> getAuthors() {
         return new ArrayList<>(englishMapping.values());
     }

@@ -14,7 +14,7 @@
             <td>
                 <p align="center">
                     <%
-                        String link = "<a href=\"authors/list?startsWith=";
+                        String link = "<a href=\"/authors/list?startsWith=";
                         for (char i = 'A'; i <= 'Z'; i++) {
                     %><%=(link + i) + "\">" + i + "</a> " %><%
                     }
