@@ -54,10 +54,6 @@
                         <span class="glyphicon glyphicon-pencil" aria-hidden="true"
                               style="color:black; font-size:14pt;"></span>
                     </a>
-                    <a href="/authors/remove?author=${author.getSurname(Locale.ENGLISH)}, ${author.getInitials(Locale.ENGLISH)}">
-                        <span class="glyphicon glyphicon-remove" aria-hidden="true"
-                              style="color:red; font-size:14pt;"></span>
-                    </a>
                 </td>
             </tr>
         </c:forEach>

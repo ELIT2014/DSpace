@@ -96,7 +96,7 @@
                         <h3>${author.getSurname(Locale.ENGLISH)}, ${author.getInitials(Locale.ENGLISH)}</h3>
                 </div>
                 <div class="modal-footer">
-                    <form action="/authors/delete" method="post">
+                    <form action="/authors/delete" method="get">
                         <input type="hidden" value="${author.getSurname(Locale.ENGLISH)}, ${author.getInitials(Locale.ENGLISH)}" name="author" id="author">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                         <button type="submit" class="btn btn-danger">Delete</button>

@@ -33,9 +33,9 @@ public class AuthorsService {
     public List<AuthorLocalization> getAllAuthors(Optional<String> startsWith) {
         Predicate<AuthorLocalization> isCurrentAuthorSurnameStartsWith = (author) ->
                 startsWith.isPresent() && (
-                author.getSurname(Locale.ENGLISH).startsWith(startsWith.get()) ||
-                author.getSurname(Locale.forLanguageTag("ru")).startsWith(startsWith.get()) ||
-                author.getSurname(Locale.forLanguageTag("uk")).startsWith(startsWith.get()));
+                        author.getSurname(Locale.ENGLISH).startsWith(startsWith.get()) ||
+                                author.getSurname(Locale.forLanguageTag("ru")).startsWith(startsWith.get()) ||
+                                author.getSurname(Locale.forLanguageTag("uk")).startsWith(startsWith.get()));
 
         return authorsCache.getAuthors()
                 .stream()
@@ -49,6 +49,15 @@ public class AuthorsService {
     public void updateAuthorData(AuthorLocalization author) {
         authorsCache.updateAuthorData(author);
     }
+
+    public void removeAuthorData(String author) {
+        removeAuthorData(authorsCache.getAuthorLocalization(author));
+    }
+
+    public void removeAuthorData(AuthorLocalization author) {
+        authorsCache.removeAuthorData(author);
+    }
+
     public boolean isAuthorLocalizationPresent(String author) {
         return authorsCache.isAuthorLocalizationPresent(author);
     }
