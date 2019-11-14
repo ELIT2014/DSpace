@@ -26,8 +26,7 @@
                 </select>
             </div>
         </div>
-            <button type="submit" class="btn btn-primary">Go</button>
-            <%--<button type="submit" class="btn btn-primary"><fmt:message key="jsp.search.yearslider.button" /></button>--%>
+            <button type="submit" class="btn btn-primary"><fmt:message key="jsp.search.yearslider.button" /></button>
     </form>
 
     <%--<table class="table">--%>
