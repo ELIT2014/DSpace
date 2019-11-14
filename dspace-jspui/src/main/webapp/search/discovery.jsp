@@ -449,7 +449,7 @@
             String issuedFilterValue = appliedFilters.get(dateIssuedItemIndex - 1)[2];
             String[] yearsInFilter = issuedFilterValue.replaceAll("[\\[\\]]", "").split(" TO ");
             minimalYear = yearsInFilter[0];
-            maximalYear = yearsInFilter[1];
+            maximalYear = yearsInFilter[Math.min(yearsInFilter.length - 1, 1)];
         } else {
             List<FacetResult> years = qResults.getFacetResult("dateIssued.year");
 
