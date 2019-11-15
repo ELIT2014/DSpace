@@ -34,4 +34,12 @@ public class ReportController {
         model.setViewName("report-recent-registrations");
         return model;
     }
+
+    @RequestMapping("/report/general")
+    public ModelAndView generalStatistics(ModelAndView model, HttpServletRequest request, HttpServletResponse response) throws SQLException {
+        Context context = UIUtil.obtainContext(request);
+
+        model.setViewName("report-general-statistics");
+        return model;
+    }
 }
