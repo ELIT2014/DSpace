@@ -26,35 +26,30 @@
                 </select>
             </div>
         </div>
-            <button type="submit" class="btn btn-primary"><fmt:message key="jsp.search.yearslider.button" /></button>
+        <button type="submit" class="btn btn-primary"><fmt:message key="jsp.search.yearslider.button"/></button>
     </form>
 
     <table class="table">
-    <thead>
-    <tr>
-    <%--<th class="evenRowEvenCol"><fmt:message key="jsp.admin.person-stat.name" /></th>--%>
-    <th class="evenRowEvenCol">name</th>
-    <th class="evenRowEvenCol">email</th>
-    <th class="evenRowEvenCol">faculty</th>
-    <th class="evenRowEvenCol">chair</th>
-    <%--<th class="evenRowEvenCol"><fmt:message key="jsp.admin.person-stat.email" /></th>--%>
-    <%--<th class="evenRowEvenCol"><fmt:message key="jsp.admin.person-stat.faculty" /></th>--%>
-    <%--<th class="evenRowEvenCol"><fmt:message key="jsp.admin.person-stat.chair" /></th>--%>
-    </tr>
-    </thead>
-    <tbody>
-    <c:forEach items="${users}" var="user">
+        <thead>
         <tr>
-            <td class="evenRowOddCol">${user.lastName} ${user.firstName}</td>
-            <td class="evenRowOddCol">${user.email}</td>
-            <td class="evenRowOddCol">${user.chairEntity.facultyEntity.name}</td>
-            <td class="evenRowOddCol">${user.chairEntity.chairName}</td>
+            <th class="evenRowEvenCol"><fmt:message key="jsp.admin.person-stat.name"/></th>
+            <th class="evenRowEvenCol"><fmt:message key="jsp.admin.person-stat.email"/></th>
+            <th class="evenRowEvenCol"><fmt:message key="jsp.admin.person-stat.faculty"/></th>
+            <th class="evenRowEvenCol"><fmt:message key="jsp.admin.person-stat.chair"/></th>
         </tr>
+        </thead>
+        <tbody>
+        <c:forEach items="${users}" var="user">
+            <tr>
+                <td class="evenRowOddCol">${user.lastName} ${user.firstName}</td>
+                <td class="evenRowOddCol">${user.email}</td>
+                <td class="evenRowOddCol">${user.chairEntity.facultyEntity.name}</td>
+                <td class="evenRowOddCol">${user.chairEntity.chairName}</td>
+            </tr>
 
-    </c:forEach>
+        </c:forEach>
 
 
-
-    </tbody>
+        </tbody>
     </table>
 </dspace:layout>
