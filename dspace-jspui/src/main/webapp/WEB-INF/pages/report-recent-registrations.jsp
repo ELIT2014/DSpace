@@ -29,29 +29,32 @@
             <button type="submit" class="btn btn-primary"><fmt:message key="jsp.search.yearslider.button" /></button>
     </form>
 
-    <%--<table class="table">--%>
-    <%--<thead>--%>
-    <%--<tr>--%>
+    <table class="table">
+    <thead>
+    <tr>
     <%--<th class="evenRowEvenCol"><fmt:message key="jsp.admin.person-stat.name" /></th>--%>
+    <th class="evenRowEvenCol">name</th>
+    <th class="evenRowEvenCol">email</th>
+    <th class="evenRowEvenCol">faculty</th>
+    <th class="evenRowEvenCol">chair</th>
     <%--<th class="evenRowEvenCol"><fmt:message key="jsp.admin.person-stat.email" /></th>--%>
     <%--<th class="evenRowEvenCol"><fmt:message key="jsp.admin.person-stat.faculty" /></th>--%>
     <%--<th class="evenRowEvenCol"><fmt:message key="jsp.admin.person-stat.chair" /></th>--%>
-    <%--</tr>--%>
-    <%--</thead>--%>
-    <%--<tbody>--%>
-    <%--<%--%>
-    <%--List<AuthorData> authorData = EssuirUtils.getLatestRegisteredAuthors(limit);--%>
-    <%--for (AuthorData author : authorData) {--%>
-    <%--%>--%>
-    <%--<tr>--%>
-    <%--<td class="evenRowOddCol"><%=author.getLastname() + " " + author.getFirstname() %></td>--%>
-    <%--<td class="evenRowOddCol"><%=author.getEmail() %></td>--%>
-    <%--<td class="evenRowOddCol"><%=author.getFaculty() == null ? "" : author.getFaculty() %></td>--%>
-    <%--<td class="evenRowOddCol"><%=author.getChair() == null ? "" : author.getChair() %></td>--%>
-    <%--</tr>--%>
-    <%--<%--%>
-    <%--}--%>
-    <%--%>--%>
-    <%--</tbody>--%>
-    <%--</table>--%>
+    </tr>
+    </thead>
+    <tbody>
+    <c:forEach items="${users}" var="user">
+        <tr>
+            <td class="evenRowOddCol">${user.lastName} ${user.firstName}</td>
+            <td class="evenRowOddCol">${user.email}</td>
+            <td class="evenRowOddCol">${user.chairEntity.facultyEntity.name}</td>
+            <td class="evenRowOddCol">${user.chairEntity.chairName}</td>
+        </tr>
+
+    </c:forEach>
+
+
+
+    </tbody>
+    </table>
 </dspace:layout>
