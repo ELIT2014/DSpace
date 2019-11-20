@@ -58,7 +58,7 @@
                             return common.treetable(obj, common, value, config) + " <a href = \"/report/itemUploadingReport?from=" + $('#beginDate').val() + "&to=" + $('#endDate').val() + "&" +depositorType[obj.$level - 1] + "=" + obj.name + "&depositor=" + obj.name + "\">" + obj.name + "</a>";
                         }
                     },
-                    {id: "submission_count", header: "<fmt:message key="report.submissions-count"/>", width: 200, sort: "int"}
+                    {id: "count", header: "<fmt:message key="report.submissions-count"/>", width: 200, sort: "int"}
                 ],
                 autoheight: true,
                 autowidth: true,

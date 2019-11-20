@@ -53,8 +53,6 @@ public class ReportController {
 
     @RequestMapping("/report/general")
     public ModelAndView generalStatistics(ModelAndView model, HttpServletRequest request, HttpServletResponse response) throws SQLException {
-        Context context = UIUtil.obtainContext(request);
-
         model.setViewName("report-general-statistics");
         return model;
     }
@@ -66,11 +64,7 @@ public class ReportController {
         DateTimeFormatter format = DateTimeFormatter.ofPattern("dd.MM.yyyy");
         LocalDate fromDate = LocalDate.parse(from, format);
         LocalDate toDate = LocalDate.parse(to, format);
-        return generateResponse(reportService.getUsersSubmissionCountBetweenDates(context, fromDate, toDate));
-    }
-
-    private String generateResponse(List<ItemDepositorResponse> submissions) throws JsonProcessingException {
-        return new ObjectMapper().writeValueAsString(submissions);
+        return new ObjectMapper().writeValueAsString(reportService.getUsersSubmissionCountBetweenDates(context, fromDate, toDate));
     }
 
 }

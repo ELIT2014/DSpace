@@ -1,10 +1,15 @@
 package org.ssu.entity.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 public class ItemDepositorResponse {
+    @JsonProperty("name")
     private String name;
+    @JsonProperty("count")
     private Integer count;
+    @JsonProperty("data")
     private List<ItemDepositorResponse> depositors;
 
     private ItemDepositorResponse(Builder builder) {

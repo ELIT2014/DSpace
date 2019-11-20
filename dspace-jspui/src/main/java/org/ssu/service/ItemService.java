@@ -1,6 +1,5 @@
 package org.ssu.service;
 
-import com.hp.hpl.jena.sparql.function.library.date;
 import org.dspace.content.*;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.MetadataFieldService;
@@ -10,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.ssu.entity.AuthorLocalization;
 import org.ssu.entity.response.ItemResponse;
 import org.ssu.repository.MetadatavalueRepository;
-import org.ssu.service.localization.AuthorsCache;
 import org.ssu.service.localization.TypeLocalization;
 import org.ssu.service.statistics.EssuirStatistics;
 
@@ -40,6 +38,11 @@ public class ItemService {
     transient private final org.dspace.content.service.ItemService itemService = ContentServiceFactory.getInstance().getItemService();
     transient private final MetadataFieldService metadataFieldService = ContentServiceFactory.getInstance().getMetadataFieldService();
     transient private final MetadataValueService metadataValueService = ContentServiceFactory.getInstance().getMetadataValueService();
+
+    public Iterator<Item> findAll(Context context) throws SQLException {
+        return itemService.findAll(context);
+    }
+
     public Integer extractIssuedYearForItem(Item item) {
         List<MetadataValue> dateIssuedMetadata = itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
 

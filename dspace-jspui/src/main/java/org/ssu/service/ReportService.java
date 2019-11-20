@@ -1,33 +1,25 @@
 package org.ssu.service;
 
 
-import com.amazonaws.transform.MapEntry;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.tuple.Pair;
-import org.dspace.app.webui.util.UIUtil;
 import org.dspace.content.Item;
-import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.core.Context;
-import org.dspace.eperson.EPerson;
 import org.jooq.lambda.Seq;
-import org.jooq.lambda.tuple.Tuple2;
 import org.springframework.stereotype.Service;
-
 import org.ssu.entity.ChairEntity;
 import org.ssu.entity.EssuirEperson;
-import org.ssu.entity.FacultyEntity;
-import org.ssu.entity.Speciality;
-import org.ssu.entity.jooq.Faculty;
 import org.ssu.entity.response.DepositorDivision;
 import org.ssu.entity.response.DepositorSimpleUnit;
 import org.ssu.entity.response.ItemDepositorResponse;
-import org.ssu.entity.response.ItemResponse;
 
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
@@ -41,70 +33,42 @@ public class ReportService {
     @Resource
     private EpersonService epersonService;
 
-    transient private final org.dspace.content.service.ItemService itemService = ContentServiceFactory.getInstance().getItemService();
-
     private BiPredicate<LocalDate, Pair<LocalDate, LocalDate>> isDateInRange = (date, range) -> date.isAfter(range.getLeft().minusDays(1)) && date.isBefore(range.getRight().plusDays(1));
 
-    private List<ItemDepositorResponse> collectStatistics(Map<DepositorSimpleUnit, Long> data) {
-        Function<Map.Entry<DepositorSimpleUnit, Long>, ItemDepositorResponse> countContributionForSpeciality = (speciality) -> new ItemDepositorResponse.Builder()
+    private <T extends DepositorSimpleUnit> List<ItemDepositorResponse> collectStatistics(List<Pair<T, Long>> data) {
+        Function<Pair<T, Long>, ItemDepositorResponse> countContributionForSpeciality = (speciality) -> new ItemDepositorResponse.Builder()
                 .withName(speciality.getKey().getName())
                 .withCount(speciality.getValue().intValue())
                 .build();
 
-        BiFunction<DepositorDivision, List<ItemDepositorResponse>, ItemDepositorResponse> createSomething = (depositor, children) -> new ItemDepositorResponse.Builder()
+        BiFunction<DepositorDivision, List<ItemDepositorResponse>, ItemDepositorResponse> fetchDepositorDataForDepositorDivision = (depositor, children) -> new ItemDepositorResponse.Builder()
                 .withName(depositor.getName())
                 .withDepositors(children)
-                .withCount(((Long) children.stream().map(ItemDepositorResponse::getCount).count()).intValue())
+                .withCount(children.stream().map(ItemDepositorResponse::getCount).mapToInt(Integer::intValue).sum())
                 .build();
 
-        Function<Map<ChairEntity, List<ItemDepositorResponse>>, List<ItemDepositorResponse>> create = (it) -> it.entrySet()
+        Function<Map<ChairEntity, List<ItemDepositorResponse>>, List<ItemDepositorResponse>> fetchDepositorsForFaculty = (it) -> it.entrySet()
                 .stream()
-                .map(t -> createSomething.apply(t.getKey(), t.getValue()))
+                .map(t -> fetchDepositorDataForDepositorDivision.apply(t.getKey(), t.getValue()))
                 .collect(Collectors.toList());
 
-
-        return Seq.seq(data.entrySet())
+        return Seq.seq(data)
                 .grouped(item -> item.getKey().getChairEntity().getFacultyEntity(),
                         Collectors.groupingBy(it -> it.getKey().getChairEntity(),
-                                Collectors.mapping(countContributionForSpeciality::apply, Collectors.toList())))
-                .map(item -> Pair.of(item.v1, create.apply(item.v2)))
-                .map(item -> createSomething.apply(item.getKey(), item.getValue()))
+                                Collectors.mapping(countContributionForSpeciality, Collectors.toList())))
+                .map(item -> Pair.of(item.v1, fetchDepositorsForFaculty.apply(item.v2)))
+                .map(item -> fetchDepositorDataForDepositorDivision.apply(item.getKey(), item.getValue()))
                 .collect(Collectors.toList());
     }
 
     public List<ItemDepositorResponse> getUsersSubmissionCountBetweenDates(Context context, LocalDate from, LocalDate to) throws SQLException, IOException {
-        long start = System.currentTimeMillis();
-        System.out.println("=======================================================================");
-
-        ArrayList<Item> items1 = Lists.newArrayList(itemService.findAll(context));
-        System.out.println("fetch data from database");
-        System.out.println(System.currentTimeMillis() - start);
-        start = System.currentTimeMillis();
-
         Map<UUID, LocalDate> allDatesAvailable = essuirItemService.getAllDatesAvailable(context);
-        System.out.println("fetch available dates from database");
-        System.out.println(System.currentTimeMillis() - start);
-        start = System.currentTimeMillis();
-
-        List<Item> items = items1
-                .stream()
-                .filter(item -> allDatesAvailable.containsKey(item.getID()) && isDateInRange.test(allDatesAvailable.get(item.getID()), Pair.of(from, to)))
-                .collect(Collectors.toList());
-        System.out.println("first collect");
-        System.out.println(System.currentTimeMillis() - start);
-        Map<DepositorSimpleUnit, Long> data = Seq.seq(items)
+        List<Pair<EssuirEperson, Long>> submissionsByEperson = Seq.seq(Lists.newArrayList(essuirItemService.findAll(context)))
+                .filter(submission -> isDateInRange.test(allDatesAvailable.getOrDefault(submission.getID(), LocalDate.MIN), Pair.of(from, to)))
                 .grouped(Item::getSubmitter, Collectors.counting())
-                .collect(Collectors.toMap(submission -> epersonService.extendEpersonInformation(submission.v1), submission -> submission.v2));
-        System.out.println("create map");
-        System.out.println(System.currentTimeMillis() - start);
-        start = System.currentTimeMillis();
-        List<ItemDepositorResponse> res = collectStatistics(data);
-        System.out.println("collecting and grouping");
-        System.out.println(System.currentTimeMillis() - start);
-        System.out.println("=======================================================================");
-        System.out.println();
-        System.out.println();
-        return res;
+                .map(submission -> Pair.of(epersonService.extendEpersonInformation(submission.v1), submission.v2))
+                .toList();
+        return collectStatistics(submissionsByEperson);
     }
 
 //    public List<Item> getUploadedItemsByFacultyName(String faculty, LocalDate from, LocalDate to) {
