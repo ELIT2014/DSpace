@@ -69,6 +69,16 @@ public class ReportController {
         return new ObjectMapper().writeValueAsString(reportService.getUsersSubmissionCountBetweenDates(context, fromDate, toDate));
     }
 
+    @RequestMapping(value = "/report/speciality", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
+    @ResponseBody
+    public String getSpecialityStatistics(@RequestParam("from") String from, @RequestParam("to") String to, HttpServletRequest request) throws JsonProcessingException, SQLException {
+        Context context = UIUtil.obtainContext(request);
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        LocalDate fromDate = LocalDate.parse(from, format);
+        LocalDate toDate = LocalDate.parse(to, format);
+        return new ObjectMapper().writeValueAsString(reportService.getSpecialitySubmissionCountBetweenDates(context, fromDate, toDate));
+    }
+
     @RequestMapping(value = "/report/itemUploadingReport", method = RequestMethod.GET)
     public ModelAndView getUploadingStatisticsByDepositor(@RequestParam(value = "from", defaultValue = "01.01.2010") String from,
                                                           @RequestParam(value = "to", defaultValue = "01.01.2100") String to,
