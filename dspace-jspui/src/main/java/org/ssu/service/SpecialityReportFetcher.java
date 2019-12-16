@@ -127,23 +127,6 @@ public class SpecialityReportFetcher {
                 .grouped(item -> item, Collectors.counting())
                 .map(item -> Pair.of(item.v1(), item.v2()))
                 .toList();
-
-//                .stream()
-//                .collect(Collectors.groupingBy(item -> item.getValue(), Collectors.counting()))
-//                .entrySet()
-//                .stream()
-//
-//                .collect(Collectors.toList());
-//        return null;
-//        List<Item> bachelorsPapersMetadata = getBachelorsPapersMetadata();
-//        return bachelorsPapersMetadata
-//                .stream()
-//                .filter(this::isSpecialityNameAndPresentationDatePresented)
-//                .filter(item -> isDateInRange.test(item.getDateAvailable(), Pair.of(from, to)))
-//                .collect(Collectors.groupingBy(Item::getSpecialityName, Collectors.counting()))
-//                .entrySet()
-//                .stream()
-//                .collect(Collectors.toMap(item -> extractSpecialityCode(item.getKey()), Map.Entry::getValue));
     }
 //
 //    public List<Item> getBachelorsWithoutSpeciality() {
