@@ -107,7 +107,7 @@ public class ReportService {
 //        return specialityReportFetcher.getBachelorsWithoutSpeciality();
 //    }
 //
-    public List<ItemDepositorResponse> getSpecialitySubmissionCountBetweenDates(Context context, LocalDate from, LocalDate to) {
-        return collectStatistics(specialityReportFetcher.getSpecialitySubmissionCountBetweenDates(from, to));
+    public List<ItemDepositorResponse> getSpecialitySubmissionCountBetweenDates(Context context, LocalDate from, LocalDate to) throws IOException, SQLException {
+        return collectStatistics(specialityReportFetcher.getSpecialitySubmissionCountBetweenDates(context, from, to));
     }
 }

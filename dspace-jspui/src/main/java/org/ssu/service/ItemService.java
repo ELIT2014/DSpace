@@ -161,12 +161,8 @@ public class ItemService {
                 .build();
     }
 
-    public void fetchMastersAndBachelorsPapers() {
-        Map<UUID, String> itemsInSPeciality = metadatavalueRepository.selectMetadataByFieldId(133);
-        itemsInSPeciality
-                .entrySet()
-                .stream()
-                .forEach(item -> System.out.println(item.getKey() + " " + item.getValue()));
+    public Map<UUID, String> fetchMastersAndBachelorsPapers() {
+        return metadatavalueRepository.selectMetadataByFieldId(133);
     }
 
 }

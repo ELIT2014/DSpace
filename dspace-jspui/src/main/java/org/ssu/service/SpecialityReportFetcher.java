@@ -1,24 +1,33 @@
 package org.ssu.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
+import org.dspace.content.Item;
+import org.dspace.core.Context;
+import org.jooq.lambda.Seq;
+import org.jooq.lambda.tuple.Tuple2;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.ssu.entity.ChairEntity;
 import org.ssu.entity.FacultyEntity;
 import org.ssu.entity.Speciality;
+import org.ssu.entity.SpecialityDetailedInfo;
 import org.ssu.entity.jooq.Faculty;
 
 import javax.annotation.Resource;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.function.BiPredicate;
-import java.util.function.Predicate;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Component
 public class SpecialityReportFetcher {
@@ -70,17 +79,62 @@ public class SpecialityReportFetcher {
     }
 
     @Transactional
-    public void getBachelorsPapersMetadata() {
-        essuirItemService.fetchMastersAndBachelorsPapers();
+    public List<Speciality> getBachelorsPapersMetadata(Context context, LocalDate from, LocalDate to) throws IOException, SQLException {
+        Function<String, Speciality> facultyEntityObjectMapper = (jsonData) -> {
+            try {
+                List<SpecialityDetailedInfo> specialityDetailedInfoList = new ObjectMapper().readValue(jsonData, new TypeReference<List<SpecialityDetailedInfo>>(){});
+                if(specialityDetailedInfoList.size() == 3) {
+                    FacultyEntity faculty = new FacultyEntity.Builder()
+                            .withId(specialityDetailedInfoList.get(0).getCode())
+                            .withName(specialityDetailedInfoList.get(0).getName())
+                            .build();
+
+                    ChairEntity chair = new ChairEntity.Builder()
+                            .withFacultyEntityName(faculty)
+                            .withChairName(specialityDetailedInfoList.get(1).getName())
+                            .withId(specialityDetailedInfoList.get(1).getCode())
+                            .build();
+
+                    return new Speciality.Builder()
+                            .withChairEntity(chair)
+                            .withId(specialityDetailedInfoList.get(2).getCode())
+                            .withName(specialityDetailedInfoList.get(2).getName())
+                            .build();
+                }
+                return null;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        };
+        Map<UUID, LocalDate> allDatesAvailable = essuirItemService.getAllDatesAvailable(context);
+        return essuirItemService.fetchMastersAndBachelorsPapers()
+                .entrySet()
+                .stream()
+                .filter(submission -> isDateInRange.test(allDatesAvailable.getOrDefault(submission.getKey(), LocalDate.MIN), Pair.of(from, to)))
+                .map(Map.Entry::getValue)
+                .map(facultyEntityObjectMapper)
+                .collect(Collectors.toList());
     }
 
 //    private boolean isSpecialityNameAndPresentationDatePresented(Item item) {
 //        return !item.getSpecialityName().isEmpty() && !item.getPresentationDate().isEmpty();
 //    }
 
-    public List<Pair<Speciality, Long>> getSpecialitySubmissionCountBetweenDates(LocalDate from, LocalDate to) {
-        getBachelorsPapersMetadata();
-        return null;
+    public List<Pair<Speciality, Long>> getSpecialitySubmissionCountBetweenDates(Context context, LocalDate from, LocalDate to) throws IOException, SQLException {
+        return Seq.seq(getBachelorsPapersMetadata(context, from, to))
+                .filter(Objects::nonNull)
+                .grouped(item -> item, Collectors.counting())
+                .map(item -> Pair.of(item.v1(), item.v2()))
+                .toList();
+
+//                .stream()
+//                .collect(Collectors.groupingBy(item -> item.getValue(), Collectors.counting()))
+//                .entrySet()
+//                .stream()
+//
+//                .collect(Collectors.toList());
+//        return null;
 //        List<Item> bachelorsPapersMetadata = getBachelorsPapersMetadata();
 //        return bachelorsPapersMetadata
 //                .stream()
