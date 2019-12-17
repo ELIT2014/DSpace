@@ -165,4 +165,7 @@ public class ItemService {
         return metadatavalueRepository.selectMetadataByFieldId(133);
     }
 
+    public Map<UUID, String> fetchItemType() {
+        return metadatavalueRepository.selectMetadataByFieldId(66);
+    }
 }

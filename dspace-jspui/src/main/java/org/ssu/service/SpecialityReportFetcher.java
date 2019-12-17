@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 import org.dspace.content.Item;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.core.Context;
 import org.jooq.lambda.Seq;
 import org.jooq.lambda.tuple.Tuple2;
@@ -16,6 +17,7 @@ import org.ssu.entity.FacultyEntity;
 import org.ssu.entity.Speciality;
 import org.ssu.entity.SpecialityDetailedInfo;
 import org.ssu.entity.jooq.Faculty;
+import org.ssu.repository.MetadatavalueRepository;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -36,6 +38,10 @@ public class SpecialityReportFetcher {
     @Resource
     private ItemService essuirItemService;
 
+    @Resource
+    private MetadatavalueRepository metadatavalueRepository;
+
+    transient private final org.dspace.content.service.ItemService itemService = ContentServiceFactory.getInstance().getItemService();
     private BiPredicate<LocalDate, Pair<LocalDate, LocalDate>> isDateInRange = (date, range) -> date.isAfter(range.getLeft().minusDays(1)) && date.isBefore(range.getRight().plusDays(1));
 
     private Speciality extractSpecialityCode(String data) {
@@ -117,9 +123,7 @@ public class SpecialityReportFetcher {
                 .collect(Collectors.toList());
     }
 
-//    private boolean isSpecialityNameAndPresentationDatePresented(Item item) {
-//        return !item.getSpecialityName().isEmpty() && !item.getPresentationDate().isEmpty();
-//    }
+
 
     public List<Pair<Speciality, Long>> getSpecialitySubmissionCountBetweenDates(Context context, LocalDate from, LocalDate to) throws IOException, SQLException {
         return Seq.seq(getBachelorsPapersMetadata(context, from, to))
@@ -128,14 +132,39 @@ public class SpecialityReportFetcher {
                 .map(item -> Pair.of(item.v1(), item.v2()))
                 .toList();
     }
+
+//    private boolean isSpecialityNameAndPresentationDatePresented(Item item) {
 //
-//    public List<Item> getBachelorsWithoutSpeciality() {
-//        List<Item> items = getBachelorsPapersMetadata();
+//        return !item.getSpecialityName().isEmpty() && !item.getPresentationDate().isEmpty();
+//    }
+
+    public List<Item> getBachelorsWithoutSpeciality(Context context) {
+        Map<UUID, String> papersWithData = essuirItemService.fetchMastersAndBachelorsPapers();
+        Map<UUID, String> itemTypes = essuirItemService.fetchItemType();
+        return itemTypes.entrySet()
+                .stream()
+                .filter(item -> item.getValue().equals("Bachelous paper") || item.getValue().equals("Masters thesis"))
+                .filter(item -> !papersWithData.containsKey(item.getKey()))
+                .map(item -> {
+                    try {
+                        return itemService.find(context, item.getKey());
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                            return null;
+                }
+                )
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+//        uuidForProblematicItems.stream()
+//                .map(item -> Pair.of(metadatavalueRepository.))
+
 //        return items.stream()
 //                .filter(item -> !isSpecialityNameAndPresentationDatePresented(item))
 //                .collect(Collectors.toList());
-//    }
-//
+    }
+
 //    @Transactional
 //    public List<Item> getItemsInSpeciality(String pattern, LocalDate from, LocalDate to) {
 //        String[] depositor = pattern.split("//");
