@@ -124,7 +124,7 @@ public class ReportController {
 
         model.setViewName("detailed-report");
         model.addObject("data", itemLinks);
-        model.addObject("deposittor", Stream.of(request.getParameter("depositor").split("//")).reduce((a, b) -> b).orElse("--"));
+        model.addObject("depositor", Stream.of(request.getParameter("depositor").split("//")).reduce((a, b) -> b).orElse("--"));
         return model;
     }
 

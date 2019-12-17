@@ -123,8 +123,6 @@ public class SpecialityReportFetcher {
                 .collect(Collectors.toList());
     }
 
-
-
     public List<Pair<Speciality, Long>> getSpecialitySubmissionCountBetweenDates(Context context, LocalDate from, LocalDate to) throws IOException, SQLException {
         return Seq.seq(getBachelorsPapersMetadata(context, from, to))
                 .filter(Objects::nonNull)
@@ -132,10 +130,6 @@ public class SpecialityReportFetcher {
                 .map(item -> Pair.of(item.v1(), item.v2()))
                 .toList();
     }
-
-//    private boolean isSpecialityNameAndPresentationDatePresented(Item item) {
-//        return !item.getSpecialityName().isEmpty() && !item.getPresentationDate().isEmpty();
-//    }
 
     private BiFunction<Context, UUID, Optional<Item>> getItemByUUID = (context, uuid) -> {
         try {
@@ -163,27 +157,15 @@ public class SpecialityReportFetcher {
     @Transactional
     public List<Item> getItemsInSpeciality(Context context, String pattern, LocalDate from, LocalDate to) throws IOException, SQLException {
         String[] depositor = pattern.split("//");
-        Predicate<String> check = (speciality) -> {
-            return Stream.of(depositor).allMatch(speciality::contains);
-//            return speciality.getChairEntity().getName().equals(depositor[0]) && speciality.getName().equals(depositor[1]);
-        };
+        Predicate<String> isItemInNeededSpeciality = (speciality) -> Stream.of(depositor).allMatch(speciality::contains);
         return essuirItemService.fetchMastersAndBachelorsPapers()
                 .keySet()
                 .stream()
                 .map(item -> getItemByUUID.apply(context, item))
-
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .filter(item -> isDateInRange.test(essuirItemService.getDateAvailableForItem(item), Pair.of(from, to)))
-                .filter(item -> check.test(essuirItemService.getSpecialityForItem(item)))
+                .filter(item -> isItemInNeededSpeciality.test(essuirItemService.getSpecialityForItem(item)))
                 .collect(Collectors.toList());
-
-//        List<Item> items = getBachelorsPapersMetadata(context, from, to);
-//        Predicate<String> isSpecialityNameContainsPattern = (specialityName) -> Stream.of(depositor).allMatch(specialityName::contains);
-//        return items.stream()
-//                .filter(this::isSpecialityNameAndPresentationDatePresented)
-//                .filter(item -> isDateInRange.test(item.getDateAvailable(), Pair.of(from, to)))
-//                .filter(item -> isSpecialityNameContainsPattern.test(item.getSpecialityName()))
-//                .collect(Collectors.toList());
     }
 }
