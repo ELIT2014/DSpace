@@ -129,7 +129,7 @@ public class ReportController {
     }
 
     @RequestMapping(value = "/report/detailedReport", method = RequestMethod.GET)
-    public ModelAndView getDetailedReportForDepositor(@RequestParam(value = "from", defaultValue = "01.01.2010") String from, @RequestParam(value = "to", defaultValue = "01.01.2100") String to,@RequestParam("depositor") String depositor, ModelAndView model, HttpServletRequest request) throws SQLException {
+    public ModelAndView getDetailedReportForDepositor(@RequestParam(value = "from", defaultValue = "01.01.2010") String from, @RequestParam(value = "to", defaultValue = "01.01.2100") String to,@RequestParam("depositor") String depositor, ModelAndView model, HttpServletRequest request) throws SQLException, IOException {
         Context context = UIUtil.obtainContext(request);
         List<Item> itemsInSpeciality;
         LocalDate fromDate = LocalDate.parse(from, format);
@@ -137,7 +137,7 @@ public class ReportController {
         if(depositor.equals("-")) {
             itemsInSpeciality = reportService.getBacheoursWithoutSpeciality(context);
         } else {
-            itemsInSpeciality = reportService.getItemsInSpeciality(depositor, fromDate, toDate);
+            itemsInSpeciality = reportService.getItemsInSpeciality(context, depositor, fromDate, toDate);
         }
 
         List<String> itemLinks = itemsInSpeciality

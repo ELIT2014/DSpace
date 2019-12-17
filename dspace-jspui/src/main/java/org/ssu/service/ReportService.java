@@ -99,8 +99,8 @@ public class ReportService {
                 .collect(Collectors.toList());
     }
 
-    public List<Item> getItemsInSpeciality(String pattern, LocalDate from, LocalDate to) {
-        return specialityReportFetcher.getItemsInSpeciality(pattern, from, to);
+    public List<Item> getItemsInSpeciality(Context context, String pattern, LocalDate from, LocalDate to) throws IOException, SQLException {
+        return specialityReportFetcher.getItemsInSpeciality(context, pattern, from, to);
     }
 
     public List<Item> getBacheoursWithoutSpeciality(Context context) {

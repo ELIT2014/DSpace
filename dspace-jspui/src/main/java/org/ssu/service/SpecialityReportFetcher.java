@@ -23,13 +23,13 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 public class SpecialityReportFetcher {
@@ -134,46 +134,56 @@ public class SpecialityReportFetcher {
     }
 
 //    private boolean isSpecialityNameAndPresentationDatePresented(Item item) {
-//
 //        return !item.getSpecialityName().isEmpty() && !item.getPresentationDate().isEmpty();
 //    }
+
+    private BiFunction<Context, UUID, Optional<Item>> getItemByUUID = (context, uuid) -> {
+        try {
+            return Optional.ofNullable(itemService.find(context, uuid));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Optional.empty();
+    };
 
     public List<Item> getBachelorsWithoutSpeciality(Context context) {
         Map<UUID, String> papersWithData = essuirItemService.fetchMastersAndBachelorsPapers();
         Map<UUID, String> itemTypes = essuirItemService.fetchItemType();
+
         return itemTypes.entrySet()
                 .stream()
                 .filter(item -> item.getValue().equals("Bachelous paper") || item.getValue().equals("Masters thesis"))
                 .filter(item -> !papersWithData.containsKey(item.getKey()))
-                .map(item -> {
-                    try {
-                        return itemService.find(context, item.getKey());
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
-                            return null;
-                }
-                )
-                .filter(Objects::nonNull)
+                .map(item -> getItemByUUID.apply(context, item.getKey()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .collect(Collectors.toList());
-
-//        uuidForProblematicItems.stream()
-//                .map(item -> Pair.of(metadatavalueRepository.))
-
-//        return items.stream()
-//                .filter(item -> !isSpecialityNameAndPresentationDatePresented(item))
-//                .collect(Collectors.toList());
     }
 
-//    @Transactional
-//    public List<Item> getItemsInSpeciality(String pattern, LocalDate from, LocalDate to) {
-//        String[] depositor = pattern.split("//");
-//        List<Item> items = getBachelorsPapersMetadata();
+    @Transactional
+    public List<Item> getItemsInSpeciality(Context context, String pattern, LocalDate from, LocalDate to) throws IOException, SQLException {
+        String[] depositor = pattern.split("//");
+        Predicate<String> check = (speciality) -> {
+            return Stream.of(depositor).allMatch(speciality::contains);
+//            return speciality.getChairEntity().getName().equals(depositor[0]) && speciality.getName().equals(depositor[1]);
+        };
+        return essuirItemService.fetchMastersAndBachelorsPapers()
+                .keySet()
+                .stream()
+                .map(item -> getItemByUUID.apply(context, item))
+
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .filter(item -> isDateInRange.test(essuirItemService.getDateAvailableForItem(item), Pair.of(from, to)))
+                .filter(item -> check.test(essuirItemService.getSpecialityForItem(item)))
+                .collect(Collectors.toList());
+
+//        List<Item> items = getBachelorsPapersMetadata(context, from, to);
 //        Predicate<String> isSpecialityNameContainsPattern = (specialityName) -> Stream.of(depositor).allMatch(specialityName::contains);
 //        return items.stream()
 //                .filter(this::isSpecialityNameAndPresentationDatePresented)
 //                .filter(item -> isDateInRange.test(item.getDateAvailable(), Pair.of(from, to)))
 //                .filter(item -> isSpecialityNameContainsPattern.test(item.getSpecialityName()))
 //                .collect(Collectors.toList());
-//    }
+    }
 }
