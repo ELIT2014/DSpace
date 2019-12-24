@@ -99,7 +99,7 @@
                     <dc-qualifier>citation</dc-qualifier>
                     <repeatable>false</repeatable>
                     <label>Библиографическое описание</label>
-                    <input-type>onebox</input-type>
+                    <input-type>textarea</input-type>
                     <hint>Введите стандартное библиографическое описание предыдущего идательства для даннoго материала.</hint>
                     <required></required>
                 </field>
