@@ -106,14 +106,36 @@
          <required></required>
        </field>
 
+       <!--<field>-->
+         <!--<dc-schema>dc</dc-schema>-->
+         <!--<dc-element>relation</dc-element>-->
+         <!--<dc-qualifier>ispartofseries</dc-qualifier>-->
+         <!--<repeatable>true</repeatable>-->
+         <!--<label>Series/Report No.</label>-->
+         <!--<input-type>series</input-type>-->
+         <!--<hint>Enter the series and number assigned to this item by your community.</hint>-->
+         <!--<required></required>-->
+       <!--</field>-->
+
        <field>
          <dc-schema>dc</dc-schema>
-         <dc-element>relation</dc-element>
-         <dc-qualifier>ispartofseries</dc-qualifier>
-         <repeatable>true</repeatable>
-         <label>Series/Report No.</label>
-         <input-type>series</input-type>
-         <hint>Enter the series and number assigned to this item by your community.</hint>
+         <dc-element>speciality</dc-element>
+         <dc-qualifier>id</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Speciality id</label>
+         <input-type>onebox</input-type>
+         <hint>Enter the standard citation for the previously issued instance of this item.</hint>
+         <required></required>
+       </field>
+
+       <field>
+         <dc-schema>dc</dc-schema>
+         <dc-element>date</dc-element>
+         <dc-qualifier>presentation</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Presentation date</label>
+         <input-type>onebox</input-type>
+         <hint></hint>
          <required></required>
        </field>
 
@@ -261,10 +283,10 @@ it, please enter the types and the actual numbers or codes.</hint>
    </value-pairs>
 
    <value-pairs value-pairs-name="common_types" dc-term="type">
-     <pair>
-       <displayed-value>Animation</displayed-value>
-       <stored-value>Animation</stored-value>
-     </pair>
+     <!--<pair>-->
+       <!--<displayed-value>Animation</displayed-value>-->
+       <!--<stored-value>Animation</stored-value>-->
+     <!--</pair>-->
      <pair>
        <displayed-value>Article</displayed-value>
        <stored-value>Article</stored-value>
@@ -344,6 +366,10 @@ it, please enter the types and the actual numbers or codes.</hint>
      <pair>
        <displayed-value>Working Paper</displayed-value>
        <stored-value>Working Paper</stored-value>
+     </pair>
+     <pair>
+       <displayed-value>Bachelous Paper</displayed-value>
+       <stored-value>Bachelous paper</stored-value>
      </pair>
      <pair>
        <displayed-value>Other</displayed-value>
