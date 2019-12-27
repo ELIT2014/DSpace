@@ -104,16 +104,6 @@
                     <required></required>
                 </field>
 
-                <!--<field>-->
-                    <!--<dc-schema>dc</dc-schema>-->
-                    <!--<dc-element>speciality</dc-element>-->
-                    <!--<dc-qualifier>id</dc-qualifier>-->
-                    <!--<repeatable>false</repeatable>-->
-                    <!--<label>Специальность</label>-->
-                    <!--<input-type>onebox</input-type>-->
-                    <!--<hint></hint>-->
-                    <!--<required></required>-->
-                <!--</field>-->
                 <field>
                     <dc-schema>dc</dc-schema>
                     <dc-element>speciality</dc-element>
