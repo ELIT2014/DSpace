@@ -1110,6 +1110,7 @@
       {
           sb.append(" readonly=\"readonly\"");
       }
+      sb.append(" onchange=\"paperTypeSelected()\" ");
       sb.append(">");
 
       for (int i = 0; i < valueList.size(); i += 2)
@@ -1277,6 +1278,18 @@
          sb.append("</select>");
          return sb;
     }
+
+    void doSpecialityRow(javax.servlet.jsp.JspWriter out, PageContext pageContext) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<div class=\"row\" id = \"speciality-select-row\"><label class=\"col-md-2 label-required\">")
+                .append(LocaleSupport.getLocalizedMessage(pageContext, "jsp.submit.edit-metadata.speciality-select"))
+                .append("</label>")
+                .append("<span class=\"col-md-8\">")
+                .append("<div id=\"speciality-selector\"></div>")
+                .append("</span></div></br>");
+        sb.append(" <input type=\"hidden\" id=\"dc_speciality_id\" name=\"dc_speciality_id\">");
+        out.write(sb.toString());
+    }
 %>
 
 <%
@@ -1326,7 +1339,7 @@
 
 
 
-  <form action="<%= request.getContextPath() %>/submit#<%= si.getJumpToField()%>" method="post" name="edit_metadata" id="edit_metadata" onkeydown="return disableEnterKey(event);">
+  <form action="<%= request.getContextPath() %>/submit#<%= si.getJumpToField()%>" method="post" name="edit_metadata" id="edit_metadata" onkeydown="return disableEnterKey(event);" onsubmit="return validateSpecialityInfo()">
 
         <jsp:include page="/submit/progressbar.jsp"></jsp:include>
 
@@ -1510,6 +1523,9 @@
                                  repeatable, required, readonly, fieldCountIncr, label, pageContext, vocabulary,
                                  closedVocabulary, collection, language, inputs[z].getValueLanguageList());
        }
+        if ("dc_type".equals(fieldName)) {
+            doSpecialityRow(out, pageContext);
+        }
        
      } // end of 'for rows'
 %>
@@ -1532,5 +1548,126 @@
     		</div><br/>
 </div>    		
     </form>
+
+    <script>
+        var a = [];
+        var request = jQuery.ajax({
+            type: 'GET',
+            url: '/api/facultylist'
+        }).done(function(data) {
+
+            var re = new RegExp("chairs", 'g');
+            a = data.replace(re, "d");
+            re = new RegExp("specialities", 'g');
+            a = a.replace(re, "d");
+            re = new RegExp("id", 'g');
+            a = a.replace(re, "code");
+            re = new RegExp("name", 'g');
+            a = a.replace(re, "n");
+            a = JSON.parse(a);
+            var getSpecialityInfo = function() {
+                var val = jQuery('#dc_speciality_id').val();
+                if(!val || !val.length) {
+                    return undefined;
+                }
+                return JSON.parse(val);
+            };
+            jQuery(document).ready(function(){
+                jQuery(function() {
+                    jQuery('#dc_date_presentation').datepicker( {
+                        changeMonth: true,
+                        changeYear: true,
+                        showButtonPanel: true,
+                        dateFormat: 'MM yy',
+                        onClose: function(dateText, inst) {
+                            jQuery(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
+                        }
+                    });
+                });
+                jQuery('#dc_speciality_id').parentsUntil('form').hide();
+                jQuery('#dc_speciality_id').parentsUntil('form').prev().hide();
+                jQuery("#speciality-selector").bsCascader({
+                    splitChar: '/',
+                    placeHolder: 'Select...',
+                    dropUp: true,
+                    value : getSpecialityInfo(),
+                    loadData: function(n, c) {
+                        c(a);
+                    }
+                }).on({
+                    "bs.cascader.change bs.cascader.select": function (name, id, a) {
+                        var res = JSON.stringify(a);
+                        if(res && res.length)
+                            jQuery('#dc_speciality_id').val(JSON.stringify(a));
+                    }
+                });
+                <% if (!documentType.equals("Bachelous paper") && !documentType.equals("Masters thesis")) { %>
+                jQuery('#speciality-select-row').hide();
+                jQuery('#dc_date_presentation').parentsUntil('form').hide();
+                jQuery('#dc_date_presentation').parentsUntil('form').prev().hide();
+                <% } %>
+                jQuery('#speciality-select-row').nextAll("div.row").first().children('label').addClass('label-required');
+            });
+        });
+        function paperTypeSelected() {
+            var selectedType = jQuery('[name = "dc_type"] option:selected').val();
+            if(selectedType.trim() === 'Bachelous paper' || selectedType.trim() === 'Masters thesis') {
+                jQuery('#speciality-select-row').show();
+                jQuery('#dc_date_presentation').parentsUntil('form').show();
+                jQuery('#dc_date_presentation').parentsUntil('form').prev().show();
+            }
+            else {
+                jQuery('#speciality-select-row').hide();
+                jQuery('#dc_date_presentation').parentsUntil('form').hide();
+                jQuery('#dc_date_presentation').parentsUntil('form').prev().hide();
+            }
+        }
+        function enableSubmitButton() {
+            jQuery('[name=submit_dc_contributor_author_add]').attr('disabled', false);
+        }
+        function disableSubmitButton() {
+            jQuery('[name=submit_dc_contributor_author_add]').attr('disabled', true);
+        }
+        function changeButtonStatus() {
+            var fields = jQuery('[id^=dc_contributor_author_]');
+            var count = 0;
+            jQuery.each(fields, function(element, value) {
+                    if(jQuery(value).attr('value').length > 0) {
+                        count++;
+                    }
+                }
+            )
+            if(count == fields.length) {
+                enableSubmitButton();
+            } else {
+                disableSubmitButton();
+            }
+        }
+        jQuery(document).ready(function(){
+            changeButtonStatus();
+            jQuery('#authors_block').on('change', '[id^=dc_contributor_author_]', changeButtonStatus);
+        });
+        function getErrorMessageBlock(message, blockId) {
+            return '<div class="alert alert-warning" id="error-block-'+blockId+'">' + message + '</div>';
+        }
+        function validateSpecialityInfo() {
+            var specialityId = jQuery('#dc_speciality_id').val();
+            var presentationDate = jQuery('#dc_date_presentation').val();
+            var selectedType = jQuery('[name = "dc_type"] option:selected').val();
+            jQuery('#error-block-speciality').remove();
+            jQuery('#error-block-presentation-date').remove();
+            if(selectedType.trim() === 'Bachelous paper' || selectedType.trim() === 'Masters thesis') {
+                if(!specialityId) {
+                    jQuery('#speciality-select-row').prepend(getErrorMessageBlock('<%= LocaleSupport.getLocalizedMessage(pageContext, "metadata.dc.speciality.id.error") %>', 'speciality'));
+                }
+                if(!presentationDate) {
+                    jQuery('#speciality-select-row').next().after(getErrorMessageBlock('<%= LocaleSupport.getLocalizedMessage(pageContext, "metadata.dc.date.presentation.error") %>', 'presentation-date'));
+                }
+                var res = specialityId && presentationDate;
+                return !!res;
+            }
+            return true;
+        }
+    </script>
 
 </dspace:layout>
