@@ -12,9 +12,12 @@ import org.ssu.service.AuthorsService;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping
@@ -22,15 +25,21 @@ public class AdminController {
     @Resource
     private AuthorsService authorsService;
 
-    @RequestMapping(value = "/autocomplete", method = RequestMethod.GET)
+    @RequestMapping(value = "/autocomplete", method = RequestMethod.GET, produces = "text/plain;charset=UTF-8")
     @ResponseBody
     public String autocompleteAuthors( HttpServletRequest request) {
-        List<AuthorLocalization> allAuthors = authorsService.getAllAuthors(Optional.ofNullable(request.getParameter("q")));
-        for(AuthorLocalization author : allAuthors) {
-            System.out.println(author);
-        }
-        return "";
+        Locale currentLocale = Locale.forLanguageTag(Optional.ofNullable(request.getParameter("locale")).orElse("uk"));
+        List<Locale> locales = Arrays.asList(currentLocale, Locale.ENGLISH, Locale.forLanguageTag("ru"), Locale.forLanguageTag("uk"));
+
+        List<AuthorLocalization> authorsData = authorsService.getAllAuthors(Optional.ofNullable(request.getParameter("q")));
+        Function<AuthorLocalization, String> authorLocalizationMapping = (author) -> locales.stream()
+                        .map(locale -> String.format("%s|%s", author.getSurname(locale), author.getInitials(locale)))
+                        .collect(Collectors.joining("|"));
+        return authorsData.stream()
+                .map(authorLocalizationMapping)
+                .collect(Collectors.joining(System.lineSeparator()));
     }
+
     @RequestMapping("/authors/list")
     public ModelAndView autofillPage(ModelAndView model, HttpServletRequest request, HttpServletResponse response) {
         Optional<String> startsWith = Optional.ofNullable(request.getParameter("startsWith"));
