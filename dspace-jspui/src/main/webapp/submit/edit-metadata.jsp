@@ -1757,6 +1757,10 @@
           doList(out, item, fieldName, dcSchema, dcElement, dcQualifier,
                         repeatable, required, readonly, inputs[z].getPairs(), label);
        }
+       else if (inputType.equals("threelocbox"))
+       {
+           doThreeLocBox(out, item, fieldName, dcSchema, dcElement, dcQualifier, repeatable, required, readonly, fieldCountIncr, label, pageContext, vocabulary, closedVocabulary);
+       }
        else
        {
                         doOneBox(out, item, fieldName, dcSchema, dcElement, dcQualifier,
