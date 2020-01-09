@@ -158,11 +158,11 @@
                     <!-- An input-type of twobox MUST be marked as repeatable -->
                     <repeatable>true</repeatable>
                     <label>Ключевые слова</label>
-                    <input-type>twobox</input-type>
+                    <input-type>threelocbox</input-type>
                     <hint>Введите ниже соответствующие материалу ключевые слова. Каждое ключевое слово или фраза заносятся в отдельную ячейку с маленькой буквы.</hint>
                     <required></required>
                     <vocabulary>srsc</vocabulary>
-                </field>
+                </field>/edit-metadata.jsp
 
                 <field>
                     <dc-schema>dc</dc-schema>

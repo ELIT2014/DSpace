@@ -246,117 +246,177 @@
     }
 
     void doPersonalName(javax.servlet.jsp.JspWriter out, Item item,
-      String fieldName, String schema, String element, String qualifier, boolean repeatable, boolean required,
-      boolean readonly, int fieldCountIncr, String label, PageContext pageContext, Collection collection)
-      throws java.io.IOException
+                        String fieldName, String schema, String element, String qualifier, boolean repeatable, boolean required,
+                        boolean readonly, int fieldCountIncr, String label, PageContext pageContext, Collection collection)
+            throws java.io.IOException
     {
-   	  String authorityType = getAuthorityType(pageContext, fieldName, collection);
-    	
-      List<MetadataValue> defaults = ContentServiceFactory.getInstance().getItemService().getMetadata(item, schema, element, qualifier, Item.ANY);
-      int fieldCount = defaults.size() + fieldCountIncr;
-      StringBuffer headers = new StringBuffer();
-      StringBuffer sb = new StringBuffer();
-      org.dspace.content.DCPersonName dpn;
-      String auth;
-      int conf = 0;
-      StringBuffer name = new StringBuffer();
-      StringBuffer first = new StringBuffer();
-      StringBuffer last = new StringBuffer();
-      
-      if (fieldCount == 0)
-         fieldCount = 1;
+        String authorityType = getAuthorityType(pageContext, fieldName, collection);
+        List<MetadataValue> defaults = ContentServiceFactory.getInstance().getItemService().getMetadata(item, schema, element, qualifier, Item.ANY);
+        int fieldCount = defaults.size() + fieldCountIncr;
+        StringBuffer headers = new StringBuffer();
+        StringBuffer sb = new StringBuffer();
+        org.dspace.content.DCPersonName dpn;
+        String auth;
+        int conf = 0;
+        StringBuffer name = new StringBuffer();
+        StringBuffer first = new StringBuffer();
+        StringBuffer last = new StringBuffer();
+        if (fieldCount == 0)
+            fieldCount = 1;
+        headers.append("<style type=\"text/css\">" +
+                ".ac_results { padding: 0px; border: 1px solid WindowFrame; background-color: Window; overflow: hidden; } " +
+                " .ac_results ul { width: 100%; list-style-position: outside; list-style: none; padding: 0; margin: 0; } " +
+                " .ac_results iframe { display:none;/*sorry for IE5*/ display/**/:block;/*sorry for IE5*/ position:absolute; top:0; left:0; " +
+                "z-index:-1; filter:mask(); width:3000px; height:3000px; } " +
+                " .ac_results li { position:relative; margin: 0px; padding: 2px 5px; cursor: pointer; display: block; width: 100%; font: menu; " +
+                "font-size: 12px; overflow: hidden; } " +
+                " .ac_loading { background : Window url('static/img/autocomplete_indicator.gif') right center no-repeat; } " +
+                " .ac_over { background-color: Highlight; color: HighlightText; } </style> \n ");
+        sb.append("<div class=\"row\"><label class=\"col-md-2"+ (required?" label-required":"") +"\">").append(label).append("</label>");
+        sb.append("<div class=\"col-md-10\" id = \"authors_block\">");
+        out.write(headers.toString());
+        fieldCount = (fieldCount / 3 + (fieldCount % 3 == 0 ? 0 : 1)) * 3;
+        String[] locals = {"uk", "ru", "en"};
+        String lastNameEn = "Prykhodko";
+        String lastNameRu = "Приходько";
+        String lastNameUk = "Приходько";
+        String firstNameEn = "Serhii Ivanovych";
+        String firstNameRu = "Сергей Иванович";
+        String firstNameUk = "Сергій Іванович";
+        StringBuilder script = new StringBuilder();
+        script.append("<script type=\"text/javascript\"> " +
+                "  function liFormat (row, i, num) { " +
+                "    var result = row[0] + ' <font color=\"gray\">' + row[1] + '</font>'; " +
+                "    return result; " +
+                "  } ");
+        for (int i = 0; i < fieldCount; i++)
+        {
+            if ((i % 3 == 0) && (i != 0))
+                sb.append("<hr/>");
+            sb.append("<div class=\"row col-md-12\">");
+            if ("lookup".equalsIgnoreCase(authorityType))
+            {
+                sb.append("<div class=\"row col-md-10\">");
+            }
+            first.setLength(0);
+            first.append(fieldName).append("_first");
+            if (repeatable)
+                first.append('_').append(i+1);
+            last.setLength(0);
+            last.append(fieldName).append("_last");
+            if (repeatable)
+                last.append('_').append(i+1);
+            if (i < defaults.size())
+            {
+                dpn = new org.dspace.content.DCPersonName(defaults.get(i).getValue());
+                auth = defaults.get(i).getAuthority();
+                conf = defaults.get(i).getConfidence();
+            }
+            else
+            {
+                dpn = new org.dspace.content.DCPersonName();
+                auth = "";
+                conf = unknownConfidence;
+            }
+            String entity = "";
+            if (i % 3 == 0) {
+                entity = lastNameUk;
+            } else if (i % 3 == 1) {
+                entity = lastNameRu;
+            } else {
+                entity = lastNameEn;
+            }
+            sb.append("<label class=\"col-md-2\">" + LocaleSupport.getLocalizedMessage(pageContext, "jsp.submit.edit-metadata.locale_" + locals[i % 3]) + "</label>")
+                    .append("<span class=\"col-md-4\"><input placeholder=\"")
+                    .append(Utils.addEntities(entity))
+                    .append("\" class=\"form-control keyboard_layout\" type=\"text\" name=\"")
+                    .append(last.toString())
+                    .append("\" id=\"")
+                    .append(last.toString())
+                    .append("\"")
+                    .append(" size=\"23\" ");
 
-      sb.append("<div class=\"row\"><label class=\"col-md-2"+ (required?" label-required":"") +"\">").append(label).append("</label>");
-	  sb.append("<div class=\"col-md-10\">");     
-      for (int i = 0; i < fieldCount; i++)
-      {
-    	 sb.append("<div class=\"row col-md-12\">");
-    	 if ("lookup".equalsIgnoreCase(authorityType))
-    	 {
-    	 	sb.append("<div class=\"row col-md-10\">");
-    	 }
-         first.setLength(0);
-         first.append(fieldName).append("_first");
-         if (repeatable)
-            first.append('_').append(i+1);
 
-         last.setLength(0);
-         last.append(fieldName).append("_last");
-         if (repeatable)
-            last.append('_').append(i+1);
-
-         if (i < defaults.size())
-         {
-            dpn = new org.dspace.content.DCPersonName(defaults.get(i).getValue());
-            auth = defaults.get(i).getAuthority();
-            conf = defaults.get(i).getConfidence();
-         }
-         else
-         {
-            dpn = new org.dspace.content.DCPersonName();
-            auth = "";
-            conf = unknownConfidence;
-         }
-         
-         sb.append("<span class=\"col-md-5\"><input placeholder=\"")
-           .append(Utils.addEntities(LocaleSupport.getLocalizedMessage(pageContext, "jsp.submit.edit-metadata.lastname")))
-           .append("\" class=\"form-control\" type=\"text\" name=\"")
-           .append(last.toString())
-           .append("\" size=\"23\" ");
-         if (readonly)
-         {
-             sb.append("readonly=\"readonly\" ");
-         }
-         sb.append("value=\"")
-           .append(dpn.getLastName().replaceAll("\"", "&quot;")) // Encode "
-                   .append("\"/></span><span class=\"col-md-5\"><input placeholder=\"")
-                   .append(Utils.addEntities(LocaleSupport.getLocalizedMessage(pageContext, "jsp.submit.edit-metadata.firstname")))
-                   .append("\" class=\"form-control\" type=\"text\" name=\"")
-                   .append(first.toString())
-           .append("\" size=\"23\" ");
-         if (readonly)
-         {
-             sb.append("readonly=\"readonly\" ");
-         }
-         sb.append("value=\"")
-           .append(dpn.getFirstNames()).append("\"/></span>");         
-         
-         if ("lookup".equalsIgnoreCase(authorityType))
-    	 {
-             sb.append(doAuthority(pageContext, fieldName, i, fieldCount, fieldName,
-                     auth, conf, true, repeatable, defaults, null, collection));
-             sb.append("</div>");
-    	 }
-         
-
-         if (repeatable && !readonly && i < fieldCount - 1)
-         {
-            name.setLength(0);
-            name.append(Utils.addEntities(dpn.getLastName()))
-                .append(' ')
-                .append(Utils.addEntities(dpn.getFirstNames()));
-            // put a remove button next to filled in values
-            sb.append("<button class=\"btn btn-danger pull-right col-md-2\" name=\"submit_")
-              .append(fieldName)
-              .append("_remove_")
-              .append(i)
-              .append("\" value=\"")
-              .append(LocaleSupport.getLocalizedMessage(pageContext, "jsp.submit.edit-metadata.button.remove"))
-              .append("\"><span class=\"glyphicon glyphicon-trash\"></span>&nbsp;&nbsp;"+LocaleSupport.getLocalizedMessage(pageContext, "jsp.submit.edit-metadata.button.remove")+"</button>");
-         }
-         else if (repeatable && !readonly && i == fieldCount - 1)
-         {
-            // put a 'more' button next to the last space
-            sb.append("<button class=\"btn btn-default pull-right col-md-2\" name=\"submit_")
-              .append(fieldName)
-              .append("_add\" value=\"")
-              .append(LocaleSupport.getLocalizedMessage(pageContext, "jsp.submit.edit-metadata.button.add"))
-              .append("\"><span class=\"glyphicon glyphicon-plus\"></span>&nbsp;&nbsp;"+LocaleSupport.getLocalizedMessage(pageContext, "jsp.submit.edit-metadata.button.add")+"</button>");
-         }         
-         sb.append("</div>");   
-      }
-	  sb.append("</div></div><br/>");
-      out.write(sb.toString());
+            if (readonly)
+            {
+                sb.append("disabled=\"disabled\" ");
+            }
+            if (i % 3 == 0) {
+                entity = firstNameUk;
+            } else if (i % 3 == 1) {
+                entity = firstNameRu;
+            } else {
+                entity = firstNameEn;
+            }
+            sb.append("value=\"")
+                    .append(dpn.getLastName().replaceAll("\"", "&quot;")) // Encode "
+                    .append("\"/></span><span class=\"col-md-4\"><input placeholder=\"")
+                    .append(Utils.addEntities(entity))
+                    .append("\" class=\"form-control keyboard_layout\" type=\"text\" name=\"")
+                    .append(first.toString())
+                    .append("\" id=\"")
+                    .append(first.toString())
+                    .append("\"")
+                    .append(" size=\"23\" ");
+            if (readonly)
+            {
+                sb.append("disabled=\"disabled\" ");
+            }
+            sb.append("value=\"")
+                    .append(dpn.getFirstNames()).append("\"/></span>");
+            sb.append("<script>jQuery('#" + last.toString() + "').autocomplete()</script>");
+            if ("lookup".equalsIgnoreCase(authorityType))
+            {
+                sb.append(doAuthority(pageContext, fieldName, i, fieldCount, fieldName,
+                        auth, conf, true, repeatable, defaults, null, collection));
+                sb.append("</div>");
+            }
+            if (repeatable && !readonly && i < defaults.size() && i % 3 == 0)
+            {
+                name.setLength(0);
+                name.append(Utils.addEntities(dpn.getLastName()))
+                        .append(' ')
+                        .append(Utils.addEntities(dpn.getFirstNames()));
+                // put a remove button next to filled in values
+                sb.append("<button class=\"btn btn-danger pull-right col-md-2\" name=\"submit_")
+                        .append(fieldName)
+                        .append("_remove_")
+                        .append(i)
+                        .append("\" value=\"")
+                        .append(LocaleSupport.getLocalizedMessage(pageContext, "jsp.submit.edit-metadata.button.remove"))
+                        .append("\"><span class=\"glyphicon glyphicon-trash\"></span>&nbsp;&nbsp;"+LocaleSupport.getLocalizedMessage(pageContext, "jsp.submit.edit-metadata.button.remove")+"</button>");
+            }
+            else if (repeatable && !readonly && i == fieldCount - 1)
+            {
+                // put a 'more' button next to the last space
+                sb.append("<button class=\"btn btn-default pull-right col-md-2\" name=\"submit_")
+                        .append(fieldName)
+                        .append("_add\" value=\"")
+                        .append(LocaleSupport.getLocalizedMessage(pageContext, "jsp.submit.edit-metadata.button.add"))
+                        .append("\"><span class=\"glyphicon glyphicon-plus\"></span>&nbsp;&nbsp;")
+                        .append(LocaleSupport.getLocalizedMessage(pageContext, "jsp.submit.edit-metadata.button.add"))
+                        .append("</button>");
+            }
+            sb.append("</div>");
+            if (i % 3 == 0) {
+                script.append("  function selectItem" + (i / 3) + " (li) { " +
+                        "    jQuery(\"#" + fieldName + "_last_" + (i + 1) + "\").val(li.extra[5]); " +
+                        "    jQuery(\"#" + fieldName + "_first_" + (i + 1) + "\").val(li.extra[6]); " +
+                        "    jQuery(\"#" + fieldName + "_last_" + (i + 2) + "\").val(li.extra[3]); " +
+                        "    jQuery(\"#" + fieldName + "_first_" + (i + 2) + "\").val(li.extra[4]); " +
+                        "    jQuery(\"#" + fieldName + "_last_" + (i + 3) + "\").val(li.extra[1]); " +
+                        "    jQuery(\"#" + fieldName + "_first_" + (i + 3) + "\").val(li.extra[2]); " +
+                        "changeButtonStatus();"+
+                        "  } ");
+            }
+            script.append("  jQuery(document).ready(function(){ " +
+                    " jQuery(\"#" + last.toString() + "\").autocomplete(\"autocomplete\", { delay:10, minChars:2, matchSubset:1, autoFill:true, matchContains:1, cacheLength:10,  " +
+                    " selectFirst:true, formatItem:liFormat, maxItemsToShow:15, onItemSelect:selectItem" + (i / 3) + ",  extraParams:{'locale':'" + locals[i % 3] + "'} }); }); \n ");
+        }
+        script.append(" </script> ");
+        sb.append("</div></div><br/>");
+        sb.append(" " + script.toString());
+        out.write(sb.toString());
     }
 
     void doDate(javax.servlet.jsp.JspWriter out, Item item,
@@ -1277,6 +1337,186 @@
 
          sb.append("</select>");
          return sb;
+    }
+
+    void doThreeLocBox(javax.servlet.jsp.JspWriter out, Item item,
+                       String fieldName, String schema, String element, String qualifier, boolean repeatable, boolean required, boolean readonly,
+                       int fieldCountIncr, String label, PageContext pageContext, String vocabulary, boolean closedVocabulary)
+            throws java.io.IOException
+    {
+        List<MetadataValue> defaults = ContentServiceFactory.getInstance().getItemService().getMetadata(item, schema, element, qualifier, Item.ANY);
+        int fieldCount = defaults.size() + fieldCountIncr;
+        StringBuffer sb = new StringBuffer();
+        StringBuffer headers = new StringBuffer();
+        String fieldParam = "";
+        if (fieldCount == 0)
+            fieldCount = 1;
+        fieldCount = (fieldCount / 3 + (fieldCount % 3 == 0 ? 0 : 1)) * 3;
+        sb.append("<div class=\"row\"><label class=\"col-md-2"+ (required?" label-required":"") +"\">")
+                .append(label)
+                .append("</label>");
+        sb.append("<div class=\"col-md-10\">");
+        sb.append("<div class=\"row col-md-12\"><div class=\"col-md-4\"><label>");
+        sb.append(LocaleSupport.getLocalizedMessage(pageContext, "jsp.submit.edit-metadata.locale_uk"));
+        sb.append("</label></div><div class=\"col-md-4\"><label>");
+        sb.append(LocaleSupport.getLocalizedMessage(pageContext, "jsp.submit.edit-metadata.locale_ru"));
+        sb.append("</label></div><div class=\"col-md-4\"><label>");
+        sb.append(LocaleSupport.getLocalizedMessage(pageContext, "jsp.submit.edit-metadata.locale_en"));
+        sb.append("</label></div></div>");
+        for (int i = 0; i < fieldCount; i++)
+        {
+            sb.append("<div class=\"row col-md-12\">");
+            if(i != fieldCount)
+            {
+                //param is field name and index, starting from 1 (e.g. myfield_2)
+                fieldParam = fieldName + "_" + (i+1);
+            }
+            else
+            {
+                //param is just the field name
+                fieldParam = fieldName;
+            }
+            if (i < defaults.size())
+            {
+                sb.append("<span class=\"col-md-2\"><input class=\"form-control\" type=\"text\" name=\"")
+                        .append(fieldParam)
+                        .append("\" size=\"15\" value=\"")
+                        .append(defaults.get(i).getValue().replaceAll("\"", "&quot;"))
+                        .append("\"")
+                        .append((hasVocabulary(vocabulary)&&closedVocabulary) || readonly?" disabled=\"disabled\" ":"")
+                        .append("\" />");
+                sb.append(doControlledVocabulary(fieldParam, pageContext, vocabulary, readonly));
+                sb.append("</span>");
+                if (!readonly)
+                {
+                    sb.append("<button class=\"btn btn-danger col-md-2\" name=\"submit_")
+                            .append(fieldName)
+                            .append("_remove_")
+                            .append(i)
+                            .append("\" value=\"")
+                            .append(LocaleSupport.getLocalizedMessage(pageContext, "jsp.submit.edit-metadata.button.remove2"))
+                            .append("\"><span class=\"glyphicon glyphicon-trash\"></span>&nbsp;&nbsp;"+LocaleSupport.getLocalizedMessage(pageContext, "jsp.submit.edit-metadata.button.remove")+"</button>");
+                }
+                else {
+                    sb.append("<span class=\"col-md-2\">&nbsp;</span>");
+                }
+            }
+            else
+            {
+                sb.append("<span class=\"col-md-2\"><input class=\"form-control\" type=\"text\" name=\"")
+                        .append(fieldParam)
+                        .append("\" size=\"15\"")
+                        .append((hasVocabulary(vocabulary)&&closedVocabulary) || readonly?" disabled=\"disabled\" ":"")
+                        .append("/>")
+                        .append(doControlledVocabulary(fieldParam, pageContext, vocabulary, readonly))
+                        .append("</span>\n")
+                        .append("<span class=\"col-md-2\">&nbsp;</span>");
+            }
+            i++;
+            if(i != fieldCount)
+            {
+                //param is field name and index, starting from 1 (e.g. myfield_2)
+                fieldParam = fieldName + "_" + (i+1);
+            }
+            else
+            {
+                //param is just the field name
+                fieldParam = fieldName;
+            }
+            if (i < defaults.size())
+            {
+                sb.append("<span class=\"col-md-2\"><input class=\"form-control\" type=\"text\" name=\"")
+                        .append(fieldParam)
+                        .append("\" size=\"15\" value=\"")
+                        .append(defaults.get(i).getValue().replaceAll("\"", "&quot;"))
+                        .append("\"")
+                        .append((hasVocabulary(vocabulary) && closedVocabulary) || readonly ? " disabled=\"disabled\" " : "")
+                        .append("\" />");
+                sb.append(doControlledVocabulary(fieldParam, pageContext, vocabulary, readonly));
+                sb.append("</span>");
+                if (!readonly)
+                {
+                    sb.append("<button class=\"btn btn-danger col-md-2\" name=\"submit_")
+                            .append(fieldName)
+                            .append("_remove_")
+                            .append(i)
+                            .append("\" value=\"")
+                            .append(LocaleSupport.getLocalizedMessage(pageContext, "jsp.submit.edit-metadata.button.remove2"))
+                            .append("\"><span class=\"glyphicon glyphicon-trash\"></span>&nbsp;&nbsp;" + LocaleSupport.getLocalizedMessage(pageContext, "jsp.submit.edit-metadata.button.remove") + "</button>");
+                }
+                else {
+                    sb.append("<span class=\"col-md-2\">&nbsp;</span>");
+                }
+            }
+            else
+            {
+                sb.append("<span class=\"col-md-2\"><input class=\"form-control\" type=\"text\" name=\"")
+                        .append(fieldParam)
+                        .append("\" size=\"15\"")
+                        .append((hasVocabulary(vocabulary) && closedVocabulary) || readonly ? " disabled=\"disabled\" " : "")
+                        .append("/>")
+                        .append(doControlledVocabulary(fieldParam, pageContext, vocabulary, readonly))
+                        .append("</span>\n")
+                        .append("<span class=\"col-md-2\">&nbsp;</span>");
+            }
+            i++;
+            if(i != fieldCount)
+            {
+                //param is field name and index, starting from 1 (e.g. myfield_2)
+                fieldParam = fieldName + "_" + (i+1);
+            }
+            else
+            {
+                //param is just the field name
+                fieldParam = fieldName;
+            }
+            if (i < defaults.size())
+            {
+                sb.append("<span class=\"col-md-2\"><input class=\"form-control\" type=\"text\" name=\"")
+                        .append(fieldParam)
+                        .append("\" size=\"15\" value=\"")
+                        .append(defaults.get(i).getValue().replaceAll("\"", "&quot;"))
+                        .append("\"")
+                        .append((hasVocabulary(vocabulary) && closedVocabulary) || readonly ? " disabled=\"disabled\" " : "")
+                        .append("/>");
+                sb.append(doControlledVocabulary(fieldParam, pageContext, vocabulary, readonly));
+                sb.append("</span>");
+                if (!readonly)
+                {
+                    sb.append(" <button class=\"btn btn-danger col-md-2\" name=\"submit_")
+                            .append(fieldName)
+                            .append("_remove_")
+                            .append(i)
+                            .append("\" value=\"")
+                            .append(LocaleSupport.getLocalizedMessage(pageContext, "jsp.submit.edit-metadata.button.remove2"))
+                            .append("\"><span class=\"glyphicon glyphicon-trash\"></span>&nbsp;&nbsp;" + LocaleSupport.getLocalizedMessage(pageContext, "jsp.submit.edit-metadata.button.remove") + "</button>");
+                }
+                else {
+                    sb.append("<span class=\"col-md-2\">&nbsp;</span>");
+                }
+            }
+            else
+            {
+                sb.append("<span class=\"col-md-2\"><input class=\"form-control\" type=\"text\" name=\"")
+                        .append(fieldParam)
+                        .append("\" size=\"15\"")
+                        .append((hasVocabulary(vocabulary) && closedVocabulary) || readonly ? " disabled=\"disabled\" " : "")
+                        .append("/>")
+                        .append(doControlledVocabulary(fieldParam, pageContext, vocabulary, readonly))
+                        .append("</span>\n");
+                if (i+1 >= fieldCount && !readonly)
+                {
+                    sb.append(" <button class=\"btn btn-default col-md-2\" name=\"submit_")
+                            .append(fieldName)
+                            .append("_add\" value=\"")
+                            .append(LocaleSupport.getLocalizedMessage(pageContext, "jsp.submit.edit-metadata.button.add"))
+                            .append("\"><span class=\"glyphicon glyphicon-plus\"></span>&nbsp;&nbsp;" + LocaleSupport.getLocalizedMessage(pageContext, "jsp.submit.edit-metadata.button.add") + "</button>\n");
+                }
+            }
+            sb.append("</div>");
+        }
+        sb.append("</div></div><br/>");
+        out.write(sb.toString());
     }
 
     void doSpecialityRow(javax.servlet.jsp.JspWriter out, PageContext pageContext) throws IOException {
