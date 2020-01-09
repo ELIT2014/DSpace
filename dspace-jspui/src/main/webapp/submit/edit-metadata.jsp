@@ -335,6 +335,8 @@
                     .append(last.toString())
                     .append("\"")
                     .append(" size=\"23\" ");
+
+
             if (readonly)
             {
                 sb.append("disabled=\"disabled\" ");
@@ -362,6 +364,7 @@
             }
             sb.append("value=\"")
                     .append(dpn.getFirstNames()).append("\"/></span>");
+            sb.append("<script>jQuery('#" + last.toString() + "').autocomplete()</script>");
             if ("lookup".equalsIgnoreCase(authorityType))
             {
                 sb.append(doAuthority(pageContext, fieldName, i, fieldCount, fieldName,
@@ -407,7 +410,7 @@
                         "  } ");
             }
             script.append("  jQuery(document).ready(function(){ " +
-                    " jQuery(\"#" + last.toString() + "\").autocomplete(\"autocomplete.jsp\", { delay:10, minChars:2, matchSubset:1, autoFill:true, matchContains:1, cacheLength:10,  " +
+                    " jQuery(\"#" + last.toString() + "\").autocomplete(\"autocomplete\", { delay:10, minChars:2, matchSubset:1, autoFill:true, matchContains:1, cacheLength:10,  " +
                     " selectFirst:true, formatItem:liFormat, maxItemsToShow:15, onItemSelect:selectItem" + (i / 3) + ",  extraParams:{'locale':'" + locals[i % 3] + "'} }); }); \n ");
         }
         script.append(" </script> ");

@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.ssu.entity.AuthorLocalization;
 import org.ssu.service.AuthorsService;
@@ -11,6 +12,7 @@ import org.ssu.service.AuthorsService;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -20,6 +22,15 @@ public class AdminController {
     @Resource
     private AuthorsService authorsService;
 
+    @RequestMapping(value = "/autocomplete", method = RequestMethod.GET)
+    @ResponseBody
+    public String autocompleteAuthors( HttpServletRequest request) {
+        List<AuthorLocalization> allAuthors = authorsService.getAllAuthors(Optional.ofNullable(request.getParameter("q")));
+        for(AuthorLocalization author : allAuthors) {
+            System.out.println(author);
+        }
+        return "";
+    }
     @RequestMapping("/authors/list")
     public ModelAndView autofillPage(ModelAndView model, HttpServletRequest request, HttpServletResponse response) {
         Optional<String> startsWith = Optional.ofNullable(request.getParameter("startsWith"));
