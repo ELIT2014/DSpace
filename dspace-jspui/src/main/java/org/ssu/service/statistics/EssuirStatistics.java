@@ -115,7 +115,8 @@ private org.dspace.content.service.ItemService dspaceItemService = ContentServic
         return getStatistics()
                 .entrySet()
                 .stream()
-                .collect(Collectors.toMap(item -> item.getKey().getLeft(), item -> item.getValue()));
+                .filter(item -> item.getKey().getRight().equals(StatisticType.DOWNLOADS))
+                .collect(Collectors.toMap(item -> item.getKey().getLeft(), item -> item.getValue(), (a, b) -> a));
     }
 
     private Integer getTotalViews() {
