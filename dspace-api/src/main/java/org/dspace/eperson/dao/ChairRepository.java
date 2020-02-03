@@ -1,8 +1,8 @@
-package org.ssu.repository;
+package org.dspace.eperson.dao;
 
+import org.dspace.eperson.ChairEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import org.ssu.entity.ChairEntity;
 
 @Repository
 public interface ChairRepository extends JpaRepository<ChairEntity, Integer> {

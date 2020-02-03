@@ -1,19 +1,24 @@
-package org.ssu.entity;
+package org.dspace.eperson;
+
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.dspace.content.DSpaceObject;
+import org.dspace.eperson.essuir.DepositorDivision;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
-import org.ssu.entity.response.DepositorDivision;
 
 import javax.persistence.*;
 import java.util.List;
 
 @Entity
+@Cacheable
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE, include = "non-lazy")
 @Table(name = "faculty")
-public class FacultyEntity implements DepositorDivision {
+public class FacultyEntity extends DSpaceObject implements DepositorDivision {
     @Id
     @Column(name = "faculty_id")
     @JsonProperty("id")
@@ -35,6 +40,11 @@ public class FacultyEntity implements DepositorDivision {
     }
 
     public FacultyEntity() {
+    }
+
+    @Override
+    public int getType() {
+        return 1337;
     }
 
     public Integer getId() {
