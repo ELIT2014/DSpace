@@ -5,13 +5,13 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang3.tuple.Pair;
 import org.dspace.content.Item;
 import org.dspace.core.Context;
+import org.dspace.eperson.ChairEntity;
+import org.dspace.eperson.essuir.DepositorDivision;
+import org.dspace.eperson.essuir.DepositorSimpleUnit;
 import org.jooq.lambda.Seq;
 import org.springframework.stereotype.Service;
-import org.ssu.entity.ChairEntity;
 import org.ssu.entity.EssuirEperson;
-import org.ssu.entity.jooq.Faculty;
-import org.ssu.entity.response.DepositorDivision;
-import org.ssu.entity.response.DepositorSimpleUnit;
+
 import org.ssu.entity.response.ItemDepositorResponse;
 import org.ssu.entity.response.ItemResponse;
 

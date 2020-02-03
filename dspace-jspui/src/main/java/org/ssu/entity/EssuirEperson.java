@@ -1,9 +1,8 @@
 package org.ssu.entity;
 
+import org.dspace.eperson.ChairEntity;
+import org.dspace.eperson.essuir.DepositorSimpleUnit;
 import org.dspace.eperson.EPerson;
-import org.ssu.entity.response.DepositorSimpleUnit;
-
-import javax.persistence.Column;
 
 public class EssuirEperson implements DepositorSimpleUnit {
     private EPerson ePerson;
@@ -38,8 +37,9 @@ public class EssuirEperson implements DepositorSimpleUnit {
     }
 
     public String getEmail() {
-        return  ePerson.getEmail();
+        return ePerson.getEmail();
     }
+
     public String getNetid() {
         return ePerson.getNetid();
     }
