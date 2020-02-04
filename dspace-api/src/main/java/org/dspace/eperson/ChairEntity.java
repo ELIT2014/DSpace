@@ -7,38 +7,40 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.dspace.content.DSpaceObject;
 import org.dspace.eperson.essuir.DepositorDivision;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Cacheable
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE, include = "non-lazy")
 @Table(name = "chair")
-public class ChairEntity implements DepositorDivision {
-    @Id
+public class ChairEntity extends DSpaceObject implements DepositorDivision {
     @Column(name = "chair_id")
     @JsonProperty("id")
-    private Integer id;
+    private Integer chairId;
 
     @Column(name = "chair_name")
     @JsonProperty("name")
     private String chairName = "";
 
-    @OneToOne
-    @JoinColumn(name = "faculty_id")
+    @ManyToOne
+    @JoinColumn(name = "faculty_id", referencedColumnName = "faculty_id")
     @JsonBackReference
     private FacultyEntity facultyEntityName;
 
 
-    @OneToMany(mappedBy = "chairEntity", fetch = FetchType.EAGER)
-    @JsonProperty("specialities")
-    @JsonManagedReference
-    private List<Speciality> specialities;
+//    @OneToMany(mappedBy = "chairEntity", fetch = FetchType.EAGER)
+//    @JsonProperty("specialities")
+//    @JsonManagedReference
+//    private List<Speciality> specialities;
 
     public ChairEntity() {
+    }
+
+    @Override
+    public int getType() {
+        return 1338;
     }
 
     private ChairEntity(Builder builder) {
@@ -48,11 +50,11 @@ public class ChairEntity implements DepositorDivision {
     }
 
     public Integer getId() {
-        return id;
+        return chairId;
     }
 
     public void setId(Integer id) {
-        this.id = id;
+        this.chairId = id;
     }
 
     public String getName() {
@@ -89,7 +91,7 @@ public class ChairEntity implements DepositorDivision {
         ChairEntity that = (ChairEntity) o;
 
         return new EqualsBuilder()
-                .append(id, that.id)
+                .append(chairId, that.chairId)
                 .append(chairName, that.chairName)
                 .append(facultyEntityName, that.facultyEntityName)
                 .isEquals();
@@ -98,7 +100,7 @@ public class ChairEntity implements DepositorDivision {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .append(id)
+                .append(chairId)
                 .append(chairName)
                 .toHashCode();
     }

@@ -19,23 +19,21 @@ import java.util.List;
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE, include = "non-lazy")
 @Table(name = "faculty")
 public class FacultyEntity extends DSpaceObject implements DepositorDivision {
-    @Id
     @Column(name = "faculty_id")
     @JsonProperty("id")
-    private Integer id;
+    private Integer facultyId;
 
     @Column(name = "faculty_name")
     @JsonProperty("name")
     private String name;
 
-    @OneToMany(mappedBy = "facultyEntityName")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "facultyEntityName")
     @JsonProperty("chairs")
     @JsonManagedReference
-    @LazyCollection(LazyCollectionOption.FALSE)
     private List<ChairEntity> chairs;
 
     private FacultyEntity(Builder builder) {
-        setId(builder.id);
+        setId(builder.facultyId);
         setName(builder.name);
     }
 
@@ -48,11 +46,11 @@ public class FacultyEntity extends DSpaceObject implements DepositorDivision {
     }
 
     public Integer getId() {
-        return id;
+        return facultyId;
     }
 
     public void setId(Integer id) {
-        this.id = id;
+        this.facultyId = facultyId;
     }
 
     public String getName() {
@@ -94,19 +92,19 @@ public class FacultyEntity extends DSpaceObject implements DepositorDivision {
     }
 
     public static final class Builder {
-        private Integer id;
+        private Integer facultyId;
         private String name;
 
         public Builder() {
         }
 
         public Builder(FacultyEntity copy) {
-            this.id = copy.getId();
+            this.facultyId = copy.getId();
             this.name = copy.getName();
         }
 
         public Builder withId(Integer id) {
-            this.id = id;
+            this.facultyId = id;
             return this;
         }
 

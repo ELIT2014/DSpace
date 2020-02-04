@@ -10,10 +10,14 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class FacultyDAOImpl extends AbstractHibernateDSODAO<FacultyEntity> implements FacultyDAO {
+    protected FacultyDAOImpl()
+    {
+        super();
+    }
     @Override
     public List<FacultyEntity> findAll(Context context) throws SQLException {
         Query query = createQuery(context,
-                "SELECT f FROM FacultyEntity f ORDER BY f.faculty_name ASC");
+                "SELECT f FROM FacultyEntity f ORDER BY f.name ASC");
         query.setCacheable(true);
 
         return list(query);
