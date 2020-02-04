@@ -24,16 +24,16 @@ public class ChairEntity extends DSpaceObject implements DepositorDivision {
     @JsonProperty("name")
     private String chairName = "";
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "faculty_id", referencedColumnName = "faculty_id")
     @JsonBackReference
     private FacultyEntity facultyEntityName;
 
 
-//    @OneToMany(mappedBy = "chairEntity", fetch = FetchType.EAGER)
-//    @JsonProperty("specialities")
-//    @JsonManagedReference
-//    private List<Speciality> specialities;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "chairEntity")
+    @JsonProperty("specialities")
+    @JsonManagedReference
+    private List<Speciality> specialities;
 
     public ChairEntity() {
     }

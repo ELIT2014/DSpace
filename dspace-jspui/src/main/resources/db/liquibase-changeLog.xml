@@ -17,6 +17,9 @@
         <addColumn tableName="chair">
             <column name="uuid" defaultValueComputed="gen_random_uuid()" type="UUID"/>
         </addColumn>
+        <addColumn tableName="speciality">
+            <column name="uuid" defaultValueComputed="gen_random_uuid()" type="UUID"/>
+        </addColumn>
     </changeSet>
     <changeSet id="7" author="Igor Marchenko">
         <sql>
@@ -24,6 +27,9 @@
         </sql>
         <sql>
             insert into dspaceobject (select uuid from chair)
+        </sql>
+        <sql>
+            insert into dspaceobject (select uuid from speciality)
         </sql>
     </changeSet>
 </databaseChangeLog>

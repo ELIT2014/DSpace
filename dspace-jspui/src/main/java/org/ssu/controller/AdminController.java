@@ -1,14 +1,9 @@
 package org.ssu.controller;
 
-import au.com.bytecode.opencsv.CSVWriter;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.dspace.app.webui.util.UIUtil;
-import org.dspace.content.Item;
 import org.dspace.core.Context;
 import org.jooq.lambda.Seq;
 import org.springframework.stereotype.Controller;
@@ -25,7 +20,10 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -42,7 +40,7 @@ public class AdminController {
     public String generateReportForExport(HttpServletRequest request) throws SQLException, JsonProcessingException {
         Context dspaceContext = UIUtil.obtainContext(request);
         System.out.println("started");
-        Long start  = System.currentTimeMillis();
+        Long start = System.currentTimeMillis();
         List<ItemResponse> items = Seq.seq(Lists.newArrayList(itemService.findAll(dspaceContext)))
                 .parallel()
                 .map(item -> itemService.fetchItemresponseDataForItem(item, Locale.forLanguageTag("uk")))
@@ -59,14 +57,14 @@ public class AdminController {
 
     @RequestMapping(value = "/autocomplete", method = RequestMethod.GET, produces = "text/plain;charset=UTF-8")
     @ResponseBody
-    public String autocompleteAuthors( HttpServletRequest request) {
+    public String autocompleteAuthors(HttpServletRequest request) {
         Locale currentLocale = Locale.forLanguageTag(Optional.ofNullable(request.getParameter("locale")).orElse("uk"));
         List<Locale> locales = Arrays.asList(currentLocale, Locale.ENGLISH, Locale.forLanguageTag("ru"), Locale.forLanguageTag("uk"));
 
         List<AuthorLocalization> authorsData = authorsService.getAllAuthors(Optional.ofNullable(request.getParameter("q")));
         Function<AuthorLocalization, String> authorLocalizationMapping = (author) -> locales.stream()
-                        .map(locale -> String.format("%s|%s", author.getSurname(locale), author.getInitials(locale)))
-                        .collect(Collectors.joining("|"));
+                .map(locale -> String.format("%s|%s", author.getSurname(locale), author.getInitials(locale)))
+                .collect(Collectors.joining("|"));
         return authorsData.stream()
                 .map(authorLocalizationMapping)
                 .collect(Collectors.joining(System.lineSeparator()));
@@ -111,7 +109,7 @@ public class AdminController {
                 StringUtils.isNotEmpty(initialsRussian) &&
                 StringUtils.isNotEmpty(initialsUkrainian);
 
-        if(allFieldsFilled) {
+        if (allFieldsFilled) {
             authorsService.updateAuthorData(authorLocalization);
             model.addObject("message", "Author data successfully updated.");
             model.addObject("messageType", "success");
