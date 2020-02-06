@@ -11,8 +11,6 @@ import org.dspace.eperson.essuir.DepositorDivision;
 import org.dspace.eperson.essuir.DepositorSimpleUnit;
 import org.jooq.lambda.Seq;
 import org.springframework.stereotype.Service;
-import org.ssu.entity.EssuirEperson;
-
 import org.ssu.entity.response.ItemDepositorResponse;
 import org.ssu.entity.response.ItemResponse;
 
@@ -72,6 +70,7 @@ public class ReportService {
         return Seq.seq(Lists.newArrayList(essuirItemService.findAll(context)))
                 .filter(submission -> isDateInRange.test(allDatesAvailable.getOrDefault(submission.getID(), LocalDate.MIN), Pair.of(from, to)));
     }
+
     public List<ItemDepositorResponse> getUsersSubmissionCountBetweenDates(Context context, LocalDate from, LocalDate to) throws SQLException, IOException {
         List<Pair<EPerson, Long>> submissionsByEperson = getItemsBetweenDates(context, from, to)
                 .grouped(Item::getSubmitter, Collectors.counting())

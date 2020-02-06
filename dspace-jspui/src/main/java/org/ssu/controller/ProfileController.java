@@ -19,9 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.ssu.entity.AuthorLocalization;
-import org.ssu.entity.EssuirEperson;
 import org.ssu.service.AuthorsService;
-import org.ssu.service.EpersonService;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletException;

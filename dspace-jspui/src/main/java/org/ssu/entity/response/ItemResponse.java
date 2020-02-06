@@ -1,10 +1,8 @@
 package org.ssu.entity.response;
 
 import org.dspace.eperson.EPerson;
-import org.ssu.entity.EssuirEperson;
 
 import java.time.LocalDate;
-import java.util.List;
 
 public class ItemResponse {
     private String handle;
@@ -15,7 +13,7 @@ public class ItemResponse {
     private String authors;
     private String type;
     private LocalDate dateAvailable;
-    private EssuirEperson submitter;
+    private EPerson submitter;
 
     private ItemResponse(Builder builder) {
         handle = builder.handle;
@@ -61,7 +59,7 @@ public class ItemResponse {
         return dateAvailable;
     }
 
-    public EssuirEperson getSubmitter() {
+    public EPerson getSubmitter() {
         return submitter;
     }
 
@@ -74,7 +72,7 @@ public class ItemResponse {
         private String authors;
         private String type;
         private LocalDate dateAvailable;
-        private EssuirEperson submitter;
+        private EPerson submitter;
 
         public Builder() {
         }
@@ -131,7 +129,7 @@ public class ItemResponse {
             return this;
         }
 
-        public Builder withSubmitter(EssuirEperson submitter) {
+        public Builder withSubmitter(EPerson submitter) {
             this.submitter = submitter;
             return this;
         }

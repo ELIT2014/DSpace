@@ -177,7 +177,7 @@ public class ItemService {
                 .withViews(essuirStatistics.getViewsForItem(item.getLegacyId()))
                 .withDownloads(essuirStatistics.getDownloadsForItem(item.getLegacyId()))
                 .withDateAvailable(getDateAvailableForItem(item))
-                .withSubmitter(epersonService.extendEpersonInformation(item.getSubmitter()))
+                .withSubmitter(item.getSubmitter())
                 .build();
     }
 
