@@ -55,7 +55,7 @@
                         width: 600,
                         sort: "string",
                         template: function(obj, common, value, config) {
-                            return common.treetable(obj, common, value, config) + " <a href = \"/report/report-itemUploadingReport?from=" + $('#beginDate').val() + "&to=" + $('#endDate').val() + "&" +depositorType[obj.$level - 1] + "=" + obj.name + "&depositor=" + obj.name + "\">" + obj.name + "</a>";
+                            return common.treetable(obj, common, value, config) + " <a href = \"/report/itemUploadingReport?from=" + $('#beginDate').val() + "&to=" + $('#endDate').val() + "&" +depositorType[obj.$level - 1] + "=" + obj.name + "&depositor=" + obj.name + "\">" + obj.name + "</a>";
                         }
                     },
                     {id: "count", header: "<fmt:message key="report.submissions-count"/>", width: 200, sort: "int"}
