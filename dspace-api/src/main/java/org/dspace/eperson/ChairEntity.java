@@ -27,7 +27,7 @@ public class ChairEntity extends DSpaceObject implements DepositorDivision {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "faculty_id", referencedColumnName = "faculty_id")
     @JsonBackReference
-    private FacultyEntity facultyEntityName;
+    private FacultyEntity faculty;
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "chairEntity")
@@ -67,19 +67,19 @@ public class ChairEntity extends DSpaceObject implements DepositorDivision {
 
     @JsonIgnore
     public String getFacultyEntityName() {
-        return facultyEntityName.getName();
+        return faculty.getName();
     }
     @JsonIgnore
     public FacultyEntity getFacultyEntity() {
-        return this.facultyEntityName;
+        return this.faculty;
     }
     @JsonIgnore
     public Integer getFacultyEntityId() {
-        return facultyEntityName.getId();
+        return faculty.getId();
     }
 
     public void setFacultyEntityName(FacultyEntity facultyEntityName) {
-        this.facultyEntityName = facultyEntityName;
+        this.faculty = facultyEntityName;
     }
 
     @Override
@@ -93,7 +93,7 @@ public class ChairEntity extends DSpaceObject implements DepositorDivision {
         return new EqualsBuilder()
                 .append(chairId, that.chairId)
                 .append(chairName, that.chairName)
-                .append(facultyEntityName, that.facultyEntityName)
+                .append(faculty, that.faculty)
                 .isEquals();
     }
 

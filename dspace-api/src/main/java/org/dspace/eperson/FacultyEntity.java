@@ -15,8 +15,8 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Cacheable
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE, include = "non-lazy")
+//@Cacheable
+//@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE, include = "non-lazy")
 @Table(name = "faculty")
 public class FacultyEntity extends DSpaceObject implements DepositorDivision {
     @Column(name = "faculty_id")
@@ -27,7 +27,7 @@ public class FacultyEntity extends DSpaceObject implements DepositorDivision {
     @JsonProperty("name")
     private String name;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "facultyEntityName")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "faculty")
     @JsonProperty("chairs")
     @JsonManagedReference
     private List<ChairEntity> chairs;

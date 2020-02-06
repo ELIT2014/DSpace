@@ -68,6 +68,16 @@ public class EPerson extends DSpaceObject implements DSpaceObjectLegacySupport
     @Column(name="digest_algorithm", length = 16)
     private String digestAlgorithm;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chair_id", referencedColumnName = "chair_id", insertable = false, updatable = false)
+    private ChairEntity chair;
+
+    @Column(name="chair_id")
+    private Integer chairId;
+
+    @Column(name="position")
+    private String position;
+
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "epeople")
     private final List<Group> groups = new ArrayList<>();
 
@@ -97,6 +107,29 @@ public class EPerson extends DSpaceObject implements DSpaceObjectLegacySupport
     protected EPerson()
     {
 
+    }
+    public ChairEntity getChair() {
+        return chair;
+    }
+
+    public String getPosition() {
+        return position;
+    }
+
+    public void setChair(ChairEntity chair) {
+        this.chair = chair;
+    }
+
+    public void setPosition(String position) {
+        this.position = position;
+    }
+
+    public Integer getChairId() {
+        return chairId;
+    }
+
+    public void setChairId(Integer chairId) {
+        this.chairId = chairId;
     }
 
     @Override

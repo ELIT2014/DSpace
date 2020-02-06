@@ -42,23 +42,19 @@ public class ProfileController {
     @Resource
     private AuthorsService authorsService;
 
-    @Resource
-    private EpersonService ePersonService;
-
     private FacultyService facultyService = EPersonServiceFactory.getInstance().getFacultyService();
 
     @RequestMapping("/profile")
     public ModelAndView profilePage(ModelAndView model, HttpServletRequest request, HttpServletResponse response) throws SQLException, JsonProcessingException {
         Context dspaceContext = UIUtil.obtainContext(request);
         EPerson eperson = dspaceContext.getCurrentUser();
-        EssuirEperson currentUser = ePersonService.extendEpersonInformation(eperson);
 
         boolean missingFields = Optional.ofNullable((Boolean) request.getAttribute("missing.fields")).orElse(Boolean.FALSE);
         boolean passwordProblem = Optional.ofNullable((Boolean) request.getAttribute("password.problem")).orElse(Boolean.FALSE);
 
         EPersonService epersonService = EPersonServiceFactory.getInstance().getEPersonService();
-        String lastName = Optional.ofNullable(currentUser.getLastName()).orElse("");
-        String firstName = Optional.ofNullable(currentUser.getFirstName()).orElse("");
+        String lastName = Optional.ofNullable(eperson.getLastName()).orElse("");
+        String firstName = Optional.ofNullable(eperson.getFirstName()).orElse("");
         String phone = Optional.ofNullable(epersonService.getMetadata(eperson, "phone")).orElse("");
         String language = Optional.ofNullable(epersonService.getMetadata(eperson, "language")).orElse("");
 
@@ -69,8 +65,8 @@ public class ProfileController {
         model.addObject("orcid", authorsService.getAuthorLocalization(String.format("%s, %s", lastName, firstName)).getOrcid());
         model.addObject("phone", phone);
         model.addObject("language", language);
-        model.addObject("position", currentUser.getPosition());
-        model.addObject("chair", currentUser.getChairEntity());
+        model.addObject("position", eperson.getPosition());
+        model.addObject("chair", eperson.getChair());
         model.addObject("facultyList", facultyService.findAll(dspaceContext));
         model.addObject("chairListJson", new ObjectMapper().writeValueAsString(chairList));
 
@@ -130,7 +126,10 @@ public class ProfileController {
         eperson.setLastName(context, lastName);
         personService.setMetadataSingleValue(context, eperson, "eperson", "phone", null, null, phone);
         eperson.setLanguage(context, language);
-
+        String position = request.getParameter("position");
+        Integer chair = Integer.valueOf(request.getParameter("chair_id"));
+        eperson.setPosition(position);
+        eperson.setChairId(chair);
         return (!StringUtils.isEmpty(lastName) && !StringUtils.isEmpty(firstName));
     }
 
