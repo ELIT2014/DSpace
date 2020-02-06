@@ -27,12 +27,11 @@ public class EpersonService {
     @Resource
     private DSLContext dsl;
 
-    public List<EssuirEperson> getLatestRegisteredUsers(Context context, int limit) throws SQLException {
+    public List<EPerson> getLatestRegisteredUsers(Context context, int limit) throws SQLException {
         return ePersonService.findAll(context, EPerson.ID)
                 .stream()
                 .sorted(Comparator.comparing(EPerson::getLegacyId).reversed())
                 .limit(limit)
-                .map(this::extendEpersonInformation)
                 .collect(Collectors.toList());
     }
 

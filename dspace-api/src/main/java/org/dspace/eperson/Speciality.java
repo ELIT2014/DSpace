@@ -63,7 +63,8 @@ public class Speciality extends DSpaceObject implements DepositorSimpleUnit {
         return code;
     }
 
-    public ChairEntity getChairEntity() {
+    @Override
+    public ChairEntity getChair() {
         return chairEntity;
     }
 
@@ -106,7 +107,7 @@ public class Speciality extends DSpaceObject implements DepositorSimpleUnit {
             this.id = copy.getId();
             this.name = copy.getName();
             this.code = copy.getCode();
-            this.chairEntity = copy.getChairEntity();
+            this.chairEntity = copy.getChair();
         }
 
         public Builder withId(Integer id) {
