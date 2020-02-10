@@ -46,6 +46,39 @@ public class EssuirMetadataExporter {
         export(filename);
     }
 
+    private static ItemExportMetadata constructItemMetadata(Item item) {
+        EPerson submitter = item.getSubmitter();
+        String dateAvailable = item.getItemService().getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "available", Item.ANY)
+                .stream()
+                .findFirst()
+                .map(MetadataValue::getValue)
+                .orElse("Unknown date");
+
+        String type = item.getItemService().getMetadata(item, MetadataSchema.DC_SCHEMA, "type", "*", Item.ANY)
+                .stream()
+                .findFirst()
+                .map(MetadataValue::getValue)
+                .orElse("Unknown type");
+
+        ItemExportMetadata.Builder builder = new ItemExportMetadata.Builder()
+                .withTitle(item.getName())
+                .withHandle(item.getHandle())
+                .withDateAvailable(dateAvailable)
+                .withType(type)
+                .withCollection(item.getOwningCollection().getName())
+                .withSubmitterEmail(submitter.getEmail())
+                .withSubmitterFirstName(submitter.getFirstName())
+                .withSubmitterLastName(submitter.getLastName());
+
+        if (submitter.getChair() != null) {
+            builder.withChairName(submitter.getChair().getName());
+            if (submitter.getChair().getFacultyEntity() != null) {
+                builder.withFacultyName(submitter.getChair().getFacultyEntityName());
+            }
+        }
+        return builder.build();
+    }
+
     private static void export(String fileName) throws SQLException, IOException {
         Context context = new Context(Context.Mode.READ_ONLY);
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName), "Cp1251"));
@@ -53,53 +86,19 @@ public class EssuirMetadataExporter {
         ContentServiceFactory contentServiceFactory = ContentServiceFactory.getInstance();
         ItemService itemService = contentServiceFactory.getItemService();
         Iterator<Item> items = itemService.findAll(context);
-        int cnt = 0;
         while (items.hasNext()) {
             Item item = items.next();
-            EPerson submitter = item.getSubmitter();
-            String dateAvailable = item.getItemService().getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "available", Item.ANY)
-                    .stream()
-                    .findFirst()
-                    .map(MetadataValue::getValue)
-                    .orElse("Unknown date");
-
-            String type = item.getItemService().getMetadata(item, MetadataSchema.DC_SCHEMA, "type", "*", Item.ANY)
-                    .stream()
-                    .findFirst()
-                    .map(MetadataValue::getValue)
-                    .orElse("Unknown type");
-
-            ItemExportMetadata.Builder builder = new ItemExportMetadata.Builder()
-                    .withTitle(item.getName())
-                    .withHandle(item.getHandle())
-                    .withDateAvailable(dateAvailable)
-                    .withType(type)
-                    .withCollection(item.getOwningCollection().getName())
-                    .withSubmitterEmail(submitter.getEmail())
-                    .withSubmitterFirstName(submitter.getFirstName())
-                    .withSubmitterLastName(submitter.getLastName());
-
-            if (submitter.getChair() != null) {
-                builder.withChairName(submitter.getChair().getName());
-                if (submitter.getChair().getFacultyEntity() != null) {
-                    builder.withFacultyName(submitter.getChair().getFacultyEntityName());
-                }
-            }
-
-            writer.write(builder.build().toString());
+            writer.write(constructItemMetadata(item).toString());
             writer.newLine();
             writer.flush();
             context.uncacheEntity(item);
-            cnt++;
         }
         writer.close();
-        System.out.println(cnt);
         context.restoreAuthSystemState();
         context.complete();
     }
 
     private static void printHelp(Options options, int exitCode) {
-        // print the help message
         HelpFormatter myhelp = new HelpFormatter();
         myhelp.printHelp("MetadataExport\n", options);
         System.out.println("\nfull export: metadataexport -f filename");
