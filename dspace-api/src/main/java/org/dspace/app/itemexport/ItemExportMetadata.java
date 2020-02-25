@@ -11,6 +11,10 @@ public class ItemExportMetadata {
     private String facultyName;
     private String dateAvailable;
     private String type;
+    private String bachelorsPaperFaculty;
+    private String bachelorsPaperChair;
+    private String bachelorsPaperSpeciality;
+    private String presentationDate;
 
     private ItemExportMetadata(Builder builder) {
         title = builder.title;
@@ -23,6 +27,10 @@ public class ItemExportMetadata {
         facultyName = builder.facultyName;
         dateAvailable = builder.dateAvailable;
         type = builder.type;
+        bachelorsPaperFaculty = builder.bachelorsPaperFaculty;
+        bachelorsPaperChair = builder.bachelorsPaperChair;
+        bachelorsPaperSpeciality = builder.bachelorsPaperSpeciality;
+        presentationDate = builder.presentationDate;
     }
 
     public String getTitle() {
@@ -65,11 +73,21 @@ public class ItemExportMetadata {
         return type;
     }
 
-    @Override
-    public String toString() {
-        return String.format("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s", title, handle, dateAvailable, type, collection, submitterEmail, submitterFirstName, submitterLastName, chairName, facultyName);
+    public String getBachelorsPaperFaculty() {
+        return bachelorsPaperFaculty;
     }
 
+    public String getBachelorsPaperChair() {
+        return bachelorsPaperChair;
+    }
+
+    public String getBachelorsPaperSpeciality() {
+        return bachelorsPaperSpeciality;
+    }
+
+    public String getPresentationDate() {
+        return presentationDate;
+    }
 
     public static final class Builder {
         private String title;
@@ -82,6 +100,10 @@ public class ItemExportMetadata {
         private String facultyName;
         private String dateAvailable;
         private String type;
+        private String bachelorsPaperFaculty;
+        private String bachelorsPaperChair;
+        private String bachelorsPaperSpeciality;
+        private String presentationDate;
 
         public Builder() {
         }
@@ -97,6 +119,10 @@ public class ItemExportMetadata {
             this.facultyName = copy.getFacultyName();
             this.dateAvailable = copy.getDateAvailable();
             this.type = copy.getType();
+            this.bachelorsPaperFaculty = copy.getBachelorsPaperFaculty();
+            this.bachelorsPaperChair = copy.getBachelorsPaperChair();
+            this.bachelorsPaperSpeciality = copy.getBachelorsPaperSpeciality();
+            this.presentationDate = copy.getPresentationDate();
         }
 
         public Builder withTitle(String title) {
@@ -146,6 +172,26 @@ public class ItemExportMetadata {
 
         public Builder withType(String type) {
             this.type = type;
+            return this;
+        }
+
+        public Builder withBachelorsPaperFaculty(String bachelorsPaperFaculty) {
+            this.bachelorsPaperFaculty = bachelorsPaperFaculty;
+            return this;
+        }
+
+        public Builder withBachelorsPaperChair(String bachelorsPaperChair) {
+            this.bachelorsPaperChair = bachelorsPaperChair;
+            return this;
+        }
+
+        public Builder withBachelorsPaperSpeciality(String bachelorsPaperSpeciality) {
+            this.bachelorsPaperSpeciality = bachelorsPaperSpeciality;
+            return this;
+        }
+
+        public Builder withPresentationDate(String presentationDate) {
+            this.presentationDate = presentationDate;
             return this;
         }
 

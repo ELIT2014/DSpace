@@ -1,6 +1,9 @@
 package org.dspace.app.itemexport;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import org.apache.commons.cli.*;
@@ -11,10 +14,12 @@ import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
+import org.dspace.eperson.SpecialityDetailedInfo;
 
 import java.io.*;
 import java.sql.SQLException;
 import java.util.Iterator;
+import java.util.List;
 
 
 public class EssuirMetadataExporter {
@@ -49,29 +54,41 @@ public class EssuirMetadataExporter {
         export(filename);
     }
 
-    private static ItemExportMetadata constructItemMetadata(Item item) {
+    private static String fetchMetadataFieldValue(Item item, String element, String qualifier, String defaultValue) {
+        return item.getItemService().getMetadata(item, MetadataSchema.DC_SCHEMA, element, qualifier, Item.ANY)
+                .stream()
+                .findFirst()
+                .map(MetadataValue::getValue)
+                .orElse(defaultValue);
+    }
+    private static ItemExportMetadata constructItemMetadata(Item item) throws JsonProcessingException {
         EPerson submitter = item.getSubmitter();
-        String dateAvailable = item.getItemService().getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "available", Item.ANY)
-                .stream()
-                .findFirst()
-                .map(MetadataValue::getValue)
-                .orElse("Unknown date");
-
-        String type = item.getItemService().getMetadata(item, MetadataSchema.DC_SCHEMA, "type", "*", Item.ANY)
-                .stream()
-                .findFirst()
-                .map(MetadataValue::getValue)
-                .orElse("Unknown type");
+        String dateAvailable = fetchMetadataFieldValue(item, "date", "available", "Unknown date");
+        String type = fetchMetadataFieldValue(item, "type", "*", "Unknown type");
+        String speciality = fetchMetadataFieldValue(item, "speciality", "id", "[]");
+        String presentationDate = fetchMetadataFieldValue(item, "date", "presentation", "");
+        List<SpecialityDetailedInfo> specialityDetailedInfoList = new ObjectMapper().readValue(speciality, new TypeReference<List<SpecialityDetailedInfo>>() {
+        });
 
         ItemExportMetadata.Builder builder = new ItemExportMetadata.Builder()
                 .withTitle(item.getName())
-                .withHandle("Https://essuir.sumdu.edu.ua/" + item.getHandle())
+                .withHandle("https://essuir.sumdu.edu.ua/handle/" + item.getHandle())
                 .withDateAvailable(dateAvailable)
                 .withType(type)
                 .withCollection(item.getOwningCollection().getName())
                 .withSubmitterEmail(submitter.getEmail())
                 .withSubmitterFirstName(submitter.getFirstName())
-                .withSubmitterLastName(submitter.getLastName());
+                .withSubmitterLastName(submitter.getLastName())
+                .withPresentationDate(presentationDate);
+
+        if(specialityDetailedInfoList.size() == 3) {
+            String facultyName = specialityDetailedInfoList.get(0).getName();
+            String chairName = specialityDetailedInfoList.get(1).getName();
+            String specialityName = specialityDetailedInfoList.get(2).getName();
+            builder.withBachelorsPaperFaculty(facultyName)
+                    .withBachelorsPaperChair(chairName)
+                    .withBachelorsPaperSpeciality(specialityName);
+        }
 
         if (submitter.getChair() != null) {
             builder.withChairName(submitter.getChair().getName());
@@ -96,6 +113,10 @@ public class EssuirMetadataExporter {
                 .addColumn("facultyName")
                 .addColumn("dateAvailable")
                 .addColumn("type")
+                .addColumn("bachelorsPaperFaculty")
+                .addColumn("bachelorsPaperChair")
+                .addColumn("bachelorsPaperSpeciality")
+                .addColumn("presentationDate")
                 .build();
         CsvMapper csvMapper = new CsvMapper();
 
@@ -104,7 +125,7 @@ public class EssuirMetadataExporter {
         ContentServiceFactory contentServiceFactory = ContentServiceFactory.getInstance();
         ItemService itemService = contentServiceFactory.getItemService();
         Iterator<Item> items = itemService.findAll(context);
-        writer.write("Paper Title;Handle;Collection;Submitter Email;Submitter First Name;Submitter Last Name;Chair Name;Faculty Name;Date Available;Type");
+        writer.write("Paper Title;Handle;Collection;Submitter Email;Submitter First Name;Submitter Last Name;Chair Name;Faculty Name;Date Available;Type; Bachelors Paper Faculty; Bachelors Paper Chair; Bachelors Paper Speciality; Presentation Date");
         writer.newLine();
         writer.flush();
         while (items.hasNext()) {
