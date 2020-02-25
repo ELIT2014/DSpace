@@ -1,5 +1,8 @@
 package org.dspace.app.itemexport;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import org.apache.commons.cli.*;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataSchema;
@@ -62,7 +65,7 @@ public class EssuirMetadataExporter {
 
         ItemExportMetadata.Builder builder = new ItemExportMetadata.Builder()
                 .withTitle(item.getName())
-                .withHandle(item.getHandle())
+                .withHandle("Https://essuir.sumdu.edu.ua/" + item.getHandle())
                 .withDateAvailable(dateAvailable)
                 .withType(type)
                 .withCollection(item.getOwningCollection().getName())
@@ -81,15 +84,34 @@ public class EssuirMetadataExporter {
 
     private static void export(String fileName) throws SQLException, IOException {
         Context context = new Context(Context.Mode.READ_ONLY);
+        CsvSchema csvSchema = CsvSchema.builder()
+                .setColumnSeparator(';')
+                .addColumn("title")
+                .addColumn("handle")
+                .addColumn("collection")
+                .addColumn("submitterEmail")
+                .addColumn("submitterFirstName")
+                .addColumn("submitterLastName")
+                .addColumn("chairName")
+                .addColumn("facultyName")
+                .addColumn("dateAvailable")
+                .addColumn("type")
+                .build();
+        CsvMapper csvMapper = new CsvMapper();
+
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName), "Cp1251"));
         context.turnOffAuthorisationSystem();
         ContentServiceFactory contentServiceFactory = ContentServiceFactory.getInstance();
         ItemService itemService = contentServiceFactory.getItemService();
         Iterator<Item> items = itemService.findAll(context);
+        writer.write("Paper Title;Handle;Collection;Submitter Email;Submitter First Name;Submitter Last Name;Chair Name;Faculty Name;Date Available;Type");
+        writer.newLine();
+        writer.flush();
         while (items.hasNext()) {
             Item item = items.next();
-            writer.write(constructItemMetadata(item).toString());
-            writer.newLine();
+            String line = csvMapper.writerFor(ItemExportMetadata.class)
+                    .with(csvSchema).writeValueAsString(constructItemMetadata(item));
+            writer.write(line);
             writer.flush();
             context.uncacheEntity(item);
         }
