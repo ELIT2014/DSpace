@@ -3,5 +3,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <dspace:layout style="submission" locbar="off" navbar="off" titlekey="jsp.submit.edit-metadata.title">
     <br/>
-    <div style="text-align: center;"><h2>Submission temporary disabled</h2></div>
+    <div style="text-align: center;"><h2>Відправка ресурсів тимчасово недоступна.</h2></div>
 </dspace:layout>
