@@ -17,7 +17,7 @@
  <!-- which does not appear in this map will be associated with the mapping-->
  <!-- for handle "default".                                                -->
  <submission-map>
-   <name-map collection-handle="default" submission-name="traditional" />
+   <name-map collection-handle="default" submission-name="disable" />
  </submission-map>
 
 
@@ -175,7 +175,14 @@
  <!--				 "true" or "false".				                       -->
  <!--                                                                      -->
  <submission-definitions>
-
+     <submission-process name="disable">
+         <step>
+             <heading>submit.progressbar.describe</heading>
+             <processing-class>org.dspace.submit.step.DisableStep</processing-class>
+             <jspui-binding>org.dspace.app.webui.submit.step.JSPDisableStep</jspui-binding>
+             <workflow-editable>true</workflow-editable>
+         </step>
+     </submission-process>
    <!--This "traditional" process defines the DEFAULT item submission process-->
    <submission-process name="traditional">
 
