@@ -28,15 +28,6 @@ public class MetadatavalueRepository {
         Iterator<Item> all = ContentServiceFactory.getInstance().getItemService().findAll(context);
         return StreamSupport.stream(Spliterators.spliteratorUnknownSize(all, Spliterator.ORDERED), false)
                 .collect(Collectors.toList());
-
-    }
-
-    private String getItemMetadataByFieldId(int itemId, int fieldTypeId) {
-        return dsl.select(METADATAVALUE.value)
-                .from(HANDLE)
-                .join(METADATAVALUE).on(METADATAVALUE.dspaceObjectId.eq(HANDLE.resourceId))
-                .where(METADATAVALUE.metadataFieldId.eq(fieldTypeId).and(HANDLE.resourceLegacyId.eq(itemId)))
-                .fetchOne(METADATAVALUE.value);
     }
 
     private String getItemMetadataByFieldId(UUID uuid, int fieldTypeId) {
@@ -52,14 +43,6 @@ public class MetadatavalueRepository {
 
     public String getItemLinkByDspaceObjectId(UUID uuid) {
         return getItemMetadataByFieldId(uuid, METADATAVALUE_LINK_FIELD_ID);
-    }
-
-    public String getItemTitleByItemId(int itemId) {
-        return getItemMetadataByFieldId(itemId, METADATAVALUE_TITLE_FIELD_ID);
-    }
-
-    public String getItemLinkByItemId(int itemId) {
-        return getItemMetadataByFieldId(itemId, METADATAVALUE_LINK_FIELD_ID);
     }
 
     public List<Pair<String, UUID>> getItemAuthorAndItemIdMapping() {
