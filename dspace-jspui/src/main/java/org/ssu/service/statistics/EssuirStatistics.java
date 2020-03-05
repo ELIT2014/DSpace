@@ -163,7 +163,7 @@ public class EssuirStatistics {
 
     public List<Pair<AuthorLocalization, Long>> topAuthors(int limit) {
         Map<UUID, Long> downloads = getDownloadsStatistics();
-        List<Pair<String, Integer>> authors = metadatavalueRepository.getItemAuthorAndItemIdMapping();
+        List<Pair<String, UUID>> authors = metadatavalueRepository.getItemAuthorAndItemIdMapping();
         Map<String, Long> collect = authors.stream()
                 .collect(Collectors.toMap(Pair::getKey,
                         author -> downloads.getOrDefault(author.getValue(), 0L),

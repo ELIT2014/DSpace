@@ -41,7 +41,7 @@ public class MetadatavalueRepository {
 
     private String getItemMetadataByFieldId(UUID uuid, int fieldTypeId) {
         return dsl.select(METADATAVALUE.value)
-                .from(HANDLE)
+                .from(METADATAVALUE)
                 .where(METADATAVALUE.metadataFieldId.eq(fieldTypeId).and(METADATAVALUE.dspaceObjectId.eq(uuid)))
                 .fetchOne(METADATAVALUE.value);
     }
@@ -62,14 +62,13 @@ public class MetadatavalueRepository {
         return getItemMetadataByFieldId(itemId, METADATAVALUE_LINK_FIELD_ID);
     }
 
-    public List<Pair<String, Integer>> getItemAuthorAndItemIdMapping() {
-        return dsl.select(METADATAVALUE.value, HANDLE.resourceLegacyId)
+    public List<Pair<String, UUID>> getItemAuthorAndItemIdMapping() {
+        return dsl.select(METADATAVALUE.value, METADATAVALUE.dspaceObjectId)
                 .from(METADATAVALUE)
-                .leftJoin(HANDLE).on(METADATAVALUE.dspaceObjectId.eq(HANDLE.resourceId))
                 .where(METADATAVALUE.metadataFieldId.eq(METADATAVALUE_AUTHORS_FIELD_ID))
                 .fetch()
                 .stream()
-                .map(item -> Pair.of(item.get(METADATAVALUE.value), item.get(HANDLE.resourceLegacyId)))
+                .map(item -> Pair.of(item.get(METADATAVALUE.value), item.get(METADATAVALUE.dspaceObjectId)))
                 .collect(Collectors.toList());
     }
 
