@@ -3,5 +3,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <dspace:layout style="submission" locbar="off" navbar="off" titlekey="jsp.submit.edit-metadata.title">
     <br/>
-    <div style="text-align: center;"><h2>Відправка ресурсів тимчасово недоступна.</h2></div>
+    <div style="text-align: center; color: #ff6600;">
+        <h2>У зв'язку з переходом на нову версію програмного забезпечення, відправка ресурсів тимчасово недоступна.<br/>
+            Перепрошуємо за незручності.</h2>
+    </div>
 </dspace:layout>
