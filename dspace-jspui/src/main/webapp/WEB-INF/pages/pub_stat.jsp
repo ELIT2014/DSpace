@@ -16,15 +16,15 @@
 
     <table width="95%%" align="center" class="table">
         <tr class="oddRowOddCol">
-            <td id="TotalCount">-</td>
+            <td id="TotalCount">${totalItemCount}</td>
             <td><%= LocaleSupport.getLocalizedMessage(pageContext, "jsp.general-statistics.total-resources") %></td>
         </tr>
         <tr class="evenRowOddCol">
-            <td id="TotalViews">-</td>
+            <td id="TotalViews">${totalViews}</td>
             <td><%= LocaleSupport.getLocalizedMessage(pageContext, "jsp.general-statistics.total-views") %></td>
         </tr>
         <tr class="oddRowOddCol">
-            <td id="TotalDownloads">-</td>
+            <td id="TotalDownloads">${totalDownloads}</td>
             <td><%= LocaleSupport.getLocalizedMessage(pageContext, "jsp.general-statistics.total-downloads") %></td>
         </tr>
     </table>

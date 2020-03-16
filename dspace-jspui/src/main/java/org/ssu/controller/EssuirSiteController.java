@@ -193,8 +193,14 @@ public class EssuirSiteController {
     }
 
     @RequestMapping(value = "/general-statistics", method = RequestMethod.GET)
-    public String getGeneralStatistics(ModelMap model) {
+    public String getGeneralStatistics(ModelMap model, HttpServletRequest request) throws SQLException {
+        Context context = UIUtil.obtainContext(request);
+        StatisticsData statisticsData = essuirStatistics.getTotalStatistic(context);
+        model.addAttribute("totalItemCount", statisticsData.getTotalCount());
+        model.addAttribute("totalDownloads", statisticsData.getTotalDownloads());
+        model.addAttribute("totalViews", statisticsData.getTotalViews());
         model.addAttribute("listYearStatistics", generalStatisticsService.getListYearsStatistics());
+        context.complete();
         return "pub_stat";
     }
 
