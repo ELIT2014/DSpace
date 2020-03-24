@@ -85,9 +85,9 @@
         <script type='text/javascript' src='<%= request.getContextPath() %>/static/js/jquery/jquery-ui-1.10.3.custom.min.js'></script>
         <script type="text/javascript" src="<%= request.getContextPath() %>/static/js/jquery.autocomplete.js"></script>
         <script type='text/javascript' src='<%= request.getContextPath() %>/static/js/bootstrap/bootstrap.min.js'></script>
-        <script type='text/javascript' src='<%= request.getContextPath() %>/static/js/holder.js'></script>
+        <script type='text/javascript' src='<%= request.getContextPath() %>/static/js/holder.min.js'></script>
         <script type="text/javascript" src="<%= request.getContextPath() %>/utils.js"></script>
-        <script type="text/javascript" src="<%= request.getContextPath() %>/static/js/choice-support.js"> </script>
+        <script type="text/javascript" src="<%= request.getContextPath() %>/static/js/choice-support.min.js"> </script>
         <script src="<%= request.getContextPath() %>/static/js/bootstrap-cascader/bootstrap-cascader.min.js"></script>
         <dspace:include page="/layout/google-analytics-snippet.jsp" />
 
