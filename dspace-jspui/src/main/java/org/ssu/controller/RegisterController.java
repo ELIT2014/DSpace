@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -89,6 +90,8 @@ public class RegisterController {
                 model.addObject("supportedLocales", I18nUtil.getSupportedLocales());
                 model.addObject("sessionLocale", UIUtil.getSessionLocale(request));
                 model.addObject("token", token);
+                model.addObject("chairId", -1);
+                model.addObject("facultyId", -1);
                 model.setViewName("register");
                 return model;
             } else {
@@ -113,11 +116,7 @@ public class RegisterController {
         }
 
         if (email == null) {
-            log.info(LogManager.getHeader(context, "invalid_token", "token="
-                    + token));
-
-            System.out.println("Invalid token page");
-//            JSPManager.showJSP(request, response, "/register/invalid-token.jsp");
+            log.info(LogManager.getHeader(context, "invalid_token", "token=" + token));
             model.setViewName("invalid-token");
             return model;
         }
@@ -148,27 +147,15 @@ public class RegisterController {
                 accountService.deleteToken(context, token);
             }
             personService.update(context, eperson);
-            request.setAttribute("eperson", eperson);
-//            JSPManager.showJSP(request, response, "/register/registered.jsp");
-            System.out.println("Show registered page");
+            model.addObject("name", eperson.getFirstName());
             model.setViewName("registered");
             context.complete();
         } else {
-            request.setAttribute("token", token);
-            request.setAttribute("eperson", eperson);
-            request.setAttribute("password.problem", !passwordOK);
-
-            // Indicate if user can set password
-            boolean setPassword = authenticationService.allowSetPassword(
-                    context, request, email);
-            request.setAttribute("set.password", setPassword);
-
-//            JSPManager.showJSP(request, response,
-//                    "/register/registration-form.jsp");
             System.out.println("Some errors during saving");
             System.out.println("INfo " + infoOK);
             System.out.println("Password " + passwordOK);
-            // Changes to/creation of e-person in DB cancelled
+            Integer facultyId = Optional.ofNullable(request.getParameter("faculty")).map(Integer::valueOf).orElse(-1);
+            String phone = Optional.ofNullable(request.getParameter("phone")).orElse("");
             Map<Integer, List<ChairEntity>> chairList = facultyService.findAll(context).stream().collect(Collectors.toMap(FacultyEntity::getId, FacultyEntity::getChairs));
 
             model.addObject("facultyList", facultyService.findAll(context));
@@ -181,10 +168,12 @@ public class RegisterController {
             model.addObject("isPasswordOk", passwordOK);
             model.addObject("lastName", eperson.getLastName());
             model.addObject("firstName", eperson.getFirstName());
-
+            model.addObject("chairId", eperson.getChairId());
             model.addObject("language", eperson.getLanguage());
             model.addObject("position", eperson.getPosition());
             model.addObject("chair", eperson.getChair());
+            model.addObject("phone", phone);
+            model.addObject("facultyId", facultyId);
             model.setViewName("register");
 
             context.abort();

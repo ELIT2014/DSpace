@@ -63,7 +63,7 @@
                     <option value="0"></option>
                     <c:forEach items="${facultyList}" var="facultySelectEntity">
                         <c:set var="facultySelected" value=""/>
-                        <c:if test="${chair.facultyEntityId == facultySelectEntity.id}">
+                        <c:if test="${facultyId == facultySelectEntity.id}">
                             <c:set var="facultySelected" value="selected = \"selected\""/>
                         </c:if>
                         <option value = '${facultySelectEntity.id}' ${facultySelected}>${facultySelectEntity.name}</option>
@@ -83,6 +83,7 @@
                 <script type="text/javascript">
                     var syncList1 = new syncList();
                     syncList1.dataList = ${chairListJson};
+                    syncList1.selectedId = ${chairId};
                     syncList1.sync("faculty", "chair_id");
                 </script>
             </div>
