@@ -47,9 +47,7 @@ public class RegisterController {
     private EpersonService epersonService;
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public ModelAndView registerPost(HttpServletRequest request) throws SQLException, ServletException, IOException, AuthorizeException {
-        System.out.println("POST Request! Redirect!");
-
+    public ModelAndView registerPost(HttpServletRequest request) throws SQLException, IOException, AuthorizeException {
         int step = UIUtil.getIntParameter(request, "step");
         Context context = UIUtil.obtainContext(request);
         if (step == 2) {
@@ -100,18 +98,13 @@ public class RegisterController {
         }
     }
 
-    private ModelAndView processPersonalInfo(Context context,
-                                     HttpServletRequest request)
-            throws ServletException, IOException, SQLException,
-            AuthorizeException {
+    private ModelAndView processPersonalInfo(Context context, HttpServletRequest request) throws IOException, SQLException, AuthorizeException {
         ModelAndView model = new ModelAndView();
-        // Get the token
         String token = request.getParameter("token");
 
-        // Get the email address
         String email = accountService.getEmail(context, token);
 
-        if (email == null){
+        if (email == null) {
             email = request.getParameter("email");
         }
 
@@ -121,7 +114,6 @@ public class RegisterController {
             return model;
         }
 
-        // If the token is valid, we create an eperson record if need be
         EPerson eperson = null;
         if (eperson == null) {
             context.turnOffAuthorisationSystem();
@@ -137,12 +129,12 @@ public class RegisterController {
         authenticationService.initEPerson(context, request, eperson);
 
         boolean passwordOK = true;
-        if (!eperson.getRequireCertificate() && authenticationService.allowSetPassword(context, request,eperson.getEmail())) {
+        if (!eperson.getRequireCertificate() && authenticationService.allowSetPassword(context, request, eperson.getEmail())) {
             passwordOK = epersonService.confirmAndSetPassword(eperson, request);
         }
 
         if (infoOK && passwordOK) {
-            log.info(LogManager.getHeader(context, "usedtoken_register","email=" + eperson.getEmail()));
+            log.info(LogManager.getHeader(context, "usedtoken_register", "email=" + eperson.getEmail()));
             if (token != null) {
                 accountService.deleteToken(context, token);
             }
@@ -151,9 +143,6 @@ public class RegisterController {
             model.setViewName("registered");
             context.complete();
         } else {
-            System.out.println("Some errors during saving");
-            System.out.println("INfo " + infoOK);
-            System.out.println("Password " + passwordOK);
             Integer facultyId = Optional.ofNullable(request.getParameter("faculty")).map(Integer::valueOf).orElse(-1);
             String phone = Optional.ofNullable(request.getParameter("phone")).orElse("");
             Map<Integer, List<ChairEntity>> chairList = facultyService.findAll(context).stream().collect(Collectors.toMap(FacultyEntity::getId, FacultyEntity::getChairs));

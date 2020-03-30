@@ -139,10 +139,7 @@ public class EditProfileServlet extends DSpaceServlet
         eperson.setLastName(context, lastName);
         personService.setMetadataSingleValue(context, eperson, "eperson" , "phone", null, null, phone);
         eperson.setLanguage(context, language);
-        String position = request.getParameter("position");
-        Integer chair = Integer.valueOf(request.getParameter("chair_id"));
-        eperson.setPosition(position);
-        eperson.setChairId(chair);
+
         // Check all required fields are there
         return (!StringUtils.isEmpty(lastName) && !StringUtils.isEmpty(firstName));
     }
