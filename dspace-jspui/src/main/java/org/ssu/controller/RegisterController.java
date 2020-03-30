@@ -33,6 +33,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Controller
@@ -45,6 +46,16 @@ public class RegisterController {
 
     @Resource
     private EpersonService epersonService;
+
+    private Function<Context, Map<Integer, List<ChairEntity>>> getChairList = (context) -> {
+        try {
+            return facultyService.findAll(context).stream().collect(Collectors.toMap(FacultyEntity::getId, FacultyEntity::getChairs));
+        } catch (SQLException e) {
+            log.error("Error during collecting chairlist in RegistrationConrtroller!");
+            e.printStackTrace();
+        }
+        return null;
+    };
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public ModelAndView registerPost(HttpServletRequest request) throws SQLException, IOException, AuthorizeException {
@@ -62,27 +73,16 @@ public class RegisterController {
     public ModelAndView register(HttpServletRequest request, HttpServletResponse response) throws SQLException, ServletException, IOException {
         Context context = UIUtil.obtainContext(request);
         String token = request.getParameter("token");
-        boolean registering = true;
         if (token == null) {
             log.info("Empty token! Make redirect to dspace servlet.");
             return new ModelAndView("redirect:/register-dspace");
         } else {
             String email = accountService.getEmail(context, token);
-            EPerson eperson = null;
+
             if (email != null) {
-                eperson = personService.findByEmail(context, email);
-            }
-
-            request.setAttribute("eperson", eperson);
-            request.setAttribute("token", token);
-
-            if (registering && (email != null)) {
-                boolean setPassword = authenticationService.allowSetPassword(context, request, email);
-                request.setAttribute("set.password", setPassword);
-                Map<Integer, List<ChairEntity>> chairList = facultyService.findAll(context).stream().collect(Collectors.toMap(FacultyEntity::getId, FacultyEntity::getChairs));
                 ModelAndView model = new ModelAndView();
                 model.addObject("facultyList", facultyService.findAll(context));
-                model.addObject("chairListJson", new ObjectMapper().writeValueAsString(chairList));
+                model.addObject("chairListJson", new ObjectMapper().writeValueAsString(getChairList.apply(context)));
                 model.addObject("isAllFieldsFilled", true);
                 model.addObject("isPasswordOk", true);
                 model.addObject("supportedLocales", I18nUtil.getSupportedLocales());
@@ -98,30 +98,33 @@ public class RegisterController {
         }
     }
 
+    private Optional<EPerson> fetchEpersonDataFromRequest(Context context, HttpServletRequest request) throws SQLException, AuthorizeException {
+        String token = request.getParameter("token");
+        String email = Optional.ofNullable(accountService.getEmail(context, token)).orElse(request.getParameter("email"));
+
+        if (email == null) {
+            return Optional.empty();
+        }
+
+        EPerson eperson;
+        context.turnOffAuthorisationSystem();
+        eperson = personService.create(context);
+        eperson.setEmail(email);
+        personService.update(context, eperson);
+        context.restoreAuthSystemState();
+        return Optional.of(eperson);
+    }
+
     private ModelAndView processPersonalInfo(Context context, HttpServletRequest request) throws IOException, SQLException, AuthorizeException {
         ModelAndView model = new ModelAndView();
         String token = request.getParameter("token");
-
-        String email = accountService.getEmail(context, token);
-
-        if (email == null) {
-            email = request.getParameter("email");
-        }
-
-        if (email == null) {
+        Optional<EPerson> epersonFetchedData = fetchEpersonDataFromRequest(context, request);
+        if(!epersonFetchedData.isPresent()) {
             log.info(LogManager.getHeader(context, "invalid_token", "token=" + token));
             model.setViewName("invalid-token");
             return model;
         }
-
-        EPerson eperson = null;
-        if (eperson == null) {
-            context.turnOffAuthorisationSystem();
-            eperson = personService.create(context);
-            eperson.setEmail(email);
-            personService.update(context, eperson);
-            context.restoreAuthSystemState();
-        }
+        EPerson eperson = epersonFetchedData.get();
         context.setCurrentUser(eperson);
         boolean infoOK = epersonService.updateUserProfile(context, eperson, request);
         eperson.setCanLogIn(true);
@@ -145,10 +148,9 @@ public class RegisterController {
         } else {
             Integer facultyId = Optional.ofNullable(request.getParameter("faculty")).map(Integer::valueOf).orElse(-1);
             String phone = Optional.ofNullable(request.getParameter("phone")).orElse("");
-            Map<Integer, List<ChairEntity>> chairList = facultyService.findAll(context).stream().collect(Collectors.toMap(FacultyEntity::getId, FacultyEntity::getChairs));
 
             model.addObject("facultyList", facultyService.findAll(context));
-            model.addObject("chairListJson", new ObjectMapper().writeValueAsString(chairList));
+            model.addObject("chairListJson", new ObjectMapper().writeValueAsString(getChairList.apply(context)));
 
             model.addObject("supportedLocales", I18nUtil.getSupportedLocales());
             model.addObject("sessionLocale", UIUtil.getSessionLocale(request));
