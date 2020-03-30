@@ -5,23 +5,28 @@
 <%@taglib prefix="essuir" tagdir="/WEB-INF/tags/essuir" %>
 
 <dspace:layout style="submission" titlekey="jsp.register.edit-profile.title" nocache="true">
-    <c:if test="${missingFields}">
+    <c:if test="${not isAllFieldsFilled}">
         <p class="alert alert-info"><fmt:message key="jsp.register.edit-profile.info1"/></p>
     </c:if>
 
-    <form class="form-horizontal" action="<%= request.getContextPath() %>/register-dspace" method="post">
+    <c:if test="${not isPasswordOk}">
+        <p class="alert alert-warning"><strong><fmt:message key="jsp.register.registration-form.instruct2"/></strong></p>
+    </c:if>
+
+
+    <form class="form-horizontal" action="<%= request.getContextPath() %>/register" method="post">
 
         <div class="form-group">
             <label class="col-md-offset-3 col-md-2 control-label" for="tfirst_name"><fmt:message
                     key="jsp.register.profile-form.fname.field"/></label>
             <div class="col-md-3">
-                <input class="form-control" type="text" name="first_name" id="tfirst_name" size="40"/>
+                <input class="form-control" type="text" name="first_name" id="tfirst_name" size="40" value="${firstName}"/>
             </div>
         </div>
         <div class="form-group">
             <label class="col-md-offset-3 col-md-2 control-label" for="tlast_name"><fmt:message
                     key="jsp.register.profile-form.lname.field"/></label>
-            <div class="col-md-3"><input class="form-control" type="text" name="last_name" id="tlast_name" size="40"/></div>
+            <div class="col-md-3"><input class="form-control" type="text" name="last_name" id="tlast_name" size="40" value="${lastName}"/></div>
         </div>
         <div class="form-group">
             <label class="col-md-offset-3 col-md-2 control-label" for="tphone"><fmt:message
@@ -37,7 +42,12 @@
             <div class="col-md-3">
                 <select class="form-control" name="language" id="tlanguage">
                     <c:forEach items="${supportedLocales}" var="supportedLocale">
-                        <option value="${supportedLocale.toString()}">${supportedLocale.getDisplayName(sessionLocale)}</option>
+                        <c:set var="selected" value=""/>
+                        <c:if test="${language == supportedLocale.toString()}">
+                            <c:set var="selected" value="selected = \"selected\""/>
+                        </c:if>
+
+                        <option ${selected} value="${supportedLocale.toString()}">${supportedLocale.getDisplayName(sessionLocale)}</option>
                     </c:forEach>
                 </select>
             </div>
@@ -52,7 +62,11 @@
                 <select class="form-control" name="faculty" id="faculty">
                     <option value="0"></option>
                     <c:forEach items="${facultyList}" var="facultySelectEntity">
-                        <option value = '${facultySelectEntity.id}' >${facultySelectEntity.name}</option>
+                        <c:set var="facultySelected" value=""/>
+                        <c:if test="${chair.facultyEntityId == facultySelectEntity.id}">
+                            <c:set var="facultySelected" value="selected = \"selected\""/>
+                        </c:if>
+                        <option value = '${facultySelectEntity.id}' ${facultySelected}>${facultySelectEntity.name}</option>
                     </c:forEach>
                 </select>
             </div>
