@@ -84,7 +84,8 @@ public class RegisterController {
                 ModelAndView model = new ModelAndView();
                 model.addObject("facultyList", facultyService.findAll(context));
                 model.addObject("chairListJson", new ObjectMapper().writeValueAsString(chairList));
-
+                model.addObject("isAllFieldsFilled", true);
+                model.addObject("isPasswordOk", true);
                 model.addObject("supportedLocales", I18nUtil.getSupportedLocales());
                 model.addObject("sessionLocale", UIUtil.getSessionLocale(request));
                 model.addObject("token", token);
@@ -117,6 +118,7 @@ public class RegisterController {
 
             System.out.println("Invalid token page");
 //            JSPManager.showJSP(request, response, "/register/invalid-token.jsp");
+            model.setViewName("invalid-token");
             return model;
         }
 
@@ -149,6 +151,7 @@ public class RegisterController {
             request.setAttribute("eperson", eperson);
 //            JSPManager.showJSP(request, response, "/register/registered.jsp");
             System.out.println("Show registered page");
+            model.setViewName("registered");
             context.complete();
         } else {
             request.setAttribute("token", token);
