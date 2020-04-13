@@ -14,10 +14,12 @@ import org.dspace.eperson.FacultyEntity;
 import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.EPersonService;
 import org.dspace.eperson.service.FacultyService;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.View;
 import org.ssu.entity.AuthorLocalization;
 import org.ssu.service.AuthorsService;
 import org.ssu.service.EpersonService;
@@ -46,6 +48,32 @@ public class ProfileController {
 
     private FacultyService facultyService = EPersonServiceFactory.getInstance().getFacultyService();
 
+    @RequestMapping(value = "/dspace-admin/edit-epeople", method = RequestMethod.GET)
+    public ModelAndView editUserProfileByAdministrator(ModelAndView model, HttpServletRequest request) {
+        boolean noEPersonSelected = (request.getAttribute("no_eperson_selected") != null);
+//        String button = UIUtil.getSubmitButton(request, "submit");
+        System.out.println("------------------------------");
+        System.out.println("is eperson selected");
+        System.out.println(noEPersonSelected);
+        System.out.println("------------------------------");
+        request.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, HttpStatus.TEMPORARY_REDIRECT);
+        return new ModelAndView("redirect:/dspace-admin/edit-epeople-dspace");
+//        return model;
+    }
+
+    @RequestMapping(value = "/dspace-admin/edit-epeople", method = RequestMethod.POST)
+    public ModelAndView editUserProfileByAdministratorPostEndpoint(ModelAndView model, HttpServletRequest request) {
+        String button = UIUtil.getSubmitButton(request, "submit");
+        System.out.println("------------------------------");
+        System.out.println(button);
+        System.out.println("------------------------------");
+        if("submit_add".equals(button) || "submit_edit".equals(button)) {
+            System.out.println("display our edit page");
+        }
+        request.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, HttpStatus.TEMPORARY_REDIRECT);
+        return new ModelAndView("redirect:/dspace-admin/edit-epeople-dspace");
+//        return model;
+    }
     @RequestMapping("/profile")
     public ModelAndView profilePage(ModelAndView model, HttpServletRequest request, HttpServletResponse response) throws SQLException, JsonProcessingException {
         Context dspaceContext = UIUtil.obtainContext(request);
