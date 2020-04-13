@@ -68,26 +68,14 @@ public class ProfileController {
     @RequestMapping(value = "/dspace-admin/edit-epeople", method = RequestMethod.POST)
     public ModelAndView editUserProfileByAdministratorPostEndpoint(ModelAndView model, HttpServletRequest request) throws SQLException, JsonProcessingException {
         String button = UIUtil.getSubmitButton(request, "submit");
-        Context dspaceContext = UIUtil.obtainContext(request);
         System.out.println("------------------------------");
         System.out.println(button);
         System.out.println("------------------------------");
         if("submit_add".equals(button) || "submit_edit".equals(button)) {
             System.out.println("display our edit page");
-            Map<Integer, List<ChairEntity>> chairList = facultyService.findAll(dspaceContext).stream().collect(Collectors.toMap(FacultyEntity::getId, FacultyEntity::getChairs));
-            model.addObject("lastName", "lalstname");
-            model.addObject("firstName", "firstname");
-            model.addObject("isAuthorLocalized", authorsService.isAuthorLocalizationPresent(String.format("%s, %s", "lastname", "firstname")));
-            model.addObject("orcid", authorsService.getAuthorLocalization(String.format("%s, %s", "lastname", "firstname")).getOrcid());
-            model.addObject("phone", "phone");
-            model.addObject("language", "language");
-            model.addObject("position", "position");
-            model.addObject("chair", null);
-            model.addObject("facultyList", facultyService.findAll(dspaceContext));
-            model.addObject("chairListJson", new ObjectMapper().writeValueAsString(chairList));
-
-            model.addObject("supportedLocales", I18nUtil.getSupportedLocales());
-            model.addObject("sessionLocale", UIUtil.getSessionLocale(request));
+            Context dspaceContext = UIUtil.obtainContext(request);
+            EPerson e = personService.find(dspaceContext, UIUtil.getUUIDParameter(request, "eperson_id"));
+            model = fillEditUserForm(request, model, e);
             model.setViewName("edit-user");
             return model;
         }
@@ -95,14 +83,9 @@ public class ProfileController {
         return new ModelAndView("redirect:/dspace-admin/edit-epeople-dspace");
 //        return model;
     }
-    @RequestMapping("/profile")
-    public ModelAndView profilePage(ModelAndView model, HttpServletRequest request, HttpServletResponse response) throws SQLException, JsonProcessingException {
+
+    private ModelAndView fillEditUserForm(HttpServletRequest request, ModelAndView model, EPerson eperson) throws SQLException, JsonProcessingException {
         Context dspaceContext = UIUtil.obtainContext(request);
-        EPerson eperson = dspaceContext.getCurrentUser();
-
-        boolean missingFields = Optional.ofNullable((Boolean) request.getAttribute("missing.fields")).orElse(Boolean.FALSE);
-        boolean passwordProblem = Optional.ofNullable((Boolean) request.getAttribute("password.problem")).orElse(Boolean.FALSE);
-
         EPersonService epersonService = EPersonServiceFactory.getInstance().getEPersonService();
         String lastName = Optional.ofNullable(eperson.getLastName()).orElse("");
         String firstName = Optional.ofNullable(eperson.getFirstName()).orElse("");
@@ -110,6 +93,7 @@ public class ProfileController {
         String language = Optional.ofNullable(epersonService.getMetadata(eperson, "language")).orElse("");
 
         Map<Integer, List<ChairEntity>> chairList = facultyService.findAll(dspaceContext).stream().collect(Collectors.toMap(FacultyEntity::getId, FacultyEntity::getChairs));
+        model.addObject("email", eperson.getEmail());
         model.addObject("lastName", lastName);
         model.addObject("firstName", firstName);
         model.addObject("isAuthorLocalized", authorsService.isAuthorLocalizationPresent(String.format("%s, %s", lastName, firstName)));
@@ -123,6 +107,16 @@ public class ProfileController {
 
         model.addObject("supportedLocales", I18nUtil.getSupportedLocales());
         model.addObject("sessionLocale", UIUtil.getSessionLocale(request));
+        return model;
+    }
+    @RequestMapping("/profile")
+    public ModelAndView profilePage(ModelAndView model, HttpServletRequest request, HttpServletResponse response) throws SQLException, JsonProcessingException {
+        Context dspaceContext = UIUtil.obtainContext(request);
+        EPerson eperson = dspaceContext.getCurrentUser();
+
+        boolean missingFields = Optional.ofNullable((Boolean) request.getAttribute("missing.fields")).orElse(Boolean.FALSE);
+        boolean passwordProblem = Optional.ofNullable((Boolean) request.getAttribute("password.problem")).orElse(Boolean.FALSE);
+        model = fillEditUserForm(request, model, eperson);
         model.addObject("passwordProblem", passwordProblem);
         model.addObject("missingFields", missingFields);
         model.setViewName("profile");
