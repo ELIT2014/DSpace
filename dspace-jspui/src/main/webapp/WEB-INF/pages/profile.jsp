@@ -16,7 +16,6 @@
         <essuir:profilePage language="${language}" chair="${chair}" facultyList="${facultyList}" chairListJson="${chairListJson}" isRegisterPage="false"/>
         <div class="col-md-offset-5">
             <input type="hidden" id="step" name="step" value="2"/>
-            <input type="hidden" name="token" value="${token}"/>
             <input class="btn btn-success col-md-4" type="submit" name="submit"
                    value="<fmt:message key="jsp.register.edit-profile.update.button"/>"/>
         </div>

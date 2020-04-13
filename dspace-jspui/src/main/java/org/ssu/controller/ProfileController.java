@@ -56,19 +56,40 @@ public class ProfileController {
         System.out.println("is eperson selected");
         System.out.println(noEPersonSelected);
         System.out.println("------------------------------");
+        String button = UIUtil.getSubmitButton(request, "submit");
+        System.out.println("------------------------------");
+        System.out.println(button);
+        System.out.println("------------------------------");
         request.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, HttpStatus.TEMPORARY_REDIRECT);
         return new ModelAndView("redirect:/dspace-admin/edit-epeople-dspace");
 //        return model;
     }
 
     @RequestMapping(value = "/dspace-admin/edit-epeople", method = RequestMethod.POST)
-    public ModelAndView editUserProfileByAdministratorPostEndpoint(ModelAndView model, HttpServletRequest request) {
+    public ModelAndView editUserProfileByAdministratorPostEndpoint(ModelAndView model, HttpServletRequest request) throws SQLException, JsonProcessingException {
         String button = UIUtil.getSubmitButton(request, "submit");
+        Context dspaceContext = UIUtil.obtainContext(request);
         System.out.println("------------------------------");
         System.out.println(button);
         System.out.println("------------------------------");
         if("submit_add".equals(button) || "submit_edit".equals(button)) {
             System.out.println("display our edit page");
+            Map<Integer, List<ChairEntity>> chairList = facultyService.findAll(dspaceContext).stream().collect(Collectors.toMap(FacultyEntity::getId, FacultyEntity::getChairs));
+            model.addObject("lastName", "lalstname");
+            model.addObject("firstName", "firstname");
+            model.addObject("isAuthorLocalized", authorsService.isAuthorLocalizationPresent(String.format("%s, %s", "lastname", "firstname")));
+            model.addObject("orcid", authorsService.getAuthorLocalization(String.format("%s, %s", "lastname", "firstname")).getOrcid());
+            model.addObject("phone", "phone");
+            model.addObject("language", "language");
+            model.addObject("position", "position");
+            model.addObject("chair", null);
+            model.addObject("facultyList", facultyService.findAll(dspaceContext));
+            model.addObject("chairListJson", new ObjectMapper().writeValueAsString(chairList));
+
+            model.addObject("supportedLocales", I18nUtil.getSupportedLocales());
+            model.addObject("sessionLocale", UIUtil.getSessionLocale(request));
+            model.setViewName("edit-user");
+            return model;
         }
         request.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, HttpStatus.TEMPORARY_REDIRECT);
         return new ModelAndView("redirect:/dspace-admin/edit-epeople-dspace");
