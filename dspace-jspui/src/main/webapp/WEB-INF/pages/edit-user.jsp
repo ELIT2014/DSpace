@@ -13,10 +13,21 @@
                locbar="link"
                parenttitlekey="jsp.administer"
                parentlink="/dspace-admin">
-    <essuir:profilePage language="${language}" chair="${chair}" facultyList="${facultyList}" chairListJson="${chairListJson}" isRegisterPage="false"/>
-    <div class="col-md-offset-5">
-        <input type="hidden" id="step" name="step" value="2"/>
-        <input class="btn btn-success col-md-4" type="submit" name="submit"
-               value="<fmt:message key="jsp.register.edit-profile.update.button"/>"/>
-    </div>
+    <form class="form-horizontal" action="<%= request.getContextPath() %>/dspace-admin/edit-epeople" method="post">
+        <div class="form-group">
+            <label class="col-md-offset-3 col-md-2 control-label" for="email"><fmt:message
+                    key="jsp.dspace-admin.eperson-edit.email"/></label>
+            <div class="col-md-3">
+                <input class="form-control" type="text" name="email" id="email" size="40" value="${email}"/>
+            </div>
+        </div>
+
+        <essuir:profilePage language="${language}" chair="${chair}" facultyList="${facultyList}" chairListJson="${chairListJson}" isRegisterPage="false" isEditUserPage="true"/>
+
+        <div>
+            <input type="hidden" id="step" name="step" value="2"/>
+            <input class="btn btn-success col-md-4" type="submit" name="submit"
+                   value="<fmt:message key="jsp.register.edit-profile.update.button"/>"/>
+        </div>
+    </form>
 </dspace:layout>

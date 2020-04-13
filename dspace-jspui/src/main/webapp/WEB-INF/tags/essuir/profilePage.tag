@@ -18,6 +18,9 @@
 <%@ attribute name="isRegisterPage" rtexprvalue="true" required="true" type="java.lang.Boolean"
               description="Is register page." %>
 
+<%@ attribute name="isEditUserPage" rtexprvalue="true" required="true" type="java.lang.Boolean"
+              description="Is edit user page." %>
+
 <div class="form-group">
     <label class="col-md-offset-3 col-md-2 control-label" for="tfirst_name"><fmt:message
             key="jsp.register.profile-form.fname.field"/></label>
@@ -105,20 +108,21 @@
         </div>
     </div>
 </c:if>
+<c:if test="${not isEditUserPage}">
+    <c:if test="${not isRegisterPage}">
+        <p class="alert"><fmt:message key="jsp.register.edit-profile.info5"/></p>
+    </c:if>
+    <div class="form-group">
+        <label class="col-md-offset-3 col-md-2 control-label" for="tpassword"><fmt:message key="jsp.register.edit-profile.pswd.field"/></label>
+        <div class="col-md-3">
+            <input class="form-control" type="password" name="password" id="tpassword" />
+        </div>
+    </div>
 
-<c:if test="${not isRegisterPage}">
-    <p class="alert"><fmt:message key="jsp.register.edit-profile.info5"/></p>
+    <div class="form-group">
+        <label class="col-md-offset-3 col-md-2 control-label" for="tpassword_confirm"><fmt:message key="jsp.register.edit-profile.confirm.field"/></label>
+        <div class="col-md-3">
+            <input class="form-control" type="password" name="password_confirm" id="tpassword_confirm" />
+        </div>
+    </div>
 </c:if>
-<div class="form-group">
-    <label class="col-md-offset-3 col-md-2 control-label" for="tpassword"><fmt:message key="jsp.register.edit-profile.pswd.field"/></label>
-    <div class="col-md-3">
-        <input class="form-control" type="password" name="password" id="tpassword" />
-    </div>
-</div>
-
-<div class="form-group">
-    <label class="col-md-offset-3 col-md-2 control-label" for="tpassword_confirm"><fmt:message key="jsp.register.edit-profile.confirm.field"/></label>
-    <div class="col-md-3">
-        <input class="form-control" type="password" name="password_confirm" id="tpassword_confirm" />
-    </div>
-</div>

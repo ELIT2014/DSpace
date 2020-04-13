@@ -14,7 +14,7 @@
     </c:if>
 
     <form class="form-horizontal" action="<%= request.getContextPath() %>/register" method="post">
-        <essuir:profilePage language="${language}" chair="${chair}" facultyList="${facultyList}" chairListJson="${chairListJson}" isRegisterPage="true"/>
+        <essuir:profilePage language="${language}" chair="${chair}" facultyList="${facultyList}" chairListJson="${chairListJson}" isRegisterPage="true" isEditUserPage="false"/>
         <div class="col-md-offset-5">
             <input type="hidden" id="step" name="step" value="2"/>
             <input type="hidden" name="token" value="${token}"/>
