@@ -11,9 +11,11 @@ import org.dspace.core.I18nUtil;
 import org.dspace.eperson.ChairEntity;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.FacultyEntity;
+import org.dspace.eperson.Group;
 import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.EPersonService;
 import org.dspace.eperson.service.FacultyService;
+import org.dspace.eperson.service.GroupService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,9 +39,8 @@ import java.util.stream.Collectors;
 
 @Controller
 public class ProfileController {
-    protected transient EPersonService personService
-            = EPersonServiceFactory.getInstance().getEPersonService();
-
+    protected transient EPersonService personService = EPersonServiceFactory.getInstance().getEPersonService();
+    private final transient GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
     @Resource
     private AuthorsService authorsService;
 
@@ -75,7 +76,12 @@ public class ProfileController {
             System.out.println("display our edit page");
             Context dspaceContext = UIUtil.obtainContext(request);
             EPerson e = personService.find(dspaceContext, UIUtil.getUUIDParameter(request, "eperson_id"));
+            List<Group> groupMemberships = groupService.allMemberGroups(dspaceContext, e);
+
+            request.setAttribute("eperson", e);
+//            request.setAttribute("group.memberships", groupMemberships);
             model = fillEditUserForm(request, model, e);
+            model.addObject("groupMemberships", groupMemberships);
             model.setViewName("edit-user");
             return model;
         }

@@ -1,4 +1,6 @@
 <%@ page import="javax.servlet.jsp.jstl.fmt.LocaleSupport" %>
+<%@ page import="org.dspace.eperson.Group" %>
+<%@ page import="java.util.List" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt"
@@ -7,6 +9,7 @@
 
 <%@ taglib uri="http://www.dspace.org/dspace-tags.tld" prefix="dspace" %>
 <%@taglib prefix="essuir" tagdir="/WEB-INF/tags/essuir" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <dspace:layout style="submission" titlekey="jsp.dspace-admin.eperson-main.title"
                navbar="admin"
@@ -36,4 +39,19 @@
                    value="<fmt:message key="jsp.register.edit-profile.update.button"/>"/>
         </div>
     </form>
+
+    <c:if test="${not empty groupMemberships}">
+        <br/>
+        <br/>
+
+        <h3><fmt:message key="jsp.dspace-admin.eperson-edit.groups"/></h3>
+
+        <div class="row">
+            <ul>
+                <c:forEach items="${groupMemberships}" var="group">
+                    <li><a href = "/tools/group-edit?submit_edit&amp;group_id=${group.ID}">${group.name}</a></li>
+                </c:forEach>
+            </ul>
+        </div>
+    </c:if>
 </dspace:layout>
