@@ -1,4 +1,4 @@
-
+<%@ page import="javax.servlet.jsp.jstl.fmt.LocaleSupport" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt"
@@ -13,6 +13,12 @@
                locbar="link"
                parenttitlekey="jsp.administer"
                parentlink="/dspace-admin">
+    <h1><fmt:message key="jsp.dspace-admin.eperson-edit.heading">
+        <fmt:param>${email}</fmt:param>
+    </fmt:message>
+        <dspace:popup page="<%= LocaleSupport.getLocalizedMessage(pageContext, \"help.site-admin\") + \"#epeople\"%>"><fmt:message key="jsp.help"/></dspace:popup>
+    </h1>
+
     <form class="form-horizontal" action="<%= request.getContextPath() %>/dspace-admin/edit-epeople" method="post">
         <div class="form-group">
             <label class="col-md-offset-3 col-md-2 control-label" for="email"><fmt:message
