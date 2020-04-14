@@ -80,12 +80,14 @@ public class ProfileController {
             System.out.println("display our edit page");
             Context dspaceContext = UIUtil.obtainContext(request);
             EPerson e = personService.find(dspaceContext, UIUtil.getUUIDParameter(request, "eperson_id"));
-            List<Group> groupMemberships = groupService.allMemberGroups(dspaceContext, e);
+            if(e != null) {
+                List<Group> groupMemberships = groupService.allMemberGroups(dspaceContext, e);
 
-            model = fillEditUserForm(request, model, e);
-            model.addObject("groupMemberships", groupMemberships);
-            model.setViewName("edit-user");
-            return model;
+                model = fillEditUserForm(request, model, e);
+                model.addObject("groupMemberships", groupMemberships);
+                model.setViewName("edit-user");
+                return model;
+            }
         }
         if("submit".equals(button)) {
             System.out.println("save this data");
