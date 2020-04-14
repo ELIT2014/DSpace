@@ -25,13 +25,13 @@
     <label class="col-md-offset-3 col-md-2 control-label" for="tfirst_name"><fmt:message
             key="jsp.register.profile-form.fname.field"/></label>
     <div class="col-md-3">
-        <input class="form-control" type="text" name="first_name" id="tfirst_name" size="40" value="${firstName}"/>
+        <input class="form-control" type="text" name="firstname" id="tfirst_name" size="40" value="${firstName}"/>
     </div>
 </div>
 <div class="form-group">
     <label class="col-md-offset-3 col-md-2 control-label" for="tlast_name"><fmt:message
             key="jsp.register.profile-form.lname.field"/></label>
-    <div class="col-md-3"><input class="form-control" type="text" name="last_name" id="tlast_name" size="40" value="${lastName}"/></div>
+    <div class="col-md-3"><input class="form-control" type="text" name="lastname" id="tlast_name" size="40" value="${lastName}"/></div>
 </div>
 <div class="form-group">
     <label class="col-md-offset-3 col-md-2 control-label" for="tphone"><fmt:message

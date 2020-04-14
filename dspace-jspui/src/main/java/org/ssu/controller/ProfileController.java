@@ -54,11 +54,12 @@ public class ProfileController {
         boolean noEPersonSelected = (request.getAttribute("no_eperson_selected") != null);
 //        String button = UIUtil.getSubmitButton(request, "submit");
         System.out.println("------------------------------");
+        System.out.println("in get method");
         System.out.println("is eperson selected");
         System.out.println(noEPersonSelected);
-        System.out.println("------------------------------");
+
         String button = UIUtil.getSubmitButton(request, "submit");
-        System.out.println("------------------------------");
+        System.out.println("submit button:");
         System.out.println(button);
         System.out.println("------------------------------");
         request.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, HttpStatus.TEMPORARY_REDIRECT);
@@ -69,7 +70,10 @@ public class ProfileController {
     @RequestMapping(value = "/dspace-admin/edit-epeople", method = RequestMethod.POST)
     public ModelAndView editUserProfileByAdministratorPostEndpoint(ModelAndView model, HttpServletRequest request) throws SQLException, JsonProcessingException {
         String button = UIUtil.getSubmitButton(request, "submit");
+
         System.out.println("------------------------------");
+        System.out.println("in post method");
+        System.out.println("submit button:");
         System.out.println(button);
         System.out.println("------------------------------");
         if("submit_add".equals(button) || "submit_edit".equals(button)) {
@@ -78,12 +82,13 @@ public class ProfileController {
             EPerson e = personService.find(dspaceContext, UIUtil.getUUIDParameter(request, "eperson_id"));
             List<Group> groupMemberships = groupService.allMemberGroups(dspaceContext, e);
 
-            request.setAttribute("eperson", e);
-//            request.setAttribute("group.memberships", groupMemberships);
             model = fillEditUserForm(request, model, e);
             model.addObject("groupMemberships", groupMemberships);
             model.setViewName("edit-user");
             return model;
+        }
+        if("submit".equals(button)) {
+            System.out.println("save this data");
         }
         request.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, HttpStatus.TEMPORARY_REDIRECT);
         return new ModelAndView("redirect:/dspace-admin/edit-epeople-dspace");
@@ -100,6 +105,7 @@ public class ProfileController {
 
         Map<Integer, List<ChairEntity>> chairList = facultyService.findAll(dspaceContext).stream().collect(Collectors.toMap(FacultyEntity::getId, FacultyEntity::getChairs));
         model.addObject("email", eperson.getEmail());
+        model.addObject("epersonId", eperson.getID());
         model.addObject("lastName", lastName);
         model.addObject("firstName", firstName);
         model.addObject("isAuthorLocalized", authorsService.isAuthorLocalizationPresent(String.format("%s, %s", lastName, firstName)));

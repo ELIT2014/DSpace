@@ -33,11 +33,20 @@
 
         <essuir:profilePage language="${language}" chair="${chair}" facultyList="${facultyList}" chairListJson="${chairListJson}" isRegisterPage="false" isEditUserPage="true"/>
 
-        <div>
-            <input type="hidden" id="step" name="step" value="2"/>
-            <input class="btn btn-success col-md-4" type="submit" name="submit"
-                   value="<fmt:message key="jsp.register.edit-profile.update.button"/>"/>
+        <div class="col-md-4 btn-group">
+            <input type="hidden" name="eperson_id" value="${epersonId}"/>
+                <%-- <input type="submit" name="submit_save" value="Save Edits"> --%>
+            <input class="btn btn-default" type="submit" name="submit_save" value="<fmt:message key="jsp.dspace-admin.general.save"/>" />
+            <input class="btn btn-default" type="submit" name="submit_resetpassword" value="<fmt:message key="jsp.dspace-admin.eperson-main.ResetPassword.submit"/>"/>
+                <%-- <input type="submit" name="submit_delete" value="Delete EPerson..."> --%>
+            <input class="btn btn-danger" type="submit" name="submit_delete" value="<fmt:message key="jsp.dspace-admin.general.delete"/>" />
         </div>
+
+<%--        <div>--%>
+<%--            <input type="hidden" id="step" name="step" value="2"/>--%>
+<%--            <input class="btn btn-success col-md-4" type="submit" name="submit"--%>
+<%--                   value="<fmt:message key="jsp.register.edit-profile.update.button"/>"/>--%>
+<%--        </div>--%>
     </form>
 
     <c:if test="${not empty groupMemberships}">
