@@ -79,12 +79,14 @@ public class ProfileController {
         System.out.println("------------------------------");
         ModelAndView model = new ModelAndView();
         Context dspaceContext = UIUtil.obtainContext(request);
+        request.setAttribute("dspace.context", dspaceContext);
         if ("submit_add".equals(button)) {
             System.out.println("display our edit page");
             EPerson e = personService.create(dspaceContext);
             e.setEmail("newuser" + e.getID());
             personService.update(dspaceContext, e);
             model = fillEditUserForm(request, model, e);
+            model.addObject("isAuthorLocalized", false);
             model.setViewName("edit-user");
         } else if ("submit_edit".equals(button)) {
             System.out.println("display our edit page");
@@ -97,14 +99,14 @@ public class ProfileController {
                 model.setViewName("edit-user");
             }
         } else if ("submit_save".equals(button)) {
+            System.out.println("save this data");
             EPerson ePerson = personService.find(dspaceContext, UIUtil.getUUIDParameter(request, "eperson_id"));
             if(!saveUser(dspaceContext, request, ePerson)){
                 model.addObject("emailExists", true);
+                model.setViewName("edit-user");
+                model = fillEditUserForm(request, model, ePerson);
             }
-            System.out.println("save this data");
-            model = fillEditUserForm(request, model, ePerson);
-//            model = new ModelAndView("redirect:/dspace-admin/edit-epeople");
-            model.setViewName("edit-user");
+            model = new ModelAndView("redirect:/dspace-admin/edit-epeople");
         } else {
             request.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, HttpStatus.TEMPORARY_REDIRECT);
             model = new ModelAndView("redirect:/dspace-admin/edit-epeople-dspace");
@@ -113,27 +115,19 @@ public class ProfileController {
         return model;
     }
 
-    private boolean saveUser(Context context, HttpServletRequest request, EPerson ePerson) throws SQLException, AuthorizeException {
-        String oldEmail = ePerson.getEmail();
+    private boolean saveUser(Context context, HttpServletRequest request, EPerson eperson) throws SQLException, AuthorizeException {
+        boolean checkUserData = epersonService.updateUserProfile(context, eperson, request);
+        String oldEmail = eperson.getEmail();
         String newEmail = request.getParameter("email").trim();
-        Function<String, String> fetchParameterFromRequest = (parameterName) -> request.getParameter(parameterName).equals("") ? null : request.getParameter(parameterName);
-        String firstName = fetchParameterFromRequest.apply("firstname");
-        String lastName = fetchParameterFromRequest.apply("lastname");
-        String phone = fetchParameterFromRequest.apply("phone");
-        String language = fetchParameterFromRequest.apply("language");
         if (!newEmail.equals(oldEmail) && personService.findByEmail(context, newEmail) != null) {
-            request.setAttribute("eperson", ePerson);
-            request.setAttribute("email_exists", Boolean.TRUE);
             return false;
         }
         if (!newEmail.equals(oldEmail)) {
-            ePerson.setEmail(newEmail);
+            eperson.setEmail(newEmail);
         }
-        ePerson.setFirstName(context, firstName);
-        ePerson.setLastName(context, lastName);
-        personService.setMetadata(context, ePerson, "phone", phone);
-        personService.setMetadata(context, ePerson, "language", language);
-        personService.update(context, ePerson);
+        if(checkUserData) {
+            personService.update(context, eperson);
+        }
         return true;
     }
 
