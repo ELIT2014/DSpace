@@ -68,6 +68,7 @@ public class ProfileController {
             personService.update(dspaceContext, e);
             model = fillEditUserForm(request, model, e);
             model.addObject("isAuthorLocalized", false);
+            model.addObject("isNewUser", true);
             model.setViewName("edit-user");
             dspaceContext.complete();
         } else if ("submit_edit".equals(button)) {
