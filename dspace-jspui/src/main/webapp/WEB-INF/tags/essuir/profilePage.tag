@@ -64,9 +64,10 @@
     <div class="col-md-3">
         <select class="form-control" name="faculty" id="faculty">
             <option value="0"></option>
+            <c:set var="facultyId" value="${chair == null ? -1 : chair.facultyEntityId}"/>
             <c:forEach items="${facultyList}" var="facultySelectEntity">
                 <c:set var="facultySelected" value=""/>
-                <c:if test="${chair.facultyEntityId == facultySelectEntity.id}">
+                <c:if test="${facultyId == facultySelectEntity.id}">
                     <c:set var="facultySelected" value="selected = \"selected\""/>
                 </c:if>
                 <option value = '${facultySelectEntity.id}' ${facultySelected}>${facultySelectEntity.name}</option>

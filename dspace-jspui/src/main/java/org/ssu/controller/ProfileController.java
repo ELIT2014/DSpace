@@ -39,8 +39,8 @@ import java.util.stream.Collectors;
 
 @Controller
 public class ProfileController {
-    protected transient EPersonService personService = EPersonServiceFactory.getInstance().getEPersonService();
     private final transient GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
+    protected transient EPersonService personService = EPersonServiceFactory.getInstance().getEPersonService();
     @Resource
     private AuthorsService authorsService;
 
@@ -68,7 +68,7 @@ public class ProfileController {
     }
 
     @RequestMapping(value = "/dspace-admin/edit-epeople", method = RequestMethod.POST)
-    public ModelAndView editUserProfileByAdministratorPostEndpoint(ModelAndView model, HttpServletRequest request) throws SQLException, JsonProcessingException {
+    public ModelAndView editUserProfileByAdministratorPostEndpoint(HttpServletRequest request) throws SQLException, JsonProcessingException, AuthorizeException {
         String button = UIUtil.getSubmitButton(request, "submit");
 
         System.out.println("------------------------------");
@@ -76,25 +76,110 @@ public class ProfileController {
         System.out.println("submit button:");
         System.out.println(button);
         System.out.println("------------------------------");
-        if("submit_add".equals(button) || "submit_edit".equals(button)) {
+        ModelAndView model = new ModelAndView();
+        Context dspaceContext = UIUtil.obtainContext(request);
+        if ("submit_add".equals(button)) {
             System.out.println("display our edit page");
-            Context dspaceContext = UIUtil.obtainContext(request);
+            EPerson e = personService.create(dspaceContext);
+            e.setEmail("newuser" + e.getID());
+            personService.update(dspaceContext, e);
+            model = fillEditUserForm(request, model, e);
+            model.setViewName("edit-user");
+        } else if ("submit_edit".equals(button)) {
+            System.out.println("display our edit page");
+
             EPerson e = personService.find(dspaceContext, UIUtil.getUUIDParameter(request, "eperson_id"));
-            if(e != null) {
+            if (e != null) {
                 List<Group> groupMemberships = groupService.allMemberGroups(dspaceContext, e);
 
                 model = fillEditUserForm(request, model, e);
+
                 model.addObject("groupMemberships", groupMemberships);
                 model.setViewName("edit-user");
-                return model;
+            }
+        } else if ("submit_save".equals(button)) {
+            saveUser(dspaceContext, request);
+            System.out.println("save this data");
+        } else {
+            request.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, HttpStatus.TEMPORARY_REDIRECT);
+            model = new ModelAndView("redirect:/dspace-admin/edit-epeople-dspace");
+        }
+        dspaceContext.complete();
+        return model;
+    }
+    private void saveUser(Context context, HttpServletRequest request) throws SQLException, AuthorizeException {
+        EPerson e = personService.find(context, UIUtil.getUUIDParameter(request,
+                "eperson_id"));
+
+        // see if the user changed the email - if so, make sure
+        // the new email is unique
+        String oldEmail = e.getEmail();
+        String newEmail = request.getParameter("email").trim();
+
+        if (!newEmail.equals(oldEmail))
+        {
+            // change to email, now see if it's unique
+            if (personService.findByEmail(context, newEmail) == null)
+            {
+                // it's unique - proceed!
+                e.setEmail(newEmail);
+
+                e.setFirstName(context, request.getParameter("firstname")
+                                .equals("") ? null : request
+                                .getParameter("firstname"));
+
+                e.setLastName(context, request.getParameter("lastname")
+                                .equals("") ? null : request
+                                .getParameter("lastname"));
+
+                // FIXME: More data-driven?
+                personService.setMetadata(context, e, "phone", request.getParameter("phone")
+                        .equals("") ? null : request.getParameter("phone"));
+
+                personService.setMetadata(context, e, "language", request.getParameter("language")
+                        .equals("") ? null : request.getParameter("language"));
+
+                e.setCanLogIn((request.getParameter("can_log_in") != null)
+                        && request.getParameter("can_log_in")
+                        .equals("true"));
+                personService.update(context, e);
+            }
+            else
+            {
+                // not unique - send error message & let try again
+                request.setAttribute("eperson", e);
+                request.setAttribute("email_exists", Boolean.TRUE);
+
+//                JSPManager.showJSP(request, response,
+//                        "/dspace-admin/eperson-edit.jsp");
+
+//                context.complete();
             }
         }
-        if("submit".equals(button)) {
-            System.out.println("save this data");
+        else
+        {
+            e.setFirstName(context, request.getParameter("firstname").equals(
+                            "") ? null : request.getParameter("firstname"));
+
+            e.setLastName(context, request.getParameter("lastname")
+                            .equals("") ? null : request
+                            .getParameter("lastname"));
+
+            // FIXME: More data-driven?
+            personService.setMetadata(context, e, "phone",
+                    request.getParameter("phone").equals("") ? null
+                            : request.getParameter("phone"));
+
+            personService.setMetadata(context, e, "language", request.getParameter("language")
+                    .equals("") ? null : request.getParameter("language"));
+
+            e.setCanLogIn((request.getParameter("can_log_in") != null)
+                    && request.getParameter("can_log_in").equals("true"));
+
+
+            personService.update(context, e);
         }
-        request.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, HttpStatus.TEMPORARY_REDIRECT);
-        return new ModelAndView("redirect:/dspace-admin/edit-epeople-dspace");
-//        return model;
+//        context.complete();
     }
 
     private ModelAndView fillEditUserForm(HttpServletRequest request, ModelAndView model, EPerson eperson) throws SQLException, JsonProcessingException {
@@ -105,7 +190,7 @@ public class ProfileController {
         String phone = Optional.ofNullable(epersonService.getMetadata(eperson, "phone")).orElse("");
         String language = Optional.ofNullable(epersonService.getMetadata(eperson, "language")).orElse("");
 
-        Map<Integer, List<ChairEntity>> chairList = facultyService.findAll(dspaceContext).stream().collect(Collectors.toMap(FacultyEntity::getId, FacultyEntity::getChairs));
+
         model.addObject("email", eperson.getEmail());
         model.addObject("epersonId", eperson.getID());
         model.addObject("lastName", lastName);
@@ -116,13 +201,16 @@ public class ProfileController {
         model.addObject("language", language);
         model.addObject("position", eperson.getPosition());
         model.addObject("chair", eperson.getChair());
+
+        model.addObject("sessionLocale", UIUtil.getSessionLocale(request));
+        Map<Integer, List<ChairEntity>> chairList = facultyService.findAll(dspaceContext).stream().collect(Collectors.toMap(FacultyEntity::getId, FacultyEntity::getChairs));
         model.addObject("facultyList", facultyService.findAll(dspaceContext));
         model.addObject("chairListJson", new ObjectMapper().writeValueAsString(chairList));
 
         model.addObject("supportedLocales", I18nUtil.getSupportedLocales());
-        model.addObject("sessionLocale", UIUtil.getSessionLocale(request));
         return model;
     }
+
     @RequestMapping("/profile")
     public ModelAndView profilePage(ModelAndView model, HttpServletRequest request, HttpServletResponse response) throws SQLException, JsonProcessingException {
         Context dspaceContext = UIUtil.obtainContext(request);
