@@ -35,6 +35,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Controller
@@ -90,16 +91,20 @@ public class ProfileController {
 
             EPerson e = personService.find(dspaceContext, UIUtil.getUUIDParameter(request, "eperson_id"));
             if (e != null) {
-                List<Group> groupMemberships = groupService.allMemberGroups(dspaceContext, e);
-
                 model = fillEditUserForm(request, model, e);
-
+                List<Group> groupMemberships = groupService.allMemberGroups(dspaceContext, e);
                 model.addObject("groupMemberships", groupMemberships);
                 model.setViewName("edit-user");
             }
         } else if ("submit_save".equals(button)) {
-            saveUser(dspaceContext, request);
+            EPerson ePerson = personService.find(dspaceContext, UIUtil.getUUIDParameter(request, "eperson_id"));
+            if(!saveUser(dspaceContext, request, ePerson)){
+                model.addObject("emailExists", true);
+            }
             System.out.println("save this data");
+            model = fillEditUserForm(request, model, ePerson);
+//            model = new ModelAndView("redirect:/dspace-admin/edit-epeople");
+            model.setViewName("edit-user");
         } else {
             request.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, HttpStatus.TEMPORARY_REDIRECT);
             model = new ModelAndView("redirect:/dspace-admin/edit-epeople-dspace");
@@ -107,79 +112,29 @@ public class ProfileController {
         dspaceContext.complete();
         return model;
     }
-    private void saveUser(Context context, HttpServletRequest request) throws SQLException, AuthorizeException {
-        EPerson e = personService.find(context, UIUtil.getUUIDParameter(request,
-                "eperson_id"));
 
-        // see if the user changed the email - if so, make sure
-        // the new email is unique
-        String oldEmail = e.getEmail();
+    private boolean saveUser(Context context, HttpServletRequest request, EPerson ePerson) throws SQLException, AuthorizeException {
+        String oldEmail = ePerson.getEmail();
         String newEmail = request.getParameter("email").trim();
-
-        if (!newEmail.equals(oldEmail))
-        {
-            // change to email, now see if it's unique
-            if (personService.findByEmail(context, newEmail) == null)
-            {
-                // it's unique - proceed!
-                e.setEmail(newEmail);
-
-                e.setFirstName(context, request.getParameter("firstname")
-                                .equals("") ? null : request
-                                .getParameter("firstname"));
-
-                e.setLastName(context, request.getParameter("lastname")
-                                .equals("") ? null : request
-                                .getParameter("lastname"));
-
-                // FIXME: More data-driven?
-                personService.setMetadata(context, e, "phone", request.getParameter("phone")
-                        .equals("") ? null : request.getParameter("phone"));
-
-                personService.setMetadata(context, e, "language", request.getParameter("language")
-                        .equals("") ? null : request.getParameter("language"));
-
-                e.setCanLogIn((request.getParameter("can_log_in") != null)
-                        && request.getParameter("can_log_in")
-                        .equals("true"));
-                personService.update(context, e);
-            }
-            else
-            {
-                // not unique - send error message & let try again
-                request.setAttribute("eperson", e);
-                request.setAttribute("email_exists", Boolean.TRUE);
-
-//                JSPManager.showJSP(request, response,
-//                        "/dspace-admin/eperson-edit.jsp");
-
-//                context.complete();
-            }
+        Function<String, String> fetchParameterFromRequest = (parameterName) -> request.getParameter(parameterName).equals("") ? null : request.getParameter(parameterName);
+        String firstName = fetchParameterFromRequest.apply("firstname");
+        String lastName = fetchParameterFromRequest.apply("lastname");
+        String phone = fetchParameterFromRequest.apply("phone");
+        String language = fetchParameterFromRequest.apply("language");
+        if (!newEmail.equals(oldEmail) && personService.findByEmail(context, newEmail) != null) {
+            request.setAttribute("eperson", ePerson);
+            request.setAttribute("email_exists", Boolean.TRUE);
+            return false;
         }
-        else
-        {
-            e.setFirstName(context, request.getParameter("firstname").equals(
-                            "") ? null : request.getParameter("firstname"));
-
-            e.setLastName(context, request.getParameter("lastname")
-                            .equals("") ? null : request
-                            .getParameter("lastname"));
-
-            // FIXME: More data-driven?
-            personService.setMetadata(context, e, "phone",
-                    request.getParameter("phone").equals("") ? null
-                            : request.getParameter("phone"));
-
-            personService.setMetadata(context, e, "language", request.getParameter("language")
-                    .equals("") ? null : request.getParameter("language"));
-
-            e.setCanLogIn((request.getParameter("can_log_in") != null)
-                    && request.getParameter("can_log_in").equals("true"));
-
-
-            personService.update(context, e);
+        if (!newEmail.equals(oldEmail)) {
+            ePerson.setEmail(newEmail);
         }
-//        context.complete();
+        ePerson.setFirstName(context, firstName);
+        ePerson.setLastName(context, lastName);
+        personService.setMetadata(context, ePerson, "phone", phone);
+        personService.setMetadata(context, ePerson, "language", language);
+        personService.update(context, ePerson);
+        return true;
     }
 
     private ModelAndView fillEditUserForm(HttpServletRequest request, ModelAndView model, EPerson eperson) throws SQLException, JsonProcessingException {

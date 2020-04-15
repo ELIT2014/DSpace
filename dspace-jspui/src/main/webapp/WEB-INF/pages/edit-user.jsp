@@ -21,7 +21,11 @@
     </fmt:message>
         <dspace:popup page="<%= LocaleSupport.getLocalizedMessage(pageContext, \"help.site-admin\") + \"#epeople\"%>"><fmt:message key="jsp.help"/></dspace:popup>
     </h1>
-
+    <c:if test="${emailExists}">
+        <p class="alert alert-warning">
+            <fmt:message key="jsp.dspace-admin.eperson-edit.emailexists"/>
+        </p>
+    </c:if>
     <form class="form-horizontal" action="<%= request.getContextPath() %>/dspace-admin/edit-epeople" method="post">
         <div class="form-group">
             <label class="col-md-offset-3 col-md-2 control-label" for="email"><fmt:message
