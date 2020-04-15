@@ -51,46 +51,26 @@ public class ProfileController {
     private FacultyService facultyService = EPersonServiceFactory.getInstance().getFacultyService();
 
     @RequestMapping(value = "/dspace-admin/edit-epeople", method = RequestMethod.GET)
-    public ModelAndView editUserProfileByAdministrator(ModelAndView model, HttpServletRequest request) {
-        boolean noEPersonSelected = (request.getAttribute("no_eperson_selected") != null);
-//        String button = UIUtil.getSubmitButton(request, "submit");
-        System.out.println("------------------------------");
-        System.out.println("in get method");
-        System.out.println("is eperson selected");
-        System.out.println(noEPersonSelected);
-
-        String button = UIUtil.getSubmitButton(request, "submit");
-        System.out.println("submit button:");
-        System.out.println(button);
-        System.out.println("------------------------------");
+    public ModelAndView editUserProfileByAdministrator(HttpServletRequest request) {
         request.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, HttpStatus.TEMPORARY_REDIRECT);
         return new ModelAndView("redirect:/dspace-admin/edit-epeople-dspace");
-//        return model;
     }
 
     @RequestMapping(value = "/dspace-admin/edit-epeople", method = RequestMethod.POST)
     public ModelAndView editUserProfileByAdministratorPostEndpoint(HttpServletRequest request) throws SQLException, JsonProcessingException, AuthorizeException {
         String button = UIUtil.getSubmitButton(request, "submit");
-
-        System.out.println("------------------------------");
-        System.out.println("in post method");
-        System.out.println("submit button:");
-        System.out.println(button);
-        System.out.println("------------------------------");
         ModelAndView model = new ModelAndView();
         Context dspaceContext = UIUtil.obtainContext(request);
         request.setAttribute("dspace.context", dspaceContext);
         if ("submit_add".equals(button)) {
-            System.out.println("display our edit page");
             EPerson e = personService.create(dspaceContext);
             e.setEmail("newuser" + e.getID());
             personService.update(dspaceContext, e);
             model = fillEditUserForm(request, model, e);
             model.addObject("isAuthorLocalized", false);
             model.setViewName("edit-user");
+            dspaceContext.complete();
         } else if ("submit_edit".equals(button)) {
-            System.out.println("display our edit page");
-
             EPerson e = personService.find(dspaceContext, UIUtil.getUUIDParameter(request, "eperson_id"));
             if (e != null) {
                 model = fillEditUserForm(request, model, e);
@@ -98,20 +78,22 @@ public class ProfileController {
                 model.addObject("groupMemberships", groupMemberships);
                 model.setViewName("edit-user");
             }
+            dspaceContext.complete();
         } else if ("submit_save".equals(button)) {
-            System.out.println("save this data");
             EPerson ePerson = personService.find(dspaceContext, UIUtil.getUUIDParameter(request, "eperson_id"));
             if(!saveUser(dspaceContext, request, ePerson)){
                 model.addObject("emailExists", true);
                 model.setViewName("edit-user");
                 model = fillEditUserForm(request, model, ePerson);
+            } else {
+                model = new ModelAndView("redirect:/dspace-admin/edit-epeople");
             }
-            model = new ModelAndView("redirect:/dspace-admin/edit-epeople");
+            dspaceContext.complete();
         } else {
             request.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, HttpStatus.TEMPORARY_REDIRECT);
             model = new ModelAndView("redirect:/dspace-admin/edit-epeople-dspace");
         }
-        dspaceContext.complete();
+
         return model;
     }
 
