@@ -82,4 +82,13 @@
         </sql>
     </changeSet>
 
+    <changeSet author="Igor Marchenko" id="16">
+        <dropPrimaryKey constraintName="authors_pkey"
+                        tableName="authors"/>
+
+        <addPrimaryKey columnNames="uuid"
+                       constraintName="pk_authors"
+                       tableName="authors"/>
+    </changeSet>
+
 </databaseChangeLog>

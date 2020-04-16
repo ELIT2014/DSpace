@@ -9,6 +9,7 @@ import org.jooq.impl.TableImpl;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 public class Authors extends TableImpl<Record> {
     public static final Authors TABLE = new Authors();
@@ -20,7 +21,8 @@ public class Authors extends TableImpl<Record> {
     public final TableField<Record, String> surnameUkrainian = createField("surname_uk", SQLDataType.VARCHAR(32));
     public final TableField<Record, String> initialsUkrainian = createField("initials_uk", SQLDataType.VARCHAR(64));
     public final TableField<Record, String> orcid = createField("orcid", SQLDataType.VARCHAR(100));
-    public final UniqueKey<Record> primaryKey = Internal.createUniqueKey(TABLE, surnameEnglish, initialsEnglish);
+    public final TableField<Record, UUID> uuid = createField("uuid", SQLDataType.UUID);
+    public final UniqueKey<Record> primaryKey = Internal.createUniqueKey(TABLE, uuid);
 
     public Authors() {
         super("authors");
