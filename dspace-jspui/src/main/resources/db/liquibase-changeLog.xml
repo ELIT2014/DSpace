@@ -60,4 +60,26 @@
             DELETE FROM statistics WHERE uuid IS NULL;
         </sql>
     </changeSet>
+
+    <changeSet id="13" author="Igor Marchenko">
+        <addColumn tableName="authors">
+            <column name="uuid" defaultValueComputed="gen_random_uuid()" type="UUID"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet author="Igor Marchenko" id="14">
+        <sql>
+            update authors au set uuid = (
+            select ep.uuid from eperson ep
+            where au.surname_en is not null and ((ep.lastname = au.surname_uk and ep.firstname = au.initials_uk) or (ep.lastname = au.surname_ru and ep.firstname = au.initials_ru) or (ep.lastname = au.surname_en and ep.firstname = au.initials_en))
+            limit 1)
+        </sql>
+    </changeSet>
+
+    <changeSet author="Igor Marchenko" id="15">
+        <sql>
+            update authors set uuid = gen_random_uuid() where uuid is null;
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>
