@@ -32,6 +32,8 @@ public class AuthorsCache {
                                 .addAuthorData(author.get(AUTHORS.surnameRussian), author.get(AUTHORS.initialsRussian), Locale.forLanguageTag("ru"))
                                 .addAuthorData(author.get(AUTHORS.surnameUkrainian), author.get(AUTHORS.initialsUkrainian), Locale.forLanguageTag("uk"))
                                 .setOrcid(author.get(AUTHORS.orcid))
+                                .setUuid(author.get(AUTHORS.uuid))
+
                 )
                 .collect(Collectors.toList());
 
@@ -43,6 +45,12 @@ public class AuthorsCache {
 
         ukrainianMapping = authorLocalizations.stream()
                 .collect(Collectors.toMap(author -> author.getFormattedAuthorData("%s, %s", Locale.forLanguageTag("uk")), author -> author, (a, b) -> a));
+    }
+
+    public Optional<AuthorLocalization> getAuthor(UUID uuid) {
+        return authorLocalizations.stream()
+                .filter(author -> author.getUuid().equals(uuid))
+                .findFirst();
     }
 
     public boolean isAuthorLocalizationPresent(String author) {
@@ -68,14 +76,14 @@ public class AuthorsCache {
     public void updateAuthorOrcid(AuthorLocalization author) {
         dsl.update(AUTHORS)
                 .set(AUTHORS.orcid, author.getOrcid())
-                .where(AUTHORS.initialsEnglish.eq(author.getInitials(Locale.ENGLISH)).and(AUTHORS.surnameEnglish.eq(author.getSurname(Locale.ENGLISH))))
+                .where(AUTHORS.uuid.eq(author.getUuid()))
                 .execute();
         updateCache();
     }
 
     public void removeAuthorData(AuthorLocalization author) {
         dsl.delete(AUTHORS)
-                .where(AUTHORS.initialsEnglish.eq(author.getInitials(Locale.ENGLISH)).and(AUTHORS.surnameEnglish.eq(author.getSurname(Locale.ENGLISH))))
+                .where(AUTHORS.uuid.eq(author.getUuid()))
                 .execute();
         updateCache();
     }

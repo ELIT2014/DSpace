@@ -12,10 +12,7 @@ import org.ssu.service.AuthorsService;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -41,7 +38,7 @@ public class AdminController {
     }
 
     @RequestMapping("/authors/list")
-    public ModelAndView autofillPage(ModelAndView model, HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView autofillPage(ModelAndView model, HttpServletRequest request) {
         Optional<String> startsWith = Optional.ofNullable(request.getParameter("startsWith"));
         model.addObject("authors", authorsService.getAllAuthors(startsWith));
         model.setViewName("autofill");
@@ -49,9 +46,13 @@ public class AdminController {
     }
 
     @RequestMapping(value = "/authors/edit", method = RequestMethod.GET)
-    public ModelAndView authorEditPage(ModelAndView model, HttpServletRequest request, HttpServletResponse response) {
-        Optional<String> author = Optional.ofNullable(request.getParameter("author"));
-        model.addObject("author", authorsService.getAuthorLocalization(author));
+    public ModelAndView authorEditPage(ModelAndView model, HttpServletRequest request) {
+        Optional<UUID> authorUuid = Optional.ofNullable(request.getParameter("author_uuid")).map(UUID::fromString);
+        if(authorUuid.isPresent()) {
+            Optional<AuthorLocalization> author = authorsService.getAuthor(authorUuid.get());
+            if(author.isPresent())
+                model.addObject("author", author.get());
+        }
         model.setViewName("author-edit");
         return model;
     }
