@@ -1,5 +1,6 @@
 package org.ssu.controller;
 
+import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -67,7 +68,7 @@ public class AdminController {
         String surnameUkrainian = request.getParameter("surnameUk");
         String initialsUkrainian = request.getParameter("initialsUk");
         String orcid = Optional.ofNullable(request.getParameter("orcid")).map(param -> param.replaceAll("https://", "").replaceAll("http://", "").replaceAll("orcid.org/", "")).orElse("");
-        UUID authorUuid = Optional.ofNullable(request.getParameter("uuid")).map(UUID::fromString).orElse(UUID.randomUUID());
+        UUID authorUuid = Optional.ofNullable(request.getParameter("uuid")).filter(uuid -> !uuid.isEmpty()).map(UUID::fromString).orElse(UUID.randomUUID());
 
         authorLocalization.addAuthorData(surnameEnglish, initialsEnglish, Locale.ENGLISH);
         authorLocalization.addAuthorData(surnameRussian, initialsRussian, Locale.forLanguageTag("ru"));

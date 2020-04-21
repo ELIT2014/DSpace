@@ -89,14 +89,6 @@ public class AuthorsCache {
     }
 
     public void updateAuthorData(AuthorLocalization author) {
-        System.out.println("-------------------------------------------");
-        System.out.println("-------------------------------------------");
-        System.out.println("-------------------------------------------");
-        System.out.println("-------------------------------------------");
-        System.out.println("-------------------------------------------");
-        System.out.println("-------------------------------------------");
-        System.out.println("-------------------------------------------");
-        System.out.println("-------------------------------------------");
         dsl.insertInto(AUTHORS)
                 .set(AUTHORS.surnameEnglish, author.getSurname(Locale.ENGLISH))
                 .set(AUTHORS.initialsEnglish, author.getInitials(Locale.ENGLISH))
