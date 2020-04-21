@@ -3,6 +3,7 @@ package org.ssu.service.localization;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Service;
 import org.ssu.entity.AuthorLocalization;
+import org.ssu.repository.DspaceObjectRepository;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -16,6 +17,10 @@ public class AuthorsCache {
 
     @Resource
     private DSLContext dsl;
+
+    @Resource
+    private DspaceObjectRepository dspaceObjectRepository;
+
     private List<AuthorLocalization> authorLocalizations = new ArrayList<>();
     private Map<String, AuthorLocalization> englishMapping;
     private Map<String, AuthorLocalization> russianMapping;
@@ -89,6 +94,8 @@ public class AuthorsCache {
     }
 
     public void updateAuthorData(AuthorLocalization author) {
+        dspaceObjectRepository.insertUuid(author.getUuid());
+
         dsl.insertInto(AUTHORS)
                 .set(AUTHORS.surnameEnglish, author.getSurname(Locale.ENGLISH))
                 .set(AUTHORS.initialsEnglish, author.getInitials(Locale.ENGLISH))
