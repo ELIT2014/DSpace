@@ -67,11 +67,13 @@ public class AdminController {
         String surnameUkrainian = request.getParameter("surnameUk");
         String initialsUkrainian = request.getParameter("initialsUk");
         String orcid = Optional.ofNullable(request.getParameter("orcid")).map(param -> param.replaceAll("https://", "").replaceAll("http://", "").replaceAll("orcid.org/", "")).orElse("");
+        UUID authorUuid = Optional.ofNullable(request.getParameter("uuid")).map(UUID::fromString).orElse(UUID.randomUUID());
 
         authorLocalization.addAuthorData(surnameEnglish, initialsEnglish, Locale.ENGLISH);
         authorLocalization.addAuthorData(surnameRussian, initialsRussian, Locale.forLanguageTag("ru"));
         authorLocalization.addAuthorData(surnameUkrainian, initialsUkrainian, Locale.forLanguageTag("uk"));
         authorLocalization.setOrcid(orcid);
+        authorLocalization.setUuid(authorUuid);
 
         boolean allFieldsFilled = StringUtils.isNotEmpty(surnameEnglish) &&
                 StringUtils.isNotEmpty(surnameRussian) &&
@@ -95,9 +97,9 @@ public class AdminController {
     }
 
     @RequestMapping(value = "/authors/delete", method = RequestMethod.GET)
-    public String deleteAuthorLocalization(ModelAndView model, HttpServletRequest request, HttpServletResponse response) {
-        String authorData = request.getParameter("author");
-        authorsService.removeAuthorData(authorData);
+    public String deleteAuthorLocalization(HttpServletRequest request) {
+        Optional<UUID> authorUuid = Optional.ofNullable(request.getParameter("uuid")).map(UUID::fromString);
+        authorUuid.ifPresent(uuid -> authorsService.removeAuthor(uuid));
         return "redirect:/authors/list";
     }
 }

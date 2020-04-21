@@ -81,14 +81,22 @@ public class AuthorsCache {
         updateCache();
     }
 
-    public void removeAuthorData(AuthorLocalization author) {
+    public void removeAuthorData(UUID uuid) {
         dsl.delete(AUTHORS)
-                .where(AUTHORS.uuid.eq(author.getUuid()))
+                .where(AUTHORS.uuid.eq(uuid))
                 .execute();
         updateCache();
     }
 
     public void updateAuthorData(AuthorLocalization author) {
+        System.out.println("-------------------------------------------");
+        System.out.println("-------------------------------------------");
+        System.out.println("-------------------------------------------");
+        System.out.println("-------------------------------------------");
+        System.out.println("-------------------------------------------");
+        System.out.println("-------------------------------------------");
+        System.out.println("-------------------------------------------");
+        System.out.println("-------------------------------------------");
         dsl.insertInto(AUTHORS)
                 .set(AUTHORS.surnameEnglish, author.getSurname(Locale.ENGLISH))
                 .set(AUTHORS.initialsEnglish, author.getInitials(Locale.ENGLISH))
@@ -97,7 +105,10 @@ public class AuthorsCache {
                 .set(AUTHORS.surnameUkrainian, author.getSurname(Locale.forLanguageTag("uk")))
                 .set(AUTHORS.initialsUkrainian, author.getInitials(Locale.forLanguageTag("uk")))
                 .set(AUTHORS.orcid, author.getOrcid())
+                .set(AUTHORS.uuid, author.getUuid())
                 .onDuplicateKeyUpdate()
+                .set(AUTHORS.surnameEnglish, author.getSurname(Locale.ENGLISH))
+                .set(AUTHORS.initialsEnglish, author.getInitials(Locale.ENGLISH))
                 .set(AUTHORS.surnameRussian, author.getSurname(Locale.forLanguageTag("ru")))
                 .set(AUTHORS.initialsRussian, author.getInitials(Locale.forLanguageTag("ru")))
                 .set(AUTHORS.surnameUkrainian, author.getSurname(Locale.forLanguageTag("uk")))

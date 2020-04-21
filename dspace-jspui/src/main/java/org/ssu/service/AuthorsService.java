@@ -51,12 +51,8 @@ public class AuthorsService {
         authorsCache.updateAuthorData(author);
     }
 
-    public void removeAuthorData(String author) {
-        removeAuthorData(authorsCache.getAuthorLocalization(author));
-    }
-
-    public void removeAuthorData(AuthorLocalization author) {
-        authorsCache.removeAuthorData(author);
+    public void removeAuthor(UUID uuid) {
+        authorsCache.removeAuthorData(uuid);
     }
 
     public boolean isAuthorLocalizationPresent(String author) {
