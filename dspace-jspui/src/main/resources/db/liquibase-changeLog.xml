@@ -100,4 +100,10 @@
         </insert>
     </changeSet>
 
+    <changeSet author="Igor Marchenko" id="18">
+        <sql>
+            insert into dspaceobject(uuid)
+            select uuid from authors where uuid not in (select * from dspaceobject);
+        </sql>
+    </changeSet>
 </databaseChangeLog>
