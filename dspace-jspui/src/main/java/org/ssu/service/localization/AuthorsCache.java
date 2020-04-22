@@ -63,21 +63,6 @@ public class AuthorsCache {
                 .orElse(defaultAuthorLocalization);
     }
 
-    public void updateAuthorOrcid(AuthorLocalization author) {
-        authorLocalizationRepository.updateAuthorOrcid(author);
-        updateCache();
-    }
-
-    public void removeAuthorData(UUID uuid) {
-        authorLocalizationRepository.deleteByUuid(uuid);
-        updateCache();
-    }
-
-    public void updateAuthorData(AuthorLocalization author) {
-        authorLocalizationRepository.updateAuthorData(author);
-        updateCache();
-    }
-
     public List<AuthorLocalization> getAuthors() {
         return new ArrayList<>(englishMapping.values());
     }
