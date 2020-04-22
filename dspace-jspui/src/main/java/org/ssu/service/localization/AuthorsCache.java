@@ -4,6 +4,7 @@ import org.jooq.DSLContext;
 import org.springframework.stereotype.Service;
 import org.ssu.entity.AuthorLocalization;
 import org.ssu.repository.DspaceObjectRepository;
+import org.ssu.service.EpersonService;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -17,6 +18,9 @@ public class AuthorsCache {
 
     @Resource
     private DSLContext dsl;
+
+    @Resource
+    private EpersonService epersonService;
 
     @Resource
     private DspaceObjectRepository dspaceObjectRepository;
@@ -93,8 +97,21 @@ public class AuthorsCache {
         updateCache();
     }
 
+
+    private UUID resolveEpersonUuidIfUserExists(AuthorLocalization author) {
+        return Stream.of(
+                epersonService.findEpersonUuuidByPersonalName(author.getInitials(Locale.ENGLISH), author.getSurname(Locale.ENGLISH)),
+                epersonService.findEpersonUuuidByPersonalName(author.getInitials(Locale.forLanguageTag("ru")), author.getSurname(Locale.forLanguageTag("ru"))),
+                epersonService.findEpersonUuuidByPersonalName(author.getInitials(Locale.forLanguageTag("uk")), author.getSurname(Locale.forLanguageTag("uk"))))
+                .filter(Optional::isPresent)
+                .reduce((a, b) -> a)
+                .map(Optional::get)
+                .orElse(author.getUuid());
+    }
+
     public void updateAuthorData(AuthorLocalization author) {
-        dspaceObjectRepository.insertUuid(author.getUuid());
+
+        dspaceObjectRepository.insertUuid(resolveEpersonUuidIfUserExists(author));
 
         dsl.insertInto(AUTHORS)
                 .set(AUTHORS.surnameEnglish, author.getSurname(Locale.ENGLISH))
@@ -116,6 +133,7 @@ public class AuthorsCache {
                 .execute();
         updateCache();
     }
+
     public List<AuthorLocalization> getAuthors() {
         return new ArrayList<>(englishMapping.values());
     }
