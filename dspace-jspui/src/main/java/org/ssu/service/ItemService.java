@@ -8,6 +8,10 @@ import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.MetadataFieldService;
 import org.dspace.content.service.MetadataValueService;
 import org.dspace.core.Context;
+import org.dspace.eperson.Speciality;
+import org.dspace.eperson.factory.EPersonServiceFactory;
+import org.dspace.eperson.service.FacultyService;
+import org.dspace.eperson.service.SpecialityService;
 import org.springframework.stereotype.Service;
 import org.ssu.entity.AuthorLocalization;
 import org.ssu.entity.response.ItemResponse;
@@ -27,6 +31,7 @@ import java.util.stream.Collectors;
 @Service
 public class ItemService {
     transient private final org.dspace.content.service.ItemService itemService = ContentServiceFactory.getInstance().getItemService();
+    private SpecialityService specialityService = EPersonServiceFactory.getInstance().getSpecialityService();
     transient private final MetadataFieldService metadataFieldService = ContentServiceFactory.getInstance().getMetadataFieldService();
     transient private final MetadataValueService metadataValueService = ContentServiceFactory.getInstance().getMetadataValueService();
     @Resource
@@ -98,8 +103,15 @@ public class ItemService {
         return fetchSingleMetadataValue(item, "date", "presentation").orElse("");
     }
 
-    public String getSpecialityForItem(Item item) {
-        return fetchSingleMetadataValue(item, "speciality", "id").orElse("");
+    public String getSpecialityForItem( Item item) {
+        String s = fetchSingleMetadataValue(item, "speciality", "id").orElse("");
+        return s;
+    }
+
+    public Speciality getSpecialityForItem(Context context, Item item) throws SQLException {
+        String value = fetchSingleMetadataValue(item, "speciality", "id").orElse("");
+        Integer id = Integer.valueOf(value);
+        return specialityService.findById(context, id);
     }
 
     public String getAlternativeTitleForItem(Item item) {

@@ -19,6 +19,7 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.factory.CoreServiceFactory;
 import org.dspace.core.service.PluginService;
+import org.dspace.eperson.Speciality;
 import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.handle.service.HandleService;
 import org.dspace.plugin.CollectionHomeProcessor;
@@ -315,7 +316,8 @@ public class HandleController {
         model.addObject("citation", itemService.getCitationForItem(item));
         model.addObject("abstracts", itemService.getAbstractsForItem(item));
         model.addObject("presentationDate", itemService.getPresentationDateFotItem(item));
-        model.addObject("speciality", itemService.getSpecialityForItem(item));
+        Speciality speciality = itemService.getSpecialityForItem(dspaceContext, item);
+        model.addObject("speciality", String.format("%s / %s / %s", speciality.getChair().getFacultyEntityName(), speciality.getChair().getName(), speciality.getComplexName()));
         model.addObject("views", itemViewsByCountry);
         model.addObject("downloads", itemDownloadsByCountry);
         model.addObject("bundles", bitstreams);

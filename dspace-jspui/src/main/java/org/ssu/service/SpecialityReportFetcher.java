@@ -160,7 +160,8 @@ public class SpecialityReportFetcher {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .filter(item -> isDateInRange.test(essuirItemService.getDateAvailableForItem(item), Pair.of(from, to)))
-                .filter(item -> isItemInNeededSpeciality.test(essuirItemService.getSpecialityForItem(item)))
+                //TODO: need some fixes
+//                .filter(item -> isItemInNeededSpeciality.test(essuirItemService.getSpecialityForItem(context, item)))
                 .collect(Collectors.toList());
     }
 }
