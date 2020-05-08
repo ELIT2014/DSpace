@@ -33,7 +33,7 @@ public class EssuirMetadataExporter {
         CommandLineParser parser = new PosixParser();
 
         Options options = new Options();
-        options.addOption("f", "file", true, "destination where you want file written");
+        options.addOption("f", "file", true, "destination where you want file written (value like: out.csv)");
 
         CommandLine line = null;
 
