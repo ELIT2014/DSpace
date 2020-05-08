@@ -44,6 +44,13 @@ public class ItemService {
         return itemService.findAll(context);
     }
 
+    private Optional<String> fetchSingleMetadataValue(Item item, String element, String qualifier) {
+        return itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, element, qualifier, Item.ANY)
+                .stream()
+                .map(MetadataValue::getValue)
+                .findFirst();
+
+    }
     public Integer extractIssuedYearForItem(Item item) {
         List<MetadataValue> dateIssuedMetadata = itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
 
@@ -56,54 +63,47 @@ public class ItemService {
     }
 
     public String getCitationForItem(Item item) {
-        return itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "identifier", "citation", Item.ANY)
-                .stream()
-                .map(MetadataValue::getValue)
-                .findFirst()
-                .orElse("");
+        return fetchSingleMetadataValue(item, "identifier", "citation").orElse("");
+
     }
 
     public String getPublisherForItem(Item item) {
-        return itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "publisher", null, Item.ANY)
-                .stream()
-                .map(MetadataValue::getValue)
-                .findFirst()
-                .orElse("");
+        return fetchSingleMetadataValue(item, "publisher", null).orElse("");
+    }
+
+//    public String getSpecialityForItem(Item item) {
+//        String speciality = itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "speciality", "id", Item.ANY)
+//                .stream()
+//                .map(MetadataValue::getValue)
+//                .findFirst()
+//                .orElse("");
+//
+//        try {
+//            ArrayList<JsonNode> jsonNodes = Lists.newArrayList(new ObjectMapper().readTree(speciality).elements());
+//            if(jsonNodes.size() < 3) return "";
+//            return jsonNodes.stream()
+//                    .map(it -> it.get("name").asText())
+//                    .collect(Collectors.joining("//"));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return "";
+//    }
+
+    public String getURIForItem(Item item) {
+        return fetchSingleMetadataValue(item, "identifier", "uri").orElse("");
+    }
+
+    public String getPresentationDateFotItem(Item item) {
+        return fetchSingleMetadataValue(item, "date", "presentation").orElse("");
     }
 
     public String getSpecialityForItem(Item item) {
-        String speciality = itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "speciality", "id", Item.ANY)
-                .stream()
-                .map(MetadataValue::getValue)
-                .findFirst()
-                .orElse("");
-
-        try {
-            ArrayList<JsonNode> jsonNodes = Lists.newArrayList(new ObjectMapper().readTree(speciality).elements());
-            if(jsonNodes.size() < 3) return "";
-            return jsonNodes.stream()
-                    .map(it -> it.get("name").asText())
-                    .collect(Collectors.joining("//"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return "";
-    }
-
-    public String getURIForItem(Item item) {
-        return itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "identifier", "uri", Item.ANY)
-                .stream()
-                .map(MetadataValue::getValue)
-                .findFirst()
-                .orElse("");
+        return fetchSingleMetadataValue(item, "speciality", "id").orElse("");
     }
 
     public String getAlternativeTitleForItem(Item item) {
-        return itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "title", "alternative", Item.ANY)
-                .stream()
-                .map(MetadataValue::getValue)
-                .findFirst()
-                .orElse("");
+        return fetchSingleMetadataValue(item, "title", "alternative").orElse("");
     }
 
     public List<AuthorLocalization> extractAuthorListForItem(Item item) {
