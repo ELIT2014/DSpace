@@ -77,6 +77,7 @@
     <bean class="org.dspace.eperson.AccountServiceImpl"/>
     <bean class="org.dspace.eperson.EPersonServiceImpl"/>
     <bean class="org.dspace.eperson.FacultyServiceImpl"/>
+    <bean class="org.dspace.eperson.SpecialityServiceImpl"/>
     <bean class="org.dspace.eperson.GroupServiceImpl"/>
     <bean class="org.dspace.eperson.RegistrationDataServiceImpl"/>
     <bean class="org.dspace.eperson.SubscribeServiceImpl"/>

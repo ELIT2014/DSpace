@@ -31,6 +31,8 @@ public class EPersonServiceFactoryImpl extends EPersonServiceFactory {
     private SupervisorService supervisorService;
     @Autowired(required = true)
     private FacultyService facultyService;
+    @Autowired(required = true)
+    private SpecialityService specialityService;
 
     @Override
     public EPersonService getEPersonService() {
@@ -63,7 +65,8 @@ public class EPersonServiceFactoryImpl extends EPersonServiceFactory {
     }
 
     @Override
-    public FacultyService getFacultyService() {
-        return  facultyService;
-    }
+    public FacultyService getFacultyService() { return  facultyService; }
+
+    @Override
+    public SpecialityService getSpecialityService() { return specialityService; }
 }
