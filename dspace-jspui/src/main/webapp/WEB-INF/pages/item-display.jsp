@@ -134,6 +134,14 @@
             <td>${citation}</td>
         </tr>
         <tr>
+            <td>Presentation date/td>
+            <td>${presentationDate}</td>
+        </tr>
+        <tr>
+            <td>Speciality</td>
+            <td>${speciality}</td>
+        </tr>
+        <tr>
             <td><fmt:message key="metadata.dc.description.abstract"/></td>
             <td>
                 <c:forEach items="${abstracts}" var="abstractText">

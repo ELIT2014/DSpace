@@ -314,6 +314,8 @@ public class HandleController {
         model.addObject("publisher", itemService.getPublisherForItem(item));
         model.addObject("citation", itemService.getCitationForItem(item));
         model.addObject("abstracts", itemService.getAbstractsForItem(item));
+        model.addObject("presentationDate", itemService.getPresentationDateFotItem(item));
+        model.addObject("speciality", itemService.getSpecialityForItem(item));
         model.addObject("views", itemViewsByCountry);
         model.addObject("downloads", itemDownloadsByCountry);
         model.addObject("bundles", bitstreams);
