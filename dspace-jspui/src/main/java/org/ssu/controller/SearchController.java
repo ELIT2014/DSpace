@@ -131,15 +131,7 @@ public class SearchController {
     }
 
     private String escapeInputValue(String value) {
-        if(value != null) {
-//            try {
-                return HtmlEscapers.htmlEscaper().escape(value);
-//                return URLEncoder.encode(value, "UTF-8");
-//            } catch (UnsupportedEncodingException e) {
-//                e.printStackTrace();
-//            }
-        }
-        return "";
+        return Optional.ofNullable(value).map(val -> HtmlEscapers.htmlEscaper().escape(val)).orElse("");
     };
 
     private ModelAndView performSearchRequest(ModelAndView model, HttpServletRequest request, Integer itemId) throws SQLException, SearchProcessorException, SearchServiceException, UnsupportedEncodingException, SortException {
