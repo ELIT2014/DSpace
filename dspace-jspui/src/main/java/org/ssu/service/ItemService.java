@@ -121,6 +121,14 @@ public class ItemService {
                 .collect(Collectors.toList());
     }
 
+    public String getRightsForItem(Item item) {
+        return itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "rights", "uri", Item.ANY)
+                .stream()
+                .map(MetadataValue::getValue)
+                .findFirst()
+                .orElse("");
+    }
+
     public List<String> getAbstractsForItem(Item item) {
         return itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "description", "abstract", Item.ANY)
                 .stream()
