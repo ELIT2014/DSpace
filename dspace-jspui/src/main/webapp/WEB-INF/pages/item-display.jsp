@@ -130,7 +130,7 @@
         </tr>
 
         <tr>
-            <td>Rights</td>
+            <td><fmt:message key="jsp.submit.progressbar.license"/></td>
             <td>${rights}</td>
         </tr>
         <tr>
