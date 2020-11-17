@@ -150,7 +150,17 @@
         </sql>
     </changeSet>
 
-    <changeSet author="Yakovlev Maksymilian" id="22">
+    <changeSet author="Sergey Petrov" id="22">
+        <sql>
+            INSERT INTO chair(chair_name, chair_id, uuid, faculty_id) VALUES ('Кафедра екстренної медичної допомоги та медицини катастроф', 102, gen_random_uuid(), 10);
+        </sql>
+        <sql>
+            insert into dspaceobject(uuid) select uuid from chair where chair_id = 102;
+
+        </sql>
+    </changeSet>
+  
+    <changeSet author="Yakovlev Maksymilian" id="23">
         <sql>
             UPDATE chair SET chair_name = 'Кафедра управління імені Олега Балацького' WHERE chair_id = 33;
         </sql>
@@ -163,5 +173,5 @@
         <sql>
             UPDATE chair SET chair_name = 'Кафедра нейрохірургії та неврології з курсами психіатрії, наркології, медичної психології, професійних хвороб' WHERE chair_id = 56;
         </sql>
-    </changeSet>
+    </changeSet>  
 </databaseChangeLog>
