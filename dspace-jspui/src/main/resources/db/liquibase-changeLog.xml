@@ -149,4 +149,19 @@
             insert into dspaceobject(uuid) select uuid from chair where chair_id = 101;
         </sql>
     </changeSet>
+
+    <changeSet author="Yakovlev Maksymilian" id="22">
+        <sql>
+            UPDATE chair SET chair_name = 'Кафедра управління імені Олега Балацького' WHERE chair_id = 33;
+        </sql>
+        <sql>
+            UPDATE chair SET chair_name = 'Кафедра хірургії, травматології, ортопедії та фтизіатрії' WHERE chair_id = 55;
+        </sql>
+        <sql>
+            UPDATE chair SET chair_name = 'Кафедра онкології та радіології' WHERE chair_id = 94;
+        </sql>
+        <sql>
+            UPDATE chair SET chair_name = 'Кафедра нейрохірургії та неврології з курсами психіатрії, наркології, медичної психології, професійних хвороб' WHERE chair_id = 56;
+        </sql>
+    </changeSet>
 </databaseChangeLog>
