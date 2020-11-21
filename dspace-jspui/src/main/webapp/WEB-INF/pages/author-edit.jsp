@@ -7,8 +7,11 @@
 
 
 <%@ page import="java.util.Locale" %>
+<%@ page import="org.dspace.core.ConfigurationManager" %>
 
-
+<%
+    boolean loginAs = ConfigurationManager.getBooleanProperty("webui.user.assumelogin", false);
+%>
 <dspace:layout locbar="nolink" title="Authors list" feedData="NONE">
 
 
@@ -68,9 +71,14 @@
                 </div>
                 <div class="form-group">
                     <label for="orcid" class="col-sm-2 control-label">ORCID</label>
-                    <div class="col-sm-10">
+                    <div class="col-sm-4">
                         <input type="text" class="form-control" name="orcid" id="orcid" placeholder="ORCID" value="${author.orcid}">
                     </div>
+                    <label class="col-sm-1 control-label" >Eperson</label>
+                    <div class="col-sm-5" >
+                        <dspace:selecteperson multiple="false" />
+                    </div>
+                        <%-- then&nbsp;<input type="submit" name="submit_edit" value="Edit..." onclick="javascript:finishEPerson();"> --%>
                 </div>
                 <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
@@ -80,7 +88,7 @@
                         <c:if test="${not empty author}">
                             <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delteAuthorModal">Delete author</button>
                         </c:if>
-                        <button type="submit" class="btn btn-success">Save</button>
+                        <button type="submit" class="btn btn-success" onclick="javascript:finishEPerson();">Save</button>
                     </div>
                 </div>
             </form>
