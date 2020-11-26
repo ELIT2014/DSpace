@@ -32,7 +32,7 @@
             </h3>
         </div>
         <div class="panel-body">
-            <form method="post" action="" class="form-horizontal">
+            <form method="post" name="epersongroup" action="" class="form-horizontal">
                 <div class="form-group">
                     <label for="surnameEn" class="col-sm-2 control-label">Surname in English</label>
                     <div class="col-sm-10">

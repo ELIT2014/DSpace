@@ -69,6 +69,7 @@ public class AdminController {
         String initialsUkrainian = request.getParameter("initialsUk");
         String orcid = Optional.ofNullable(request.getParameter("orcid")).map(param -> param.replaceAll("https://", "").replaceAll("http://", "").replaceAll("orcid.org/", "")).orElse("");
         UUID authorUuid = Optional.ofNullable(request.getParameter("uuid")).filter(uuid -> !uuid.isEmpty()).map(UUID::fromString).orElse(UUID.randomUUID());
+        authorUuid = Optional.ofNullable(request.getParameter("eperson_id")).filter(uuid -> !uuid.isEmpty()).map(UUID::fromString).orElse(authorUuid);
 
         authorLocalization.addAuthorData(surnameEnglish, initialsEnglish, Locale.ENGLISH);
         authorLocalization.addAuthorData(surnameRussian, initialsRussian, Locale.forLanguageTag("ru"));
