@@ -18,7 +18,10 @@
     <script>
         function selectionchange()
         {
-            window.document.epersongroup.eperson_id.options[0] = new Option("Hello");
+            var epersonstring = '${eperson_string}'
+            var uuid = '${author.uuid}'
+            window.document.epersongroup.eperson_id.options[0] = new Option(epersonstring);
+            window.document.epersongroup.eperson_id.options[0].value = uuid;
         }
     </script>
 
@@ -84,11 +87,12 @@
                     <label class="col-sm-1 control-label" >Eperson</label>
                     <div class="col-sm-5" >
                         <dspace:selecteperson multiple="false" />
-                        <script>
-                            selectionchange();
-                        </script>
+                        <c:if test="${eperson_attached}">
+                            <script>
+                                selectionchange();
+                            </script>
+                        </c:if>
                     </div>
-                        <%-- then&nbsp;<input type="submit" name="submit_edit" value="Edit..." onclick="javascript:finishEPerson();"> --%>
                 </div>
                 <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
