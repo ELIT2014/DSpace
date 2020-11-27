@@ -77,8 +77,15 @@ public class AdminController {
     }
 
     @RequestMapping(value = "/authors/edit", method = RequestMethod.POST)
-    public ModelAndView saveAuthorData(ModelAndView model, HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView saveAuthorData(ModelAndView model, HttpServletRequest request, HttpServletResponse response) throws SQLException {
         AuthorLocalization authorLocalization = new AuthorLocalization();
+        Optional<UUID> authorUuidOldEpersonOwner = Optional.ofNullable(request.getParameter("eperson_id")).map(UUID::fromString);
+        if (authorUuidOldEpersonOwner.isPresent() && !(request.getParameter("eperson_id").equals(request.getParameter("uuid")))){
+            AuthorLocalization author = authorsService.getAuthor(authorUuidOldEpersonOwner.get()).get();
+            authorsService.removeAuthor(authorUuidOldEpersonOwner.get());
+            author.setUuid(UUID.randomUUID());
+            authorsService.updateAuthorData(author);
+        }
         String surnameEnglish = request.getParameter("surnameEn");
         String initialsEnglish = request.getParameter("initialsEn");
         String surnameRussian = request.getParameter("surnameRu");
@@ -86,9 +93,14 @@ public class AdminController {
         String surnameUkrainian = request.getParameter("surnameUk");
         String initialsUkrainian = request.getParameter("initialsUk");
         String orcid = Optional.ofNullable(request.getParameter("orcid")).map(param -> param.replaceAll("https://", "").replaceAll("http://", "").replaceAll("orcid.org/", "")).orElse("");
-        UUID authorUuid = Optional.ofNullable(request.getParameter("uuid")).filter(uuid -> !uuid.isEmpty()).map(UUID::fromString).orElse(UUID.randomUUID());
-        authorUuid = Optional.ofNullable(request.getParameter("eperson_id")).filter(uuid -> !uuid.isEmpty()).map(UUID::fromString).orElse(authorUuid);
-
+        UUID authorUuid;
+        if (request.getParameter("eperson_id") == null)
+            authorUuid = Optional.ofNullable(request.getParameter("uuid")).filter(uuid -> !uuid.isEmpty()).map(UUID::fromString).orElse(UUID.randomUUID());
+        else {
+            authorUuid = Optional.ofNullable(request.getParameter("eperson_id")).filter(uuid -> !uuid.isEmpty()).map(UUID::fromString).get();
+            if (request.getParameter("uuid") != null)
+                authorsService.removeAuthor(UUID.fromString(request.getParameter("uuid")));
+        }
         authorLocalization.addAuthorData(surnameEnglish, initialsEnglish, Locale.ENGLISH);
         authorLocalization.addAuthorData(surnameRussian, initialsRussian, Locale.forLanguageTag("ru"));
         authorLocalization.addAuthorData(surnameUkrainian, initialsUkrainian, Locale.forLanguageTag("uk"));
