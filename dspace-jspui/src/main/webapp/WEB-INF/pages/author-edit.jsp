@@ -12,8 +12,15 @@
 <%
     boolean loginAs = ConfigurationManager.getBooleanProperty("webui.user.assumelogin", false);
 %>
+
 <dspace:layout locbar="nolink" title="Authors list" feedData="NONE">
 
+    <script>
+        function selectionchange()
+        {
+            window.document.epersongroup.eperson_id.options[0] = new Option("Hello");
+        }
+    </script>
 
     <c:if test="${hasMessage}">
         <div class="alert alert-${messageType}" role="alert">${message}</div>
@@ -77,18 +84,21 @@
                     <label class="col-sm-1 control-label" >Eperson</label>
                     <div class="col-sm-5" >
                         <dspace:selecteperson multiple="false" />
+                        <script>
+                            selectionchange();
+                        </script>
                     </div>
                         <%-- then&nbsp;<input type="submit" name="submit_edit" value="Edit..." onclick="javascript:finishEPerson();"> --%>
                 </div>
                 <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
                         <input type="hidden" class="form-control" name="uuid" id="uuid" value="${author.uuid}">
-                        <button type="button" class="btn btn-default" onclick="location.href = '/authors/list';">Cancel</button>
+                        <button type="button" class="btn btn-default" onclick="location.href = '/authors/list';javascript:finishEPerson();">Cancel</button>
 
                         <c:if test="${not empty author}">
                             <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delteAuthorModal">Delete author</button>
                         </c:if>
-                        <button type="submit" class="btn btn-success" onclick="javascript:finishEPerson();">Save</button>
+                        <button type="submit" class="btn btn-success">Save</button>
                     </div>
                 </div>
             </form>
