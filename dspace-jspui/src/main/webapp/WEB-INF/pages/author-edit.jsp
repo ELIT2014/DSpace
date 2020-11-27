@@ -18,10 +18,8 @@
     <script>
         function selectionchange()
         {
-            var epersonstring = '${eperson_string}'
-            var uuid = '${author.uuid}'
-            window.document.epersongroup.eperson_id.options[0] = new Option(epersonstring);
-            window.document.epersongroup.eperson_id.options[0].value = uuid;
+            window.document.epersongroup.eperson_id.options[0] = new Option('${eperson_string}');
+            window.document.epersongroup.eperson_id.options[0].value = '${author.uuid}';
         }
     </script>
 
@@ -42,7 +40,7 @@
             </h3>
         </div>
         <div class="panel-body">
-            <form method="post" name="epersongroup" action="" class="form-horizontal">
+            <form method="post" name="epersongroup"  action="" class="form-horizontal">
                 <div class="form-group">
                     <label for="surnameEn" class="col-sm-2 control-label">Surname in English</label>
                     <div class="col-sm-10">
@@ -102,7 +100,7 @@
                         <c:if test="${not empty author}">
                             <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delteAuthorModal">Delete author</button>
                         </c:if>
-                        <button type="submit" class="btn btn-success">Save</button>
+                        <button type="submit" class="btn btn-success" onclick="javascript:finishEPerson();">Save</button>
                     </div>
                 </div>
             </form>
