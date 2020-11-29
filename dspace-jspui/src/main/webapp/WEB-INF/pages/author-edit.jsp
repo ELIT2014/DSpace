@@ -14,7 +14,6 @@
 %>
 
 <dspace:layout locbar="nolink" title="Authors list" feedData="NONE">
-
     <script>
         function selectionchange()
         {
@@ -22,7 +21,6 @@
             window.document.epersongroup.eperson_id.options[0].value = '${author.uuid}';
         }
     </script>
-
     <c:if test="${hasMessage}">
         <div class="alert alert-${messageType}" role="alert">${message}</div>
     </c:if>
@@ -40,7 +38,7 @@
             </h3>
         </div>
         <div class="panel-body">
-            <form method="post" name="epersongroup"  action="" class="form-horizontal">
+            <form method="post" name="epersongroup"  class="form-horizontal">
                 <div class="form-group">
                     <label for="surnameEn" class="col-sm-2 control-label">Surname in English</label>
                     <div class="col-sm-10">
@@ -106,7 +104,6 @@
             </form>
         </div>
     </div>
-
     <div class="modal fade" id="delteAuthorModal" tabindex="-1" role="dialog" aria-labelledby="delteAuthorModalLabel">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -128,5 +125,4 @@
             </div>
         </div>
     </div>
-
 </dspace:layout>

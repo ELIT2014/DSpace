@@ -28,8 +28,6 @@ import java.util.stream.Collectors;
 public class AdminController {
     @Resource
     private AuthorsService authorsService;
-    //@Resource
-    //private EpersonService epersonService;
 
     private final transient EPersonService personService = EPersonServiceFactory.getInstance().getEPersonService();
 
@@ -121,6 +119,14 @@ public class AdminController {
         } else {
             model.addObject("message", "Please fill all fields.");
             model.addObject("messageType", "danger");
+        }
+        Context dspaceContext = UIUtil.obtainContext(request);
+        EPerson ePerson = personService.find(dspaceContext, authorUuid);
+        if(ePerson == null)
+            model.addObject("eperson_attached", false);
+        else {
+            model.addObject("eperson_attached", true);
+            model.addObject("eperson_string", ePerson.getLastName() + " " + ePerson.getFirstName() + " (" + ePerson.getEmail() + ")");
         }
         model.addObject("author", authorLocalization);
         model.addObject("hasMessage", true);
