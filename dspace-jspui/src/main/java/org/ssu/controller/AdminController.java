@@ -63,12 +63,9 @@ public class AdminController {
             if(author.isPresent())
                 model.addObject("author", author.get());
             EPerson ePerson = personService.find(dspaceContext, authorUuid.get());
-            if(ePerson == null)
-                model.addObject("eperson_attached", false);
-            else {
-                model.addObject("eperson_attached", true);
+            model.addObject("eperson_attached", ePerson == null);
+            if(ePerson != null)
                 model.addObject("eperson_string", ePerson.getLastName() + " " + ePerson.getFirstName() + " (" + ePerson.getEmail() + ")");
-            }
         }
         model.setViewName("author-edit");
         return model;
@@ -77,13 +74,6 @@ public class AdminController {
     @RequestMapping(value = "/authors/edit", method = RequestMethod.POST)
     public ModelAndView saveAuthorData(ModelAndView model, HttpServletRequest request, HttpServletResponse response) throws SQLException {
         AuthorLocalization authorLocalization = new AuthorLocalization();
-        Optional<UUID> authorUuidOldEpersonOwner = Optional.ofNullable(request.getParameter("eperson_id")).map(UUID::fromString);
-        if (authorUuidOldEpersonOwner.isPresent() && !(request.getParameter("eperson_id").equals(request.getParameter("uuid")))){
-            AuthorLocalization author = authorsService.getAuthor(authorUuidOldEpersonOwner.get()).get();
-            authorsService.removeAuthor(authorUuidOldEpersonOwner.get());
-            author.setUuid(UUID.randomUUID());
-            authorsService.updateAuthorData(author);
-        }
         String surnameEnglish = request.getParameter("surnameEn");
         String initialsEnglish = request.getParameter("initialsEn");
         String surnameRussian = request.getParameter("surnameRu");
@@ -91,13 +81,20 @@ public class AdminController {
         String surnameUkrainian = request.getParameter("surnameUk");
         String initialsUkrainian = request.getParameter("initialsUk");
         String orcid = Optional.ofNullable(request.getParameter("orcid")).map(param -> param.replaceAll("https://", "").replaceAll("http://", "").replaceAll("orcid.org/", "")).orElse("");
+        String epersonId = request.getParameter("eperson_id");
+        String uuid = request.getParameter("uuid");
         UUID authorUuid;
-        if (request.getParameter("eperson_id") == null)
-            authorUuid = Optional.ofNullable(request.getParameter("uuid")).filter(uuid -> !uuid.isEmpty()).map(UUID::fromString).orElse(UUID.randomUUID());
-        else {
-            authorUuid = Optional.ofNullable(request.getParameter("eperson_id")).filter(uuid -> !uuid.isEmpty()).map(UUID::fromString).get();
-            if (request.getParameter("uuid") != null)
-                authorsService.removeAuthor(UUID.fromString(request.getParameter("uuid")));
+        Optional<UUID> authorUuidOldEpersonOwner = Optional.ofNullable(epersonId).map(UUID::fromString);
+        if (authorUuidOldEpersonOwner.isPresent() && !(epersonId.equals(uuid))){
+            AuthorLocalization author = authorsService.getAuthor(authorUuidOldEpersonOwner.get()).get();
+            authorsService.removeAuthor(authorUuidOldEpersonOwner.get());
+            author.setUuid(UUID.randomUUID());
+            authorsService.updateAuthorData(author);
+        }
+        if (StringUtils.isNotEmpty(epersonId)){
+            authorUuid = UUID.fromString(epersonId);
+        } else {
+            authorUuid = StringUtils.isNotEmpty(uuid) ? UUID.fromString(uuid) : UUID.randomUUID();
         }
         authorLocalization.addAuthorData(surnameEnglish, initialsEnglish, Locale.ENGLISH);
         authorLocalization.addAuthorData(surnameRussian, initialsRussian, Locale.forLanguageTag("ru"));
@@ -122,12 +119,9 @@ public class AdminController {
         }
         Context dspaceContext = UIUtil.obtainContext(request);
         EPerson ePerson = personService.find(dspaceContext, authorUuid);
-        if(ePerson == null)
-            model.addObject("eperson_attached", false);
-        else {
-            model.addObject("eperson_attached", true);
+        model.addObject("eperson_attached", ePerson == null);
+        if(ePerson != null)
             model.addObject("eperson_string", ePerson.getLastName() + " " + ePerson.getFirstName() + " (" + ePerson.getEmail() + ")");
-        }
         model.addObject("author", authorLocalization);
         model.addObject("hasMessage", true);
         model.setViewName("author-edit");
