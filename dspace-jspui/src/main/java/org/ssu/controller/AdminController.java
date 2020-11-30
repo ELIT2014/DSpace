@@ -63,7 +63,7 @@ public class AdminController {
             if(author.isPresent())
                 model.addObject("author", author.get());
             EPerson ePerson = personService.find(dspaceContext, authorUuid.get());
-            model.addObject("eperson_attached", ePerson == null);
+            model.addObject("eperson_attached", ePerson != null);
             if(ePerson != null)
                 model.addObject("eperson_string", ePerson.getLastName() + " " + ePerson.getFirstName() + " (" + ePerson.getEmail() + ")");
         }
@@ -84,14 +84,16 @@ public class AdminController {
         String epersonId = request.getParameter("eperson_id");
         String uuid = request.getParameter("uuid");
         UUID authorUuid;
-        Optional<UUID> authorUuidOldEpersonOwner = Optional.ofNullable(epersonId).map(UUID::fromString);
-        if (authorUuidOldEpersonOwner.isPresent() && !(epersonId.equals(uuid))){
-            AuthorLocalization author = authorsService.getAuthor(authorUuidOldEpersonOwner.get()).get();
-            authorsService.removeAuthor(authorUuidOldEpersonOwner.get());
-            author.setUuid(UUID.randomUUID());
-            authorsService.updateAuthorData(author);
-        }
         if (StringUtils.isNotEmpty(epersonId)){
+            if (uuid != null && !uuid.equals(""))
+                authorsService.removeAuthor(UUID.fromString(uuid));
+            Optional<AuthorLocalization> authorUuidOldEpersonOwner = authorsService.getAuthor(UUID.fromString(epersonId));
+            if (authorUuidOldEpersonOwner.isPresent() && !(epersonId.equals(uuid))) {
+                authorsService.removeAuthor(UUID.fromString(epersonId));
+                AuthorLocalization author = authorUuidOldEpersonOwner.get();
+                author.setUuid(UUID.randomUUID());
+                authorsService.updateAuthorData(author);
+            }
             authorUuid = UUID.fromString(epersonId);
         } else {
             authorUuid = StringUtils.isNotEmpty(uuid) ? UUID.fromString(uuid) : UUID.randomUUID();
@@ -119,7 +121,7 @@ public class AdminController {
         }
         Context dspaceContext = UIUtil.obtainContext(request);
         EPerson ePerson = personService.find(dspaceContext, authorUuid);
-        model.addObject("eperson_attached", ePerson == null);
+        model.addObject("eperson_attached", ePerson != null);
         if(ePerson != null)
             model.addObject("eperson_string", ePerson.getLastName() + " " + ePerson.getFirstName() + " (" + ePerson.getEmail() + ")");
         model.addObject("author", authorLocalization);
