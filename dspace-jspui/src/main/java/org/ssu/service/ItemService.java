@@ -100,11 +100,10 @@ public class ItemService {
     }
 
     public String getAlternativeTitleForItem(Item item) {
-        return itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "title", "alternative", Item.ANY)
+        return  itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "title", "alternative", Item.ANY)
                 .stream()
                 .map(MetadataValue::getValue)
-                .findFirst()
-                .orElse("");
+                .collect(Collectors.joining("<br />"));
     }
 
     public List<AuthorLocalization> extractAuthorListForItem(Item item) {
