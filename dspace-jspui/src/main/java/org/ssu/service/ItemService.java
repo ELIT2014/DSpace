@@ -100,7 +100,7 @@ public class ItemService {
     }
 
     public String getAlternativeTitleForItem(Item item) {
-        return  itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "title", "alternative", Item.ANY)
+        return itemService.getMetadata(item, MetadataSchema.DC_SCHEMA, "title", "alternative", Item.ANY)
                 .stream()
                 .map(MetadataValue::getValue)
                 .collect(Collectors.joining("<br />"));
