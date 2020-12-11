@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import org.ssu.entity.AuthorLocalization;
 import org.ssu.entity.GoogleMetadataTagGenerator;
 import org.ssu.entity.response.BitstreamResponse;
 import org.ssu.entity.response.CountedCommunityResponse;
@@ -284,7 +285,6 @@ public class HandleController {
         List<Pair<String, String>> authors = itemService.extractAuthorListForItem(item).stream()
                 .map(author -> Pair.of(author.getFormattedAuthorData("%s, %s", locale), author.getOrcid()))
                 .collect(Collectors.toList());
-
         Function<Bitstream, String> getBitstreamFormat = (bitstream) -> {
             try {
                 return bitstream.getFormatDescription(dspaceContext);
@@ -307,7 +307,7 @@ public class HandleController {
                         .build())
                 .collect(Collectors.toList());
         model.addObject("title", item.getName());
-        model.addObject("titleAlternative", itemService.getAlternativeTitleForItem(item));
+        model.addObject("titlesAlternative", itemService.getAlternativeTitleForItem(item));
         model.addObject("owningCollections", item.getCollections());
         model.addObject("type", itemService.getItemTypeLocalized(item, locale));
         model.addObject("authors", authors);
