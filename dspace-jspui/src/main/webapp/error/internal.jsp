@@ -36,61 +36,51 @@
 <%@page import="javax.mail.internet.*"%>
 <%@page import="java.util.*"%>
 <%@page import="org.apache.log4j.Logger"%>
+<%@ page import="java.io.InputStream" %>
+<%@ page import="java.io.FileNotFoundException" %>
 
 
 <%
-    Logger log = Logger.getLogger("internal.jsp");
+    InputStream inputStream = getClass().getClassLoader().getResourceAsStream("Email_sender.properties");
+    Properties prop = new Properties();
+    if (inputStream != null) {
+        prop.load(inputStream);
+    } else {
+        throw new FileNotFoundException("property file '" + "Email_sender.properties" + "' not found in the classpath");
+    }
     String host = "smtp.gmail.com";
     String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
-    String to_add = "maksimilian199@gmail.com", subject = "Essuir error", messageText = "Need to reboot DB";
-
+    String to_add = prop.getProperty("internal.receiver.email");
+    String subject = prop.getProperty("internal.subject");
+    String messageText = prop.getProperty("internal.message.text");
     String from = "zzzzzz";
-
     boolean sessionDebug = true;
 
     Properties props = System.getProperties();
-
     props.put("mail.host", host);
-
     props.put("mail.transport.protocol.", "smtp");
-
     props.put("mail.smtp.auth", "true");
-
     props.put("mail.smtp.", "true");
-
     props.put("mail.smtp.port", "465");
-
     props.put("mail.smtp.socketFactory.fallback", "false");
-
     props.put("mail.smtp.socketFactory.class", SSL_FACTORY);
 
     Session mailSession = Session.getDefaultInstance(props, null);
-
     mailSession.setDebug(sessionDebug);
-
     Message msg = new MimeMessage(mailSession);
-
     msg.setFrom(new InternetAddress(from));
-
     InternetAddress[] address = { new InternetAddress(to_add) };
-
     msg.setRecipients(Message.RecipientType.TO, address);
-
     msg.setSubject(subject);
-
     msg.setContent(messageText, "text/html"); // use setText if you want to send text
-
     Transport transport = mailSession.getTransport("smtp");
     System.setProperty("javax.net.ssl.trustStore", "conf/jssecacerts");
     System.setProperty("javax.net.ssl.trustStorePassword", "admin");
-    transport.connect(host, "essuir.server@gmail.com", "essuirserver1");
-
+    transport.connect(host, prop.getProperty("internal.sender.email"), prop.getProperty("internal.sender.password"));
     try {
         transport.sendMessage(msg, msg.getAllRecipients());
-        log.info("Email to sergpet was sent");
     }
     catch (Exception err) {
-        log.error(err);
     }
     transport.close();
 %>
