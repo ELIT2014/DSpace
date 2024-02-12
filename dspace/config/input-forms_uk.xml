@@ -282,13 +282,14 @@
                 <stored-value>cc0</stored-value>
             </pair>
             <pair>
-                <displayed-value>Copyright</displayed-value>
-                <stored-value>inc10</stored-value>
-            </pair>
-            <pair>
                 <displayed-value>Creative Commons Зазначення Авторства 3.0 Неадаптована (CC BY 3.0)</displayed-value>
                 <stored-value>incedu10</stored-value>
             </pair>
+            <pair>
+                <displayed-value>Copyright</displayed-value>
+                <stored-value>inc10</stored-value>
+            </pair>
+
         </value-pairs>
         <value-pairs value-pairs-name="common_identifiers" dc-term="identifier">
             <pair>
