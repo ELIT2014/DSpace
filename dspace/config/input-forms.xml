@@ -300,17 +300,10 @@ it, please enter the types and the actual numbers or codes.</hint>
        <stored-value>inc10</stored-value>
      </pair>
      <pair>
-       <displayed-value>In Copyright - Educational Use Permitted</displayed-value>
+       <displayed-value>Creative Commons Attribution 3.0 Unadapted (CC BY 3.0)</displayed-value>
        <stored-value>incedu10</stored-value>
      </pair>
-     <pair>
-       <displayed-value>In Copyright - Non-Commercial Use Permitted</displayed-value>
-       <stored-value>incnc10</stored-value>
-     </pair>
-     <pair>
-       <displayed-value>In Copyright - Rights-Holder(s) Unlocatable or Unidentifiable</displayed-value>
-       <stored-value>incru10</stored-value>
-     </pair>
+
    </value-pairs>
 
    <value-pairs value-pairs-name="common_identifiers" dc-term="identifier">
