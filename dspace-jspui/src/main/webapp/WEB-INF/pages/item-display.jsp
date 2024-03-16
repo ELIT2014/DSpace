@@ -105,6 +105,19 @@
             </td>
         </tr>
         <tr>
+            <td><fmt:message key="org.dspace.app.webui.jsptag.ItemListTag.orcid"/></td>
+            <td>
+                <c:forEach items="${authors}" var="author">
+                    <c:choose>
+                        <c:when test="${not empty author.value}">
+                            <a href="http://orcid.org/${author.value}">http://orcid.org/${author.value}</a><br/>
+                        </c:when>
+                    </c:choose>
+                </c:forEach>
+            </td>
+        </tr>
+
+        <tr>
             <td><fmt:message key="metadata.dc.subject"/></td>
             <td>
                 <c:forEach items="${keywords}" var="keyword">
