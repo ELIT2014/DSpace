@@ -286,17 +286,10 @@
                 <stored-value>inc10</stored-value>
             </pair>
             <pair>
-                <displayed-value>Copyright - Дозволено використання в освітніх умовах</displayed-value>
+                <displayed-value>Creative Commons Зазначення Авторства 3.0 Неадаптована (CC BY 3.0)</displayed-value>
                 <stored-value>incedu10</stored-value>
             </pair>
-            <pair>
-                <displayed-value>Copyright - Дозволено некомерційне використання</displayed-value>
-                <stored-value>incnc10</stored-value>
-            </pair>
-            <pair>
-                <displayed-value>Copyright - Власник прав не визначений</displayed-value>
-                <stored-value>incru10</stored-value>
-            </pair>
+
         </value-pairs>
         <value-pairs value-pairs-name="common_identifiers" dc-term="identifier">
             <pair>
