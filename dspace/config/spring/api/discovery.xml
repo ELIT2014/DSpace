@@ -432,7 +432,6 @@
                 <value>dc.identifier.sici</value>
             </list>
         </property>
-        <property name="type" value="dropdown"/>
         <property name="sortOrderSidebar" value="COUNT"/>
         <property name="sortOrderFilterPage" value="COUNT"/>
     </bean>
