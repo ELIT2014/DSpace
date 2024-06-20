@@ -22,6 +22,40 @@
 
 <%@ taglib uri="http://www.dspace.org/dspace-tags.tld" prefix="dspace" %>
 
+<%@ page import="java.util.Locale"%>
+<%@ page import="org.dspace.app.webui.util.UIUtil" %>
+<%@ page import="javax.servlet.jsp.jstl.core.*" %>
+
+<%
+    Locale sessionLocale = UIUtil.getSessionLocale(request);
+    Config.set(request.getSession(), Config.FMT_LOCALE, sessionLocale);
+%>
+
+<%@page import="javax.mail.*"%>
+<%@page import="java.util.*"%>
+<%@ page import="java.io.InputStream" %>
+<%@ page import="java.io.FileNotFoundException" %>
+<%@ page import="org.dspace.core.Email" %>
+
+<%
+    InputStream inputStream = getClass().getClassLoader().getResourceAsStream("Email_sender.properties");
+    Properties prop = new Properties();
+    if (inputStream != null) {
+        prop.load(inputStream);
+    } else {
+        throw new FileNotFoundException("property file '" + "Email_sender.properties" + "' not found in the classpath");
+    }
+    Email email = new Email();
+    email.addRecipient(prop.getProperty("internal.receiver.email"));
+    email.setContent(prop.getProperty("internal.message.text"));
+    email.setSubject(prop.getProperty("internal.subject"));
+    try {
+        email.send();
+    } catch (MessagingException e) {
+        e.printStackTrace();
+    }
+%>
+
 <dspace:layout titlekey="jsp.error.internal.title">
     <%-- <h1>Internal System Error</h1> --%>
     <h1><fmt:message key="jsp.error.internal.title"/></h1>
